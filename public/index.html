@@ -23,7 +23,7 @@
   <!-- AngularJS imports -->
   <!--<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>-->
   <!--<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-cookies.js"></script>-->
-  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.min.js"></script>-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.15/angular-ui-router.min.js"></script>
   <!-- base64 library -->
   <script src="lib/angular.min.js"></script>
 
@@ -40,55 +40,13 @@
   <script type="text/javascript" src="js/directives.js"></script>
   <!-- controllers -->
   <script type="text/javascript" src="js/controllers/navbarController.js"></script>
+  <script type="text/javascript" src="js/controllers/starterController.js"></script>
+
 </head>
 
 
 
 <body ng-app="vignemale">
-
-
-
-
-
-
-    <nav class=" navbar navbar-default">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#myNavbar" aria-expanded="false">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#">POIManager</a>
-      </div>       
-
-
-      <div class="collapse navbar-collapse" id="myNavbar">
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="#">Registrate</a></li>
-          <li><a href="#">Accede</a></li>
-        </ul>
-
-      </div>
-
-      </div>
-    </div>
-  </nav>
-    
-
-    <div class="container">
-      <h3 class="text-center">POIManager</h3>
-      <hr/>
-      <iframe height="480" width="100%" src="https://www.google.com/maps/embed/v1/view?zoom=15&center=41.6488,-0.8891&key=AIzaSyAM2NIBIz839-DMpdh4orqh3LmJi3RXVGk"></iframe>
-      <hr/> 
-      <p>POIManager es un  un sistema que permite gestionar, mediante una interfaz típica de control de acceso de usuarios, una serie de puntos de interés (Points of Interest, POIs) sobre un mapa.</p>
-    </div>
-
-
-
-
-
 
 <!-- the content here will be the 'body page' and it will change dependending of the current state -->
 <ui-view></ui-view>

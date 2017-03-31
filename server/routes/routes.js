@@ -1,6 +1,7 @@
 var appRouter = function(router, mongo) {
 
     router.get("/", function(req, res) {
+        router.use()
         res.json({"error" : false,"message" : "Hello World"});
     });
 

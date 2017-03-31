@@ -77,7 +77,6 @@ angular.module('vignemale')
         };
     })
 
-    // 'urlShortener' service manage the url shortener controller in common
     .factory('vignemale', function ($state, $http) {
 
         return {

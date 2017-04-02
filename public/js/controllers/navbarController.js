@@ -9,14 +9,4 @@ angular.module('vignemale')
         $scope.logout = function () {
             auth.logout();
         }
-
-
-    }])
-
-    .directive('navbar', function () {
-        return {
-            restrict: 'E',
-            templateUrl: 'templates/components/navbar.html',
-            controller: 'navbarCtrl'
-        }
-    });
+    }]);

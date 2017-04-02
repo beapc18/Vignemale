@@ -8,7 +8,4 @@ angular.module('vignemale')
         $scope.successMsg = "";
         $scope.errorMsg = "";
 
-        console.log("blabla");
-        vignemale.starter()
-
     }]);

@@ -16,21 +16,24 @@ var appRouter = function(router, mongo) {
             response = {"error": true, "message": "Empty value"};
             res.json(response);
         } else {
-            mongo.find({email: email}, function (err, data) {
+            mongo.users.find({email: email}, function (err, data) {
                 if (err) {
-                    response = {
-                        "error": true,
-                        "message": "Error fetching data"
-                    };
+                    response = {"error": true,"message": "Error fetching data"};
                 } else {
                     response = {"error": false, "message": data};
-                    console.log(data)
+                    //update last access when user access
+                    //mirar formato yyyy-mm-dd
+                    mongo.users.update({_id: data[0]._id}, {lastAccess: new Date()}, function (err) {
+                        if (err) {
+                            response = {"error": true,"message": "Error adding data"};
+                        } else {
+                            response = {"error": false,"message": "Data added"};
+                        }
+                        console.log(response);
+                    });
                 }
                 res.json(response);
             });
-
-            //update last access
-            //db.lastAccess...
         }
     });
 
@@ -38,7 +41,7 @@ var appRouter = function(router, mongo) {
     router.post("/signUp", function (req, res) {
         console.log("signUp user");
 
-        var db = new mongo;
+        var db = new mongo.users;
         var response = {};
 
         var name = req.body.name;
@@ -54,7 +57,9 @@ var appRouter = function(router, mongo) {
             db.name = name;
             db.lastName = lastName;
             db.email = email;
-//            db.creationDate =
+//            db.birthDate = birthDate;
+//            db.place = place;
+            db.creationDate = new Date(); //no esta en formato yyyy-mm-dd
 
             // Hash the password using SHA1 algorithm.
             /*db.userPassword =  require('crypto')
@@ -63,12 +68,13 @@ var appRouter = function(router, mongo) {
              .digest('base64');*/
 
             //save only if doesn't exist any user with the same email
-            mongo.find({email: email}, function (err, data) {
+            mongo.users.find({email: email}, function (err, data) {
                 if (err) {
                     response = {"error": true,"message": "Error fetching data"};
                 } else {
                     if (data.length != 0) {
                         response = {"error": true,"message": "email exists"};
+                        res.json(response);
                     } else {
                         db.save(function (err) {
                             if (err) {
@@ -82,9 +88,9 @@ var appRouter = function(router, mongo) {
                                     "message": "Data added"
                                 };
                             }
+                            res.json(response);
                         });
                     }}
-                res.json(response);
             });
         }
     });

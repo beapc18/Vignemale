@@ -23,9 +23,14 @@ var usersSchema = mongoose.Schema({
     //favoritos
 });
 
-// var poisSchema = mongoose.Schema({
-// });
+ var poisSchema = mongoose.Schema({
+ });
 
 
-module.exports = mongoose.model('users',usersSchema);
-//module.exports = mongoose.model('pois',poisSchema);
+//Export all collections
+var users = mongoose.model('users',usersSchema);
+var pois = mongoose.model('pois',poisSchema);
+module.exports = {
+    users: users,
+    pois: pois
+};

@@ -15,6 +15,12 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 url: "/signUp",
                 templateUrl: "templates/signUp.html",
                 controller: "signUpCtrl"
+            })
+
+            .state('signIn', {
+                url: "/signIn",
+                templateUrl: "templates/signIn.html",
+                controller: "signInCtrl"
             });
 
         //llevar mejor a una pagina de error si la url no existe

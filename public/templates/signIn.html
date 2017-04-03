@@ -1,0 +1,36 @@
+<div class="container">
+
+  <h1 id="firstContent">Welcome back!</h1>
+  <hr>
+  <form role="form" ng-submit="signIn()">
+    <!-- this div will show only when an error occurs -->
+    <div ng-if="error" class="alert alert-danger feedbackMessages">
+      <strong>&#10008</strong> {{errorMsg}}
+    </div>
+    <!-- this div will show only when the operation has been a success -->
+    <div ng-if="success" class="alert alert-success feedbackMessages">
+      <strong>&#10004</strong> {{successMsg}}
+    </div>
+
+    <!-- name input form -->
+    <div class="form-group">
+      <input ng-click="hideError();hideSuccess()" type="text" ng-model="email"
+             class="form-control" placeholder="Email" required />
+    </div>
+
+    <!-- password input form -->
+    <div class="form-group">
+      <input ng-click="hideError();hideSuccess()" type="text" ng-model="password"
+             class="form-control" placeholder="Password" required />
+    </div>
+
+    <!-- submit button form-->
+    <p style="text-align:center">
+      <button type="submit" class="btn btn-default theme-accent">Sign in</button>
+    </p>
+    <!--HACER PAGINA DE ENVIO DE CONTRASEÑA
+    http://stackoverflow.com/questions/32918788/angularjs-forgot-password-->
+    <p style="text-align:center"><a href="resetPassword.html">I forgot my password</a></p>
+
+  </form>
+</div>

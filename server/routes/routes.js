@@ -47,9 +47,11 @@ var appRouter = function(router, mongo) {
         var name = req.body.name;
         var lastName = req.body.lastName;
         var email = req.body.email;
+        var birthDate = req.body.birthDate;
+        var place = req.body.place;
 
         //check if some value is empty
-        if (!name || !lastName || !email) {
+        if (!name || !lastName || !email || !birthDate || !place) {
             response = {"error": true, "message": "Empty value"};
             res.json(response);
         } else {
@@ -57,8 +59,8 @@ var appRouter = function(router, mongo) {
             db.name = name;
             db.lastName = lastName;
             db.email = email;
-//            db.birthDate = birthDate;
-//            db.place = place;
+            db.birthDate = birthDate;
+            db.place = place;
             db.creationDate = new Date(); //no esta en formato yyyy-mm-dd
 
             // Hash the password using SHA1 algorithm.

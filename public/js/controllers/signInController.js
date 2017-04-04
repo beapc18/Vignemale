@@ -3,7 +3,7 @@ angular.module('vignemale')
     .controller('signInCtrl', ['$scope', '$state', 'auth', function ($scope, $state, auth) {
 
         // inputs visual variables
-        $scope.name = "";
+        $scope.email = "";
         $scope.password = "";
 
         // FEEDBACK MESSAGES
@@ -40,8 +40,9 @@ angular.module('vignemale')
         // send the register form to the auth service
         $scope.signIn = function () {
             var userObject = {
-                name: $scope.name,
+                email: $scope.email,
                 password: $scope.password
             };
+            auth.signIn(userObject, showSuccess, showError);
         }
     }]);

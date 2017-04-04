@@ -1,0 +1,80 @@
+/*500*/
+.theme-color {
+  color: #fff !important;
+  background-color: #9f5ab0 !important
+}
+
+/*700*/
+.theme-color-strong {
+  color: #fff !important;
+  background-color: #7500a2 !important
+}
+
+/*100*/
+.theme-color-soft {
+  color: rgba(77, 77, 77, 0.7) !important;
+  background-color: #E1BEE7 !important
+}
+
+/*action 200*/
+.theme-accent {
+  color: rgba(77, 77, 77, 0.7) !important;
+  background-color: #73eeff !important;
+  border: 1px solid #00a9d7;
+  padding: 10px 20px;
+  font-weight: 600;
+}
+
+/*action 400*/
+.theme-accent-strong {
+  color: rgba(77, 77, 77, 0.7) !important;
+  background-color: #1bffdc !important;
+  border: 1px solid #00a9d7;
+  padding: 10px 20px;
+  font-weight: 600;
+}
+
+/*action 100*/
+.theme-accent-soft {
+  color: rgba(77, 77, 77, 0.7) !important;
+  background-color: #99ffff !important;
+  border: 1px solid #6bd7d7;
+  font-weight: 600;
+}
+
+/*maybe removed*/
+.theme-color-text {
+  color: #9f5ab0 !important
+}
+/*maybe removed*/
+.theme-color-text-action {
+  color: #00a9d7 !important
+}
+
+body {
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+  background-color: #f1f1f1;
+  font-family: 'Noto Sans', sans-serif;
+}
+
+/* remove the underline link style */
+a:focus, a:hover {
+  text-decoration: none;
+}
+
+/* add a gap under the navbar */
+#firstContent:before {
+  display: block;
+  content: " ";
+  height: 100px;
+  visibility: hidden;
+}
+
+/*text center in feedback messages*/
+.feedbackMessages {
+    text-align: center;
+    margin: 1%;
+}

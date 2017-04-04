@@ -1,0 +1,32 @@
+/* navbar buttons */
+.navbar-inverse .navbar-nav>li>a {
+  color:#fff;
+  cursor: pointer;
+}
+/* home button hover */
+.navbar-brand:hover {
+  background-color:#E1BEE7 !important;
+}
+/* home button */
+.navbar-inverse .navbar-brand {
+  color: #fff;
+}
+/* navbar buttons hover */
+.navbar-inverse .navbar-nav>li>a:focus, .navbar-inverse .navbar-nav>li>a:hover {
+  background-color:#E1BEE7 !important;
+}
+
+/* collapsed button focus */
+.navbar-inverse .navbar-toggle:focus, .navbar-inverse .navbar-toggle:hover {
+  background-color: #E1BEE7;
+}
+
+/* collapsed button border */
+.navbar-inverse .navbar-toggle {
+  border-color: #7500a2
+}
+
+/* font family of the home button */
+#hombeButton {
+  font-family: 'Noto Serif', serif;
+}

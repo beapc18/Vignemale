@@ -41,21 +41,21 @@ angular.module('vignemale')
             },
 
             //send the login info to the server
-            signIn: function (user, password, callback) {
+            signIn: function (userObject, callbackSuccess, callbackError) {
                 var that = this;
                 $http({
-                    method: 'GET',
-                    url: 'signIn',
+                    method: 'POST',
+                    url: '/signIn',
+                    data: $httpParamSerializer(userObject),
                     headers: {
-                        'user': user,
-                        'pass': password
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 }).success(function (data, status, headers) {
                     that.authenticate(headers().authorization);
                     $state.go('starter');
 
                 }).error(function (data) {
-                    callback(data);
+                    callbackError(data);
                 });
             },
 

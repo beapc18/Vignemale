@@ -31,18 +31,27 @@ var appRouter = function(router, mongo) {
                     response = {"error": true,"message": "Invalid email or password"};
                 } else{
                     response = {"error": false, "message": data};
+
+                    //en data[0] esta el usuario devuelto no?
+                    /*var token = jwt.sign(data[0], app.get('superSecret'), {
+                        expiresInMinutes: 1440 // expires in 24 hours
+                    });
+                    console.log("Creado token de usuario " + token);*/
+
                     //update last access when user access
                     //mirar formato yyyy-mm-dd
                     mongo.users.update({_id: data[0]._id}, {lastAccess: new Date()}, function (err) {
                         if (err) {
                             response = {
                                 "error": true,
-                                "message": "Error adding data"
+                                "message": "Error adding data",
+                                //token:token
                             };
                         } else {
                             response = {
                                 "error": false,
-                                "message": "Data added"
+                                "message": "Data added",
+                                //token:token
                             };
                         }
                     });
@@ -81,9 +90,9 @@ var appRouter = function(router, mongo) {
 
             // Hash the password using SHA1 algorithm.
             db.password =  require('crypto')
-             .createHash('sha1')
-             .update("admin")       //de momento password fija para pruebas
-             .digest('base64');
+                .createHash('sha1')
+                .update("admin")       //de momento password fija para pruebas
+                .digest('base64');
 
             //save only if doesn't exist any user with the same email
             mongo.users.find({email: email}, function (err, data) {
@@ -103,7 +112,7 @@ var appRouter = function(router, mongo) {
                             } else {
                                 response = {
                                     "error": false,
-                                    "message": "User added"
+                                    "message": "User added successfully"
                                 };
                             }
                             res.json(response);
@@ -112,6 +121,15 @@ var appRouter = function(router, mongo) {
             });
         }
     });
+
+    /*router.get("/users", function (req, res) {
+     mongo.users.find({}, function (err, users) {
+     res.json(users);
+
+     });
+     });*/
+
+
 };
 
 module.exports = appRouter;

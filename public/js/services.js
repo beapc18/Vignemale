@@ -91,6 +91,19 @@ angular.module('vignemale')
                 }).error(function (data) {
                     callbackError('ERROR');
                 });
+            },
+
+
+            users: function (url, callbackSuccess,callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/users'
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError('ERROR');
+                });
+
             }
         };
 

@@ -23,6 +23,12 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 controller: "signInCtrl"
             });
 
+            /*.state('users', {
+                url: "/users",
+                templateUrl: "templates/users.html",
+                controller: "usersCtrl"
+            });*/
+
         //llevar mejor a una pagina de error si la url no existe
         $urlRouterProvider.otherwise('starter');
     });

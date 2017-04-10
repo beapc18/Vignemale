@@ -1,6 +1,10 @@
 var jwt = require('jsonwebtoken');
 
-var appRouter = function(router, mongo) {
+var appRouter = function(router, mongo, app, config) {
+
+    //secret variable JWT
+    app.set('secret', config.secret);
+
 
     router.post("/signIn", function (req, res) {
         console.log("signIn user");
@@ -43,11 +47,10 @@ var appRouter = function(router, mongo) {
                     console.log(response);
                     res.status(403).json(response);
                 } else{
-                    //en data[0] esta el usuario devuelto no?
-                    /*var token = jwt.sign(data[0], app.get('superSecret'), {
-                     expiresInMinutes: 1440 // expires in 24 hours
-                     });
-                     console.log("Creado token de usuario " + token);*/
+                    var token = jwt.sign(data[0], app.get('secret'), {
+                        expiresIn: 1440 // expires in 24 hours
+                    });
+                    console.log("Creado token de usuario " + token);
 
                     //update last access when user access
                     //mirar formato yyyy-mm-dd
@@ -56,9 +59,7 @@ var appRouter = function(router, mongo) {
                             response = { "message": "Error adding data"}; //token:token};
                             res.status(500).json(response);
                         } else {
-                            response = {"message": "Data added"
-                                //token:token
-                            };
+                            response = {"message": "Data added", token:token};
                             res.status(200).json(response);
                         }
                         console.log(response);
@@ -181,6 +182,43 @@ var appRouter = function(router, mongo) {
             console.log(response);
         });
     });
+
+
+
+// route middleware to verify a token
+    router.use(function (req, res, next) {
+        console.log("Territorio comanche");
+        // check header or url parameters or post parameters for token
+        var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+        // decode token
+        if (token) {
+            // verifies secret and checks exp
+            jwt.verify(token, app.get('secret'), function(err, decoded) {
+                if (err) {
+                    console.log("Todo fue mal");
+                    return res.json({ success: false, message: 'Failed to authenticate token.' });
+                } else {
+                    console.log("Todo fue bien");
+                    // if everything is good, save to request for use in other routes
+                    req.decoded = decoded;
+                    next();
+                }
+            });
+        }
+        else {
+            console.log("error token");
+
+            // if there is no token
+            // return an error
+            return res.status(403).send({
+                success: false,
+                message: 'No token provided.'
+            });
+        }
+    });
+
+
 
 
     /*router.get("/users", function (req, res) {

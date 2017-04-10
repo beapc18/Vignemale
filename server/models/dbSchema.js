@@ -17,7 +17,9 @@ var usersSchema = mongoose.Schema({
     lastAccess: Date,
     removed: Boolean,
     place: String,        //localidad
-    isAdmin: Boolean
+    isAdmin: Boolean,
+    isVerified: Boolean,
+    firstLogin: Boolean
     //pois
     //rutas
     //favoritos

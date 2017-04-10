@@ -21,6 +21,18 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 url: "/signIn",
                 templateUrl: "templates/signIn.html",
                 controller: "signInCtrl"
+            })
+
+            .state('verifyAccount', {
+                url: '/users/{id}/verifyAccount',
+                templateUrl: "templates/verifyAccount.html",
+                controller: "verifyAccountCtrl"
+            })
+
+            .state('changePassword', {
+                url: '/users/{id}/changePassword',
+                templateUrl: "templates/changePassword.html",
+                controller: "changePasswordCtrl"
             });
 
             /*.state('users', {

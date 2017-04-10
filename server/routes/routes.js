@@ -2,10 +2,6 @@ var jwt = require('jsonwebtoken');
 
 var appRouter = function(router, mongo) {
 
-    // router.get("/starter", function(req, res) {
-    //     res.json({"error" : false,"message" : "Hello World"});
-    // });
-
     router.post("/signIn", function (req, res) {
         console.log("signIn user");
 
@@ -15,8 +11,9 @@ var appRouter = function(router, mongo) {
 
         //check if some value is empty
         if (!email || !password) {
-            response = {"error": true, "message": "Empty value"};
-            res.json(response);
+            response = {"message": "Empty value"};
+            console.log(response);
+            res.status(400).json(response);
         } else {
             //create the hash to compare with password in db   --> mriar para cifrar en cliente
             var hashPassword =  require('crypto')
@@ -26,38 +23,47 @@ var appRouter = function(router, mongo) {
 
             mongo.users.find({email: email, password: hashPassword}, function (err, data) {
                 if (err) {
-                    response = {"error": true,"message": "Error fetching user"};
+                    response = {"message": "Error fetching user"};
+                    console.log(response);
+                    res.status(500).json(response);
                 } else if (!data[0]) {
-                    response = {"error": true,"message": "Invalid email or password"};
+                    response = {"message": "Invalid email or password"};
+                    console.log(response);
+                    res.status(400).json(response);
+                }
+                //check if the user has verify its account
+                else if (data[0].isVerified === false) {
+                    response = {"message": "You must verify your account"};
+                    console.log(response);
+                    res.status(403).json(response);
+                }
+                //check if is the first time that user sign in
+                else if(data[0].firstLogin === true){
+                    response = {"message": "You must change your password"};
+                    console.log(response);
+                    res.status(403).json(response);
                 } else{
-                    response = {"error": false, "message": data};
-
                     //en data[0] esta el usuario devuelto no?
                     /*var token = jwt.sign(data[0], app.get('superSecret'), {
-                        expiresInMinutes: 1440 // expires in 24 hours
-                    });
-                    console.log("Creado token de usuario " + token);*/
+                     expiresInMinutes: 1440 // expires in 24 hours
+                     });
+                     console.log("Creado token de usuario " + token);*/
 
                     //update last access when user access
                     //mirar formato yyyy-mm-dd
                     mongo.users.update({_id: data[0]._id}, {lastAccess: new Date()}, function (err) {
                         if (err) {
-                            response = {
-                                "error": true,
-                                "message": "Error adding data",
-                                //token:token
-                            };
+                            response = { "message": "Error adding data"}; //token:token};
+                            res.status(500).json(response);
                         } else {
-                            response = {
-                                "error": false,
-                                "message": "Data added",
+                            response = {"message": "Data added"
                                 //token:token
                             };
+                            res.status(200).json(response);
                         }
+                        console.log(response);
                     });
                 }
-                res.json(response);
-                console.log(response);
             });
         }
     });
@@ -68,6 +74,7 @@ var appRouter = function(router, mongo) {
 
         var db = new mongo.users;
         var response = {};
+        var idUser = "";
 
         var name = req.body.name;
         var lastName = req.body.lastName;
@@ -77,8 +84,9 @@ var appRouter = function(router, mongo) {
 
         //check if some value is empty
         if (!name || !lastName || !email || !birthDate || !place) {
-            response = {"error": true, "message": "Empty value"};
-            res.json(response);
+            response = {"message": "Empty value"};
+            console.log(response);
+            res.status(400).json(response);
         } else {
             // fetch email and password from REST request.
             db.name = name;
@@ -87,40 +95,93 @@ var appRouter = function(router, mongo) {
             db.birthDate = birthDate;
             db.place = place;
             db.creationDate = new Date(); //no esta en formato yyyy-mm-dd
-
-            // Hash the password using SHA1 algorithm.
-            db.password =  require('crypto')
-                .createHash('sha1')
-                .update("admin")       //de momento password fija para pruebas
-                .digest('base64');
+            db.lastAccess = new Date();
+            db.isVerified = false;
+            db.firstLogin = true;
 
             //save only if doesn't exist any user with the same email
             mongo.users.find({email: email}, function (err, data) {
                 if (err) {
-                    response = {"error": true,"message": "Error fetching data"};
+                    response = {"message": "Error fetching data"};
+                    //console.log(response);
+                    res.status(500).json(response);
+                } else if (data.length !== 0) {
+                    response = {"message": "Email exists"};
+                    console.log(response);
+                    res.status(409).json(response);
                 } else {
-                    if (data.length != 0) {
-                        response = {"error": true,"message": "Email exists"};
-                        res.json(response);
-                    } else {
-                        db.save(function (err) {
-                            if (err) {
-                                response = {
-                                    "error": true,
-                                    "message": "Error adding user"
-                                };
-                            } else {
-                                response = {
-                                    "error": false,
-                                    "message": "User added successfully"
-                                };
-                            }
-                            res.json(response);
-                        });
-                    }}
+                    db.save(function (err) {
+                        if (err) {
+                            response = {"message": "Error adding user"};
+                            console.log(response);
+                            res.status(500).json(response);
+                        } else {
+                            mongo.users.find({email: email}, function (err, data) {
+                                if (err) {
+                                    response = {"message": "Error fetching data"};
+                                    res.status(500).json(response);
+                                } else {
+                                    response = {"message": "You will receive a verification mail"};
+                                    res.status(201).json(response);
+
+                                    idUser = data[0]._id;
+                                    //enviar mail usuario
+                                    var url= "localhost:8888/users/"+idUser+"/verifyAccount"
+                                }
+                            });
+                        }
+                        console.log(response);
+                    });
+                }
             });
         }
     });
+
+    router.get('/users/:id/verifyAccount', function (req, res) {
+        console.log("verify user");
+
+        //Generate random number, Convert to base-36 and Cut off last 10 chars
+        var pass = Math.random().toString(36).slice(-10);
+        console.log(pass);
+        // Hash the password using SHA1 algorithm.
+        var hashPassword= require('crypto').createHash('sha1').update(pass).digest('base64');
+
+        mongo.users.update({_id: req.params.id}, {isVerified: true, password: hashPassword}, function (err) {
+            if (err) {
+                response = {"message": "Error updating data"};
+                res.status(500).json(response);
+            } else {
+                response = {"message": "Account has been verified"};
+                res.status(200).json(response);
+            }
+            console.log(response);
+        });
+
+        //enviar mail con contraseña y url de cambio de contraseña
+        var url= "localhost:8888/users/"+req.params.id+"/changePassword"
+    });
+
+    router.post("/users/:id/changePassword", function (req, res) {
+        console.log("change user password");
+
+        //create the hash to save in db   --> cifrar en cliente
+        var hashPassword =  require('crypto')
+            .createHash('sha1')
+            .update(req.body.password)
+            .digest('base64');
+
+        mongo.users.update({_id: req.body.id}, {password: hashPassword, firstLogin: false}, function (err) {
+            if (err) {
+                response = {"message": "Error updating data"};
+                res.status(500).json(response);
+            } else {
+                response = {"message": "Password changed successfully"};
+                res.status(200).json(response);
+            }
+            console.log(response);
+        });
+    });
+
 
     /*router.get("/users", function (req, res) {
      mongo.users.find({}, function (err, users) {

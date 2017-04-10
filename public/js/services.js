@@ -51,8 +51,9 @@ angular.module('vignemale')
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 }).success(function (data, status, headers) {
-                    that.authenticate(headers().authorization);
-                    $state.go('starter');
+                   // that.authenticate(headers().authorization);
+                    //$state.go('starter');
+                    callbackSuccess(data);
 
                 }).error(function (data) {
                     callbackError(data);
@@ -77,15 +78,29 @@ angular.module('vignemale')
         };
     })
 
-    .factory('vignemale', function ($state, $http) {
-
+    .factory('users', function ($state, $http, $httpParamSerializer) {
         return {
-
-            //send the register info to the server
-            starter: function (url, callbackSuccess,callbackError) {
+            //verifyAccount
+            verifyAccount: function (id, callbackSuccess,callbackError) {
                 $http({
                     method: 'GET',
-                    url: '/starter'
+                    url: '/users/'+id+'/verifyAccount'
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError('ERROR');
+                });
+            },
+
+            //changePassword
+            changePassword: function (user, callbackSuccess,callbackError) {
+                $http({
+                    method: 'POST',
+                    url: '/users/'+user.id+'/changePassword',
+                    data: $httpParamSerializer(user),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
@@ -106,5 +121,22 @@ angular.module('vignemale')
 
             }
         };
+    })
 
-    });
+    .factory('vignemale', function ($state, $http) {
+
+    return {
+        //send the register info to the server
+        starter: function (url, callbackSuccess,callbackError) {
+            $http({
+                method: 'GET',
+                url: '/starter'
+            }).success(function (data) {
+                callbackSuccess(data);
+            }).error(function (data) {
+                callbackError('ERROR');
+            });
+        }
+    };
+
+});

@@ -21,13 +21,13 @@ angular.module('vignemale')
         };
         // show the error mensage
         var showError = function (error) {
-            $scope.errorMsg = error;
+            $scope.errorMsg = error.message;
             $scope.error = true;
         };
 
         // show the success mensage
         var showSuccess = function (message) {
-            $scope.successMsg = message;
+            $scope.successMsg = message.message;
             $scope.success = true;
         };
 

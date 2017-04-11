@@ -30,7 +30,7 @@ var appRouter = function(router, mongo, app, config) {
                     response = {"message": "Error fetching user"};
                     console.log(response);
                     res.status(500).json(response);
-                } else if (!data[0]) {
+                } else if (!data[0] || data[0].removed === true) {
                     response = {"message": "Invalid email or password"};
                     console.log(response);
                     res.status(400).json(response);
@@ -59,7 +59,7 @@ var appRouter = function(router, mongo, app, config) {
                             response = { "message": "Error adding data"}; //token:token};
                             res.status(500).json(response);
                         } else {
-                            response = {"message": "Data added", token:token};
+                            response = {"message": data[0]._id, token:token};   //send user id or link to profile??
                             res.status(200).json(response);
                         }
                         console.log(response);
@@ -99,6 +99,7 @@ var appRouter = function(router, mongo, app, config) {
             db.lastAccess = new Date();
             db.isVerified = false;
             db.firstLogin = true;
+            db.removed = false;
 
             //save only if doesn't exist any user with the same email
             mongo.users.find({email: email}, function (err, data) {
@@ -140,6 +141,7 @@ var appRouter = function(router, mongo, app, config) {
 
     router.get('/users/:id/verifyAccount', function (req, res) {
         console.log("verify user");
+        var response = {};
 
         //Generate random number, Convert to base-36 and Cut off last 10 chars
         var pass = Math.random().toString(36).slice(-10);
@@ -183,10 +185,8 @@ var appRouter = function(router, mongo, app, config) {
         });
     });
 
-
-
 // route middleware to verify a token
-    router.use(function (req, res, next) {
+   /* router.use(function (req, res, next) {
         console.log("Territorio comanche");
         // check header or url parameters or post parameters for token
         var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -216,18 +216,87 @@ var appRouter = function(router, mongo, app, config) {
                 message: 'No token provided.'
             });
         }
+    });*/
+
+    //Return data of user with :id
+    router.get("/users/:id", function (req, res) {
+        console.log("get user");
+        var response = {};
+
+        //search the user avoiding return params which are not necessary
+        mongo.users.find({_id: req.params.id}, { firstLogin: false, isVerified: false,
+            lastAccess: false, creationDate: false, place: false, birthDate: false,
+            email: false, password: false, removed: false}, function (err, user) {
+            if (err) {
+                response = {"message": "Error searching user"};
+                res.status(500).json(response);
+            } else {
+                console.log(user);
+                response = {"message": user};
+                res.status(200).json(response);
+            }
+        });
+     });
+
+    //change removed attribute for removing user
+    router.delete("/users/:id", function (req, res) {
+        console.log("delete user");
+
+        //search the user avoiding return params which are not necessary
+        mongo.users.update({_id: req.params.id}, {removed: true}, function (err, user) {
+            if (err) {
+                response = {"message": "Error deleting user"};
+                res.status(500).json(response);
+            } else {
+                console.log(user);
+                response = {"message": user};
+                res.status(200).json(response);
+            }
+        });
     });
 
+    //change password checking old password
+    router.put("/users/:id", function (req, res) {
+        console.log("update user");
+        var response = {};
 
+        if(req.body.newPassword === req.body.newRePassword) {
+            //create the hash to compare with password in db
+            var hashOldPassword = require('crypto').createHash('sha1')
+                .update(req.body.oldPassword).digest('base64');
 
+            //check if oldPassword is the same
+            mongo.users.find({
+                _id: req.params.id,
+                password: hashOldPassword
+            }, function (err, data) {
+                if (err) {
+                    response = {"message": "Error searching user"};
+                    res.status(500).json(response);
+                } else if (!data[0]) {
+                    response = {"message": "Old password is not correct"};
+                    res.status(500).json(response);
+                } else {
+                    var hashNewPassword = require('crypto').createHash('sha1')
+                        .update(req.body.newPassword).digest('base64');
 
-    /*router.get("/users", function (req, res) {
-     mongo.users.find({}, function (err, users) {
-     res.json(users);
-
-     });
-     });*/
-
+                    //if the old password match, update the new password
+                    mongo.users.update({_id: req.params.id}, {password: hashNewPassword}, function (err, user) {
+                        if (err) {
+                            response = {"message": "Error updating password"};
+                            res.status(500).json(response);
+                        } else {
+                            response = {"message": "Password updated"};
+                            res.status(200).json(response);
+                        }
+                    });
+                }
+            });
+        } else{
+            response = {"message": "Password don't match"};
+            res.status(500).json(response);
+        }
+    });
 
 };
 

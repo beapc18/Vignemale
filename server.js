@@ -4,9 +4,11 @@ var app         = express();
 var router      = express.Router();
 var swaggerJSDoc = require('swagger-jsdoc');
 
+var database  = require("./server/models/users.js");
+
 var config    = require("./config/config.js");
 var mongo     = require("./server/models/dbSchema.js");
-var routes    = require("./server/routes/routes.js")(router, mongo, app, config);
+var routes    = require("./server/routes/routes.js")(router, mongo, app, config, database);
 
 
 var swaggerDefinition = {

@@ -1,6 +1,6 @@
 var jwt = require('jsonwebtoken');
 
-var appRouter = function(router, mongo, app, config) {
+var appRouter = function(router, mongo, app, config, database) {
 
     //secret variable JWT
     app.set('secret', config.secret);
@@ -221,21 +221,13 @@ var appRouter = function(router, mongo, app, config) {
     //Return data of user with :id
     router.get("/users/:id", function (req, res) {
         console.log("get user");
-        var response = {};
 
-        //search the user avoiding return params which are not necessary
-        mongo.users.find({_id: req.params.id}, { firstLogin: false, isVerified: false,
-            lastAccess: false, creationDate: false, place: false, birthDate: false,
-            email: false, password: false, removed: false}, function (err, user) {
-            if (err) {
-                response = {"message": "Error searching user"};
-                res.status(500).json(response);
-            } else {
-                console.log(user);
-                response = {"message": user};
-                res.status(200).json(response);
-            }
+        database.getInfoUser(mongo, req.params.id, function (response) {
+            console.log(response.status);
+            console.log(response.res);
+            res.status(response.status).json(response.res);
         });
+
      });
 
     //change removed attribute for removing user
@@ -266,30 +258,17 @@ var appRouter = function(router, mongo, app, config) {
                 .update(req.body.oldPassword).digest('base64');
 
             //check if oldPassword is the same
-            mongo.users.find({
-                _id: req.params.id,
-                password: hashOldPassword
-            }, function (err, data) {
-                if (err) {
-                    response = {"message": "Error searching user"};
-                    res.status(500).json(response);
-                } else if (!data[0]) {
-                    response = {"message": "Old password is not correct"};
-                    res.status(500).json(response);
-                } else {
+            database.findUserByPassword(mongo, req.params.id, hashOldPassword, function (response) {
+                if (response.status === 200) {
                     var hashNewPassword = require('crypto').createHash('sha1')
                         .update(req.body.newPassword).digest('base64');
 
                     //if the old password match, update the new password
-                    mongo.users.update({_id: req.params.id}, {password: hashNewPassword}, function (err, user) {
-                        if (err) {
-                            response = {"message": "Error updating password"};
-                            res.status(500).json(response);
-                        } else {
-                            response = {"message": "Password updated"};
-                            res.status(200).json(response);
-                        }
+                    database.updatePassword(mongo, req.params.id, hashNewPassword, function (response) {
+                        res.status(response.status).json(response.res);
                     });
+                } else {
+                    res.status(response.status).json(response.res);
                 }
             });
         } else{
@@ -297,7 +276,6 @@ var appRouter = function(router, mongo, app, config) {
             res.status(500).json(response);
         }
     });
-
 };
 
 module.exports = appRouter;

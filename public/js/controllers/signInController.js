@@ -21,8 +21,24 @@ angular.module('vignemale')
         };
         // show the error mensage
         var showError = function (error) {
-            $scope.errorMsg = error.message;
-            $scope.error = true;
+            if(error.message == "You must change your password"){
+                console.log('first login');
+
+
+                //id is necessary for changing the password
+
+                var userObject = {
+                    id: error.id,
+                    password: "password"
+                };
+
+
+                $state.go('changePassword', {id: userObject.id});
+            }else{
+                $scope.errorMsg = error.message;
+                $scope.error = true;
+            }
+
         };
 
         // show the success mensage

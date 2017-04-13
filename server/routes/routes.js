@@ -1,4 +1,13 @@
 var jwt = require('jsonwebtoken');
+var nodemailer = require('nodemailer');
+// Not the movie transporter!
+var transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+        user: 'vignemaleSTW@gmail.com', // Your email id
+        pass: 'vignemale2017' // Your password
+    }
+});
 
 var appRouter = function(router, mongo, app, config, database) {
 
@@ -43,7 +52,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 }
                 //check if is the first time that user sign in
                 else if(data[0].firstLogin === true){
-                    response = {"message": "You must change your password"};
+                    response = {"message": "You must change your password",id:data[0]._id};
                     console.log(response);
                     res.status(403).json(response);
                 } else{
@@ -128,7 +137,33 @@ var appRouter = function(router, mongo, app, config, database) {
 
                                     idUser = data[0]._id;
                                     //enviar mail usuario
-                                    var url= "localhost:8888/users/"+idUser+"/verifyAccount"
+
+
+                                    var url = 'http://localhost:8888/users/'+idUser+'/verifyAccount';
+                                    var text = 'Welcome to POIManager.'+
+                                        ' please, click the link bellow to confirm yout password.\n'
+                                        +url+'\n';
+
+
+
+                                    var mailOptions = {
+                                        from: 'vignemaleSTW@gmail.com', // sender address
+                                        to: email, // list of receivers
+                                        subject: 'Confirmation', // Subject line
+                                        text: text //, // plaintext body
+                                        // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
+                                    };
+
+                                    transporter.sendMail(mailOptions, function(error, info){
+                                        if(error){
+                                            console.log(error);
+                                            res.json({yo: 'error'});
+                                        }else{
+                                            console.log('Message sent: ' + info.response);
+                                            res.json({yo: info.response});
+                                        };
+                                    });
+
                                 }
                             });
                         }
@@ -141,7 +176,6 @@ var appRouter = function(router, mongo, app, config, database) {
 
     router.get('/users/:id/verifyAccount', function (req, res) {
         console.log("verify user");
-        var response = {};
 
         //Generate random number, Convert to base-36 and Cut off last 10 chars
         var pass = Math.random().toString(36).slice(-10);
@@ -154,15 +188,38 @@ var appRouter = function(router, mongo, app, config, database) {
                 response = {"message": "Error updating data"};
                 res.status(500).json(response);
             } else {
-                response = {"message": "Account has been verified"};
-                res.status(200).json(response);
-            }
-            console.log(response);
-        });
 
-        //enviar mail con contraseña y url de cambio de contraseña
-        var url= "localhost:8888/users/"+req.params.id+"/changePassword"
+                mongo.users.findById(req.params.id, function (err,data) {
+                    if (err) {
+
+                    }else{
+                        var text = 'Your password is ' + pass;
+
+                        console.log(data._id);
+                        var mailOptions = {
+                            from: 'vignemaleSTW@gmail.com', // sender address
+                            to: data.email, // list of receivers
+                            subject: 'Password', // Subject line
+                            text: text //, // plaintext body
+                        };
+
+                        transporter.sendMail(mailOptions, function(error, info){
+                            if(error){
+                                console.log(error);
+                                res.json({yo: 'error'});
+                            }else{
+                                console.log('Message sent: ' + info.response);
+                                response = {"message": "Account has been verified, you will receive an email with your password"};
+                                res.status(200).json(response);
+                            };
+                        });
+                    }
+                });
+            }
+        });
     });
+
+
 
     router.post("/users/:id/changePassword", function (req, res) {
         console.log("change user password");

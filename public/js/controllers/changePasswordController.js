@@ -6,7 +6,7 @@ angular.module('vignemale')
         // inputs visual variables
         $scope.password = "";
         $scope.rePassword = "";
-        $scope.idUser = window.location.href.split('/')[5];
+        $scope.idUser = "";
 
         // FEEDBACK MESSAGES
 
@@ -41,9 +41,12 @@ angular.module('vignemale')
 
         // send the register form to the auth service
         $scope.changePassword = function () {
+
             if($scope.password !== $scope.rePassword) {
                 showError("Invalid passwords")
             } else{
+                $scope.idUser = window.location.href.split('/')[5];
+                console.log($scope.idUser);
                 var user = {
                     id: $scope.idUser,
                     password: $scope.password

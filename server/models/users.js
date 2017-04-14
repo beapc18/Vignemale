@@ -47,6 +47,38 @@ var updatePassword = function(mongo, id, password, callback){
     });
 };
 
+//Sin buscar el usuario, se puede validar la contraseña?
+var validPassword = function (mongo, password) {
+    var hashPassword =  require('crypto')
+        .createHash('sha1')
+        .update(password)
+        .digest('base64');
+    return hashPassword === o
+}
+
+//Se necesita el id?
+var generateJWT = function (mongo, id, config) {
+    var expiry = new Date();
+    expiry.setDate(expiry.getDate() + 7);
+
+    return jwt.sign({
+        _id: this._id,
+        name: this.name,
+        email: this.email,
+        password: this.password,
+        birthDate: this.birthDate,
+        creationDate: this.creationDate,
+        leavingDate: this.leavingDate,
+        lastAccess: this.lastAccess,
+        removed: this.removed,
+        place: this.place,
+        isAdmin: this.isAdmin,
+        isVerified: this.isVerified,
+        firstLogin: this.firstLogin,
+        exp: parseInt(expiry.getTime() / 1000),
+    }, config.secret);
+};
+
 
 
 
@@ -55,5 +87,7 @@ var updatePassword = function(mongo, id, password, callback){
 module.exports = {
     getInfoUser: getInfoUser,
     findUserByPassword: findUserByPassword,
-    updatePassword: updatePassword
+    updatePassword: updatePassword,
+    generateJWT: generateJWT,
+    validPassword: validPassword
 };

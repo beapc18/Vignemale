@@ -10,6 +10,12 @@ var config    = require("./config/config.js");
 var mongo     = require("./server/models/dbSchema.js");
 var routes    = require("./server/routes/routes.js")(router, mongo, app, config, database);
 
+var passport  = require('passport');
+
+app.use(passport.initialize());
+
+// require('./config/passport');
+// require('./server/models/dbSchema.js');
 
 var swaggerDefinition = {
     info: {

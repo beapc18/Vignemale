@@ -2,6 +2,7 @@ angular.module('vignemale', ['ui.router', 'base64'])
 
     .config(function ($stateProvider, $urlRouterProvider) {
         $stateProvider
+        //añadir access:{restricted:true/false} para determinar las q tienen q estar logeadas para verlo
 
             //starter screen
             .state('starter', {

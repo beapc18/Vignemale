@@ -1,5 +1,13 @@
 var jwt = require('jsonwebtoken');
 var nodemailer = require('nodemailer');
+var passport  = require('passport');
+var passportJWT  = require('passport-jwt');
+
+//https://jonathanmh.com/express-passport-json-web-token-jwt-authentication-beginners/
+var ExtractJwt = passportJWT.ExtractJwt;
+var JwtStrategy = passportJWT.Strategy;
+
+
 // Not the movie transporter!
 var transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -13,6 +21,28 @@ var appRouter = function(router, mongo, app, config, database) {
 
     //secret variable JWT
     app.set('secret', config.secret);
+
+    var jwtOptions = {};
+    jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
+    jwtOptions.secretOrKey = app.get('secret'); //config.js
+
+    var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
+        console.log('payload received', jwt_payload);
+        console.log('id', jwt_payload.id);
+
+        //comprueba si el id de la cabecera corresponde con alguno de la bbdd
+        mongo.users.find({_id: jwt_payload.id}, function (err, data) {
+            if (err) {
+                console.log(response);
+                next(null,false);
+            }
+            else {
+                next(null,data);
+            }
+        });
+    });
+    passport.use(strategy);
+    console.log("Hecho passport");
 
 
     router.post("/signIn", function (req, res) {
@@ -29,12 +59,13 @@ var appRouter = function(router, mongo, app, config, database) {
             res.status(400).json(response);
         } else {
             //create the hash to compare with password in db   --> mriar para cifrar en cliente
-            var hashPassword =  require('crypto')
+            var hashPassword = require('crypto')
                 .createHash('sha1')
                 .update(password)
                 .digest('base64');
 
             mongo.users.find({email: email, password: hashPassword}, function (err, data) {
+                //id: jwt_payload.id
                 if (err) {
                     response = {"message": "Error fetching user"};
                     console.log(response);
@@ -51,27 +82,34 @@ var appRouter = function(router, mongo, app, config, database) {
                     res.status(403).json(response);
                 }
                 //check if is the first time that user sign in
-                else if(data[0].firstLogin === true){
-                    response = {"message": "You must change your password",id:data[0]._id};
+                else if (data[0].firstLogin === true) {
+                    response = {"message": "You must change your password", id: data[0]._id};
                     console.log(response);
                     res.status(403).json(response);
-                } else{
-                    var token = jwt.sign(data[0], app.get('secret'), {
-                        expiresIn: 1440 // expires in 24 hours
-                    });
+                } else {
+
+                    var payload = {id: data[0]._id};
+                    var token = jwt.sign(payload, jwtOptions.secretOrKey);
+                    //res.json({message: "ok", token: token});
+
+                    //next(null, false); //(null, {id: user.id})
+
+                    /*var token = jwt.sign(data[0], app.get('secret'), {
+                     expiresIn: 1440 // expires in 24 hours
+                     });*/
                     console.log("Creado token de usuario " + token);
 
                     //update last access when user access
                     //mirar formato yyyy-mm-dd
                     mongo.users.update({_id: data[0]._id}, {lastAccess: new Date()}, function (err) {
                         if (err) {
-                            response = { "message": "Error adding data"}; //token:token};
+                            response = {"message": "Error adding data"}; //token:token};
                             res.status(500).json(response);
                         } else {
-                            response = {"message": data[0]._id, token:token};   //send user id or link to profile??
+                            response = {"message": data[0]._id, token: token};   //send user id or link to profile??
                             res.status(200).json(response);
                         }
-                        console.log(response);
+                        console.log("Respuesta enviada:" + response);
                     });
                 }
             });
@@ -161,7 +199,7 @@ var appRouter = function(router, mongo, app, config, database) {
                                         }else{
                                             console.log('Message sent: ' + info.response);
                                             res.json({yo: info.response});
-                                        };
+                                        }
                                     });
 
                                 }
@@ -243,37 +281,43 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
 // route middleware to verify a token
-   /* router.use(function (req, res, next) {
-        console.log("Territorio comanche");
-        // check header or url parameters or post parameters for token
-        var token = req.body.token || req.query.token || req.headers['x-access-token'];
+    /* router.use(function (req, res, next) {
+     console.log("Territorio comanche");
+     // check header or url parameters or post parameters for token
+     var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
-        // decode token
-        if (token) {
-            // verifies secret and checks exp
-            jwt.verify(token, app.get('secret'), function(err, decoded) {
-                if (err) {
-                    console.log("Todo fue mal");
-                    return res.json({ success: false, message: 'Failed to authenticate token.' });
-                } else {
-                    console.log("Todo fue bien");
-                    // if everything is good, save to request for use in other routes
-                    req.decoded = decoded;
-                    next();
-                }
-            });
-        }
-        else {
-            console.log("error token");
+     // decode token
+     if (token) {
+     // verifies secret and checks exp
+     jwt.verify(token, app.get('secret'), function(err, decoded) {
+     if (err) {
+     console.log("Todo fue mal");
+     return res.json({ success: false, message: 'Failed to authenticate token.' });
+     } else {
+     console.log("Todo fue bien");
+     // if everything is good, save to request for use in other routes
+     req.decoded = decoded;
+     next();
+     }
+     });
+     }
+     else {
+     console.log("error token");
 
-            // if there is no token
-            // return an error
-            return res.status(403).send({
-                success: false,
-                message: 'No token provided.'
-            });
-        }
-    });*/
+     // if there is no token
+     // return an error
+     return res.status(403).send({
+     success: false,
+     message: 'No token provided.'
+     });
+     }
+     });*/
+
+    //endpoint de prueba que necesita autenticación y solo accede a el si se ha llamado con token(con Postman)
+    router.get("/secret", passport.authenticate('jwt', { session:false}), function (req, res) {
+        console.log("llamado a secret");
+        res.json("Success! You can not see this without token");
+    });
 
     //Return data of user with :id
     router.get("/users/:id", function (req, res) {
@@ -285,7 +329,7 @@ var appRouter = function(router, mongo, app, config, database) {
             res.status(response.status).json(response.res);
         });
 
-     });
+    });
 
     //change removed attribute for removing user
     router.delete("/users/:id", function (req, res) {

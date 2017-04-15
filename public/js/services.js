@@ -80,6 +80,45 @@ angular.module('vignemale')
 
     .factory('users', function ($state, $http, $httpParamSerializer) {
         return {
+
+            getUser: function (id, callbackSuccess,callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/users/'+id
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
+            modifyUser: function (userObject, callbackSuccess,callbackError) {
+                $http({
+                    method: 'PUT',
+                    url: '/users/'+userObject.id,
+                    data: $httpParamSerializer(userObject),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
+            deleteUser: function (id, callbackSuccess,callbackError) {
+                $http({
+                    method: 'DELETE',
+                    url: '/users/'+id
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
+
             //verifyAccount
             verifyAccount: function (id, callbackSuccess,callbackError) {
                 $http({
@@ -88,7 +127,7 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError('ERROR');
+                    callbackError(data);
                 });
             },
 
@@ -104,7 +143,7 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError('ERROR');
+                    callbackError(data);
                 });
             },
 
@@ -116,7 +155,7 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError('ERROR');
+                    callbackError(data);
                 });
 
             }

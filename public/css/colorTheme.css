@@ -78,3 +78,35 @@ a:focus, a:hover {
     text-align: center;
     margin: 1%;
 }
+
+/* add a small gap under the navbar */
+#firstContentPanel:before {
+    display: block;
+    content: " ";
+    height: 50px;
+    visibility: hidden;
+}
+
+.rightPanel {
+    background-color: #f1f1f1;
+}
+
+.leftPanel {
+}
+
+@media (min-width: 1300px) {
+    .container {
+        width: 1300px;
+    }
+}
+
+/*.row-no-padding {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+[class*="col-"],  /* Elements whose class attribute begins with "col-" */
+/*[class^="col-"] { /* Elements whose class attribute contains the substring "col-" */
+/*    padding-left: 0;
+    padding-right: 0;
+}

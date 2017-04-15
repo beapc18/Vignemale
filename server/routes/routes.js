@@ -31,13 +31,12 @@ var appRouter = function(router, mongo, app, config, database) {
         console.log('id', jwt_payload.id);
 
         //comprueba si el id de la cabecera corresponde con alguno de la bbdd
-        mongo.users.find({_id: jwt_payload.id}, function (err, data) {
-            if (err) {
-                console.log(response);
+        database.getInfoUser(mongo, jwt_payload.id, function (response) {
+            if (response.status === 200) {
+                next(null,response);
+            } else {
+                //redirect to login
                 next(null,false);
-            }
-            else {
-                next(null,data);
             }
         });
     });
@@ -177,12 +176,10 @@ var appRouter = function(router, mongo, app, config, database) {
                                     //enviar mail usuario
 
 
-                                    var url = 'http://localhost:8888/users/'+idUser+'/verifyAccount';
+                                    var url = 'http://localhost:8888/#/users/'+idUser+'/verifyAccount';
                                     var text = 'Welcome to POIManager.'+
                                         ' please, click the link bellow to confirm yout password.\n'
                                         +url+'\n';
-
-
 
                                     var mailOptions = {
                                         from: 'vignemaleSTW@gmail.com', // sender address
@@ -280,39 +277,6 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-// route middleware to verify a token
-    /* router.use(function (req, res, next) {
-     console.log("Territorio comanche");
-     // check header or url parameters or post parameters for token
-     var token = req.body.token || req.query.token || req.headers['x-access-token'];
-
-     // decode token
-     if (token) {
-     // verifies secret and checks exp
-     jwt.verify(token, app.get('secret'), function(err, decoded) {
-     if (err) {
-     console.log("Todo fue mal");
-     return res.json({ success: false, message: 'Failed to authenticate token.' });
-     } else {
-     console.log("Todo fue bien");
-     // if everything is good, save to request for use in other routes
-     req.decoded = decoded;
-     next();
-     }
-     });
-     }
-     else {
-     console.log("error token");
-
-     // if there is no token
-     // return an error
-     return res.status(403).send({
-     success: false,
-     message: 'No token provided.'
-     });
-     }
-     });*/
-
     //endpoint de prueba que necesita autenticación y solo accede a el si se ha llamado con token(con Postman)
     router.get("/secret", passport.authenticate('jwt', { session:false}), function (req, res) {
         console.log("llamado a secret");
@@ -324,8 +288,6 @@ var appRouter = function(router, mongo, app, config, database) {
         console.log("get user");
 
         database.getInfoUser(mongo, req.params.id, function (response) {
-            console.log(response.status);
-            console.log(response.res);
             res.status(response.status).json(response.res);
         });
 

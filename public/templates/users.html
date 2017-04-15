@@ -1,0 +1,50 @@
+<div class="container">
+
+    <div id="firstContentPanel" class="row">
+        <!--Left panel, with map-->
+        <div class="col-md-8 leftPanel">
+            <h1>{{user.name}} {{user.lastName}}</h1>
+
+            rigádjvfbfb
+        </div>
+
+        <!--Right panel, with data user-->
+        <div class="col-md-4 rightPanel">
+            <h1>{{user.name}} {{user.lastName}}</h1>
+
+            <div class="row">
+                <div ng-click="showPOIs();hideRoutes();hideFollows();hideFavs();" class="col-md-3">
+                    POIs
+                </div>
+                <div ng-click="showRoutes();hidePOIs();hideFollows();hideFavs();" class="col-md-3">
+                    Routes
+                </div>
+                <div ng-click="showFollows();hidePOIs();hideRoutes();hideFavs();" class="col-md-3">
+                    Following
+                </div>
+                <div ng-click="showFavs();hidePOIs();hideFollows();hideRoutes();" class="col-md-3">
+                    Favourites
+                </div>
+            </div>
+
+            <div ng-if="pois">
+                mostrando pois
+            </div>
+
+            <div ng-if="routes">
+                mostrando rutas
+            </div>
+
+            <div ng-if="follows">
+                mostrando follows
+            </div>
+
+            <div ng-if="favs">
+                mostrando favs
+            </div>
+
+
+        </div>
+    </div>
+
+</div>

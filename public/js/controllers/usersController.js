@@ -73,7 +73,7 @@ angular.module('vignemale')
                 name: data.message[0].name
             };
             console.log($scope.user.lastName);
-            window.alert($scope.user.name);
+            //window.alert($scope.user.name);
         }, showError);
 
     }]);

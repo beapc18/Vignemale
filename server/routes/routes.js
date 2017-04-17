@@ -339,6 +339,138 @@ var appRouter = function(router, mongo, app, config, database) {
             res.status(500).json(response);
         }
     });
+
+    //get user POIs
+    router.get("/users/:id/POIs", function (req, res) {
+        var userId = req.params.id;
+        console.log("get user "+ userId + " POIs");
+        var response = {};
+        mongo.POIs.find({creator: userId},function(err,data){
+            if(err) {
+                response = {"error" : true,"message" : "Error fetching data"};
+            } else {
+                response = {"error" : false,"message" : data};
+            }
+            res.json(response);
+        });
+    });
+
+
+    router.route("/POIs")
+    .get(function (req,res) {
+        console.log("GET POIs");
+        var response = {};
+        mongo.POIs.find(function(err,data){
+            if(err) {
+                response = {"error" : true,"message" : "Error fetching data"};
+            } else {
+                response = {"error" : false,"message" : data};
+            }
+            res.json(response);
+        });
+    })
+    .post(function (req,res) {
+        console.log("POST POIs");
+        var db = new mongo.POIs;
+        var response = {};
+
+        var name = req.body.name;
+        var description = req.body.description;
+        //var keywords = req.body.keywords;
+        var xCoord = req.body.xCoord;
+        var yCoord = req.body.yCoord;
+        //var shortURL = req.body.shortURL;
+        var image = req.body.image;
+        var valoration = 5;
+        var city = req.body.city;
+        var creator = req.body.creator;
+        //var numRec = req.body.numRec;
+
+        // fetch email and password from REST request.
+        db.name = name;
+        db.description = description;
+        db.xCoord = xCoord;
+        db.yCoord = yCoord;
+        db.creator = creator;
+
+
+        db.save(function(err){
+            // save() will run insert() command of MongoDB.
+            // it will add new data in collection.
+            if(err) {
+                response = {"error" : true,"message" : "Error adding data"};
+            } else {
+                response = {"error" : false,"message" : "Data added"};
+            }
+            res.json(response);
+        });
+
+    });
+
+
+
+
+    router.route("/POIs/:id")
+    .get(function (req,res) {
+        console.log("GET POIs/" + req.params.id);
+        var response = {};
+        mongo.POIs.find({_id:req.params.id},function(err,data){
+            if(err) {
+                response = {"error" : true,"message" : "Error fetching data"};
+            } else {
+                response = {"error" : false,"message" : data};
+            }
+            res.json(response);
+        });
+    })
+    .put(function (req,res) {
+        console.log("PUT POIs/" + req.params.id);
+
+
+
+        mongo.POIs.find({_id:req.params.id},function(err,data){
+            if(err) {
+                response = {"error" : true,"message" : "Error fetching data"};
+            } else {
+                var db = new mongo.POIs;
+                var updateInfo = {
+                    name:req.body.name,
+                    description:req.body.description,
+                    image:req.body.image
+                }
+
+
+                mongo.POIs.update({_id:req.params.id},updateInfo,function(err){
+                    if(err) {
+                        response = {"error" : true,"message" : "Error updating data"};
+                    } else {
+                        response = {"error" : false,"message" : "Data is updated for "+req.params.id};
+                    }
+                    res.json(response);
+                })
+            }
+        });
+    })
+    .delete(function (req,res) {
+        console.log("DELETE POIs/" + req.params.id);
+
+        mongo.POIs.find({_id:req.params.id},function(err,data){
+            if(err) {
+                response = {"error" : true,"message" : "Error fetching data"};
+            } else {
+                //data exists, remove
+                mongo.POIs.remove({_id:req.params.id},function(err,data){
+
+                    if(err) {
+                        response = {"error" : true,"message" : "Error deleting data"};
+                    } else {
+                        response = {"error" : false,"message" : "Data associated with "+req.params.id+" is deleted"};
+                    }
+                    res.json(response);
+                });
+            }
+        });
+    });
 };
 
 module.exports = appRouter;

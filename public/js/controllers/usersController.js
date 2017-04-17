@@ -18,6 +18,11 @@ angular.module('vignemale')
         $scope.routes = false;
         $scope.follows = false;
         $scope.favs = false;
+        $scope.edit = false;
+
+        $scope.oldPassword = "cc";
+        $scope.newPassword = "";
+        $scope.newRePassword = "";
 
         // hide/show different layers
         $scope.showPOIs = function () {
@@ -52,6 +57,14 @@ angular.module('vignemale')
             $scope.favs = false;
         };
 
+        $scope.showEdit = function () {
+            $scope.edit = true;
+        };
+
+        $scope.showProfile = function () {
+            $scope.edit = false;
+        };
+
         // hide the error mensage
         $scope.hideError = function () {
             $scope.errorMsg = "";
@@ -63,7 +76,35 @@ angular.module('vignemale')
             $scope.error = true;
         };
 
-        //Save data about user
+        // show the success mensage
+        var showSuccess = function (message) {
+            $scope.successMsg = message.message;
+            $scope.success = true;
+        };
+
+        // hide the success mensage
+        $scope.hideSuccess = function () {
+            $scope.success = false;
+            $scope.successMsg = "";
+        };
+
+        //modify user password
+        $scope.modifyUser = function () {
+            if($scope.newPassword !== $scope.newRePassword || $scope.newPassword !== "") {
+                showError("Invalid passwords")
+            } else {
+                window.alert($scope.oldPassword +" " + $scope.newPassword +" "+$scope.newRePassword);
+                var userObject = {
+                    id: $scope.idUser,
+                    oldPassword: $scope.oldPassword,
+                    newPassword: $scope.newPassword,
+                    newRePassword: $scope.newRePassword
+                };
+                users.modifyUser(userObject, showSuccess, showError)
+            }
+        };
+
+        //Get data about user
         users.getUser($scope.idUser, function (data) {
             console.log(data.message);
 
@@ -72,8 +113,8 @@ angular.module('vignemale')
                 lastName: data.message[0].lastName,
                 name: data.message[0].name
             };
-            console.log($scope.user.lastName);
-            //window.alert($scope.user.name);
         }, showError);
 
     }]);
+
+//http://plnkr.co/edit/8YQGTn79AO4X7Tb7ann7?p=preview

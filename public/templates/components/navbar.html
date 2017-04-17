@@ -17,9 +17,9 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav navbar-right">
                 <!--Añadir cuando se este loggeado y no-->
-                <li><a href="#/signUp">Sign up</a></li>
-                <li><a href="#/signIn">Sign in</a></li>
-                <li><a href="#/logout">Logout</a></li>
+                <li ng-if="!logged()"><a href="#/signUp">Sign up</a></li>
+                <li ng-if="!logged()"><a href="#/signIn">Sign in</a></li>
+                <li ng-if="logged()"><a ng-click="logout()">Logout</a></li>
             </ul>
         </div>
     </div>

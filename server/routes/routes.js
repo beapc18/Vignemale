@@ -31,7 +31,7 @@ var appRouter = function(router, mongo, app, config, database) {
         console.log('id', jwt_payload.id);
 
         //comprueba si el id de la cabecera corresponde con alguno de la bbdd
-        database.getInfoUser(mongo, jwt_payload.id, function (response) {
+        database.isValidToken(mongo, jwt_payload.id, jwt_payload, function (response) {
             if (response.status === 200) {
                 next(null,response);
             } else {
@@ -41,8 +41,6 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
     passport.use(strategy);
-    console.log("Hecho passport");
-
 
     router.post("/signIn", function (req, res) {
         console.log("signIn user");
@@ -89,23 +87,20 @@ var appRouter = function(router, mongo, app, config, database) {
 
                     var payload = {id: data[0]._id};
                     var token = jwt.sign(payload, jwtOptions.secretOrKey);
-                    //res.json({message: "ok", token: token});
-
                     //next(null, false); //(null, {id: user.id})
-
                     /*var token = jwt.sign(data[0], app.get('secret'), {
                      expiresIn: 1440 // expires in 24 hours
                      });*/
                     console.log("Creado token de usuario " + token);
 
-                    //update last access when user access
-                    //mirar formato yyyy-mm-dd
-                    mongo.users.update({_id: data[0]._id}, {lastAccess: new Date()}, function (err) {
+                    //update last access when user access and jwt
+                    mongo.users.update({_id: data[0]._id}, {lastAccess: new Date(), token: token}, function (err) {
                         if (err) {
-                            response = {"message": "Error adding data"}; //token:token};
+                            response = {"message": "Error adding data"};
                             res.status(500).json(response);
                         } else {
-                            response = {"message": data[0]._id, token: token};   //send user id or link to profile??
+                            response = {"message": data[0]._id};   //send user id or link to profile??
+                            res.setHeader("authorization", token);
                             res.status(200).json(response);
                         }
                         console.log("Respuesta enviada:" + response);
@@ -284,7 +279,7 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
     //Return data of user with :id
-    router.get("/users/:id", function (req, res) {
+    router.get("/users/:id", /*passport.authenticate('jwt', {session:false}),*/ function (req, res) {
         console.log("get user");
 
         database.getInfoUser(mongo, req.params.id, function (response) {
@@ -294,7 +289,7 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
     //change removed attribute for removing user
-    router.delete("/users/:id", function (req, res) {
+    router.delete("/users/:id", /*passport.authenticate('jwt', {session:false}),*/ function (req, res) {
         console.log("delete user");
 
         //search the user avoiding return params which are not necessary
@@ -311,9 +306,13 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
     //change password checking old password
-    router.put("/users/:id", function (req, res) {
+    router.put("/users/:id",/*passport.authenticate('jwt', {session:false}),*/ function (req, res) {
         console.log("update user");
         var response = {};
+
+        console.log(req.body.oldPassword);
+        console.log(req.body.newPassword);
+        console.log(req.body.newRePassword);
 
         if(req.body.newPassword === req.body.newRePassword) {
             //create the hash to compare with password in db
@@ -333,10 +332,14 @@ var appRouter = function(router, mongo, app, config, database) {
                 } else {
                     res.status(response.status).json(response.res);
                 }
+                console.log(response);
+
             });
         } else{
             response = {"message": "Password don't match"};
             res.status(500).json(response);
+            console.log(response);
+
         }
     });
 

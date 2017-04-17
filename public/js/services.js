@@ -51,8 +51,8 @@ angular.module('vignemale')
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 }).success(function (data, status, headers) {
-                   // that.authenticate(headers().authorization);
-                    //$state.go('starter');
+                    that.authenticate(headers().authorization);
+                    $state.go('users', {id:data.message}); //redirect user home
                     callbackSuccess(data);
 
                 }).error(function (data) {
@@ -82,9 +82,14 @@ angular.module('vignemale')
         return {
 
             getUser: function (id, callbackSuccess,callbackError) {
+                var token = 'JWT '+localStorage.sessionJWT.replace('"','');
+                window.alert(token);
                 $http({
                     method: 'GET',
-                    url: '/users/'+id
+                    url: '/users/'+id,
+                    headers: {
+                        'Authorization': token
+                    }
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {

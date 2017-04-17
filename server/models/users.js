@@ -79,15 +79,30 @@ var generateJWT = function (mongo, id, config) {
     }, config.secret);
 };
 
+//Return data of user with id
+var isValidToken = function(mongo, id, token, callback){
+    var response = {};
+
+    //search the user avoiding return params which are not necessary
+    mongo.users.find({_id: id},/* {token: token},*/ function (err, user) {
+        if (err) {
+            response = {"status": 500, "res": {"message": "Error searching user"}};
+        } else if (!user[0]) {
+            response = {"status": 400, "res": {"message": "Invalid token"}};
+        } else {
+            console.log(user);
+            response = {"status": 200, "res": {"message": user}};
+        }
+        callback(response);
+    });
+};
 
 
-
-//var getInfoUser = mongoose.model('getInfoUser',get_info_user);
-//var pois = mongoose.model('pois',poisSchema);
 module.exports = {
     getInfoUser: getInfoUser,
     findUserByPassword: findUserByPassword,
     updatePassword: updatePassword,
     generateJWT: generateJWT,
-    validPassword: validPassword
+    validPassword: validPassword,
+    isValidToken: isValidToken
 };

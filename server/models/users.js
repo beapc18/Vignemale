@@ -80,17 +80,20 @@ var generateJWT = function (mongo, id, config) {
 };
 
 //Return data of user with id
-var isValidToken = function(mongo, id, token, callback){
+var isValidToken = function(mongo, id, tokenId, callback){
     var response = {};
 
+    //console.log("id " + id + ", tokenId " + tokenId);
     //search the user avoiding return params which are not necessary
-    mongo.users.find({_id: id},/* {token: token},*/ function (err, user) {
+    mongo.users.find({_id: id},{token: tokenId}, function (err, user) {
         if (err) {
+            console.log("Error database");
             response = {"status": 500, "res": {"message": "Error searching user"}};
         } else if (!user[0]) {
+            console.log("Invalid token");
             response = {"status": 400, "res": {"message": "Invalid token"}};
         } else {
-            console.log(user);
+            console.log("isValid user " + user + " con id " + id + " y tokenId " + tokenId);
             response = {"status": 200, "res": {"message": user}};
         }
         callback(response);

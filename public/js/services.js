@@ -2,6 +2,7 @@ angular.module('vignemale')
 // 'auth' service manage the authentication function of the page with the server
     .factory('auth', function ($state, $http, $httpParamSerializer) {
 
+        //window.alert(localStorage.sessionJWT);
         var session = undefined,
             _authenticated = false;
 
@@ -12,6 +13,7 @@ angular.module('vignemale')
                     return _authenticated;
                 } else {
                     var tmp = angular.fromJson(localStorage.sessionJWT);
+                    //console.log("services - authenticate false, tmp=" + tmp);
                     if (tmp !== undefined) {
                         this.authenticate(tmp);
                         return _authenticated;
@@ -52,7 +54,7 @@ angular.module('vignemale')
                     }
                 }).success(function (data, status, headers) {
                     that.authenticate(headers().authorization);
-                    $state.go('users', {id:data.message}); //redirect user home
+                    $state.go('users',{id: data.message}); //redirect user home
                     callbackSuccess(data);
 
                 }).error(function (data) {
@@ -82,8 +84,7 @@ angular.module('vignemale')
         return {
 
             getUser: function (id, callbackSuccess,callbackError) {
-                var token = 'JWT '+localStorage.sessionJWT.replace('"','');
-                window.alert(token);
+                var token = 'JWT '+localStorage.sessionJWT.replace(/"/g,'');
                 $http({
                     method: 'GET',
                     url: '/users/'+id,

@@ -1,6 +1,6 @@
 angular.module('vignemale')
 
-    .controller('changePasswordCtrl', ['$scope', '$state', 'users', function ($scope, $state, users) {
+    .controller('changePasswordCtrl', ['$scope', '$state', '$stateParams', 'users', function ($scope, $state, $stateParams, users) {
 
 
         // inputs visual variables
@@ -45,8 +45,7 @@ angular.module('vignemale')
             if($scope.password !== $scope.rePassword) {
                 showError("Invalid passwords")
             } else{
-                $scope.idUser = window.location.href.split('/')[5];
-                console.log($scope.idUser);
+                $scope.idUser = $stateParams.id;
                 var user = {
                     id: $scope.idUser,
                     password: $scope.password

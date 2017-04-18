@@ -1,9 +1,9 @@
 angular.module('vignemale')
 
-    .controller('usersCtrl', ['$scope', '$state', 'users', function ($scope, $state, users) {
+    .controller('usersCtrl', ['$scope', '$state', '$stateParams', 'users', function ($scope, $state, $stateParams, users) {
 
         //user id from url
-        $scope.idUser = window.location.href.split('/')[5];
+        $scope.idUser = $stateParams.id;
 
         //user data
         $scope.user = {};
@@ -106,8 +106,6 @@ angular.module('vignemale')
 
         //Get data about user
         users.getUser($scope.idUser, function (data) {
-            console.log(data.message);
-
             //save info about user
             $scope.user = {
                 lastName: data.message[0].lastName,

@@ -1,9 +1,10 @@
 angular.module('vignemale')
 
-    .controller('verifyAccountCtrl', ['$scope', '$state', 'users', function ($scope, $state, users) {
+    .controller('verifyAccountCtrl', ['$scope', '$state', '$stateParams', 'users', function ($scope, $state, $stateParams, users) {
 
         //user id from url
-        $scope.idUser = window.location.href.split('/')[5];
+        $scope.idUser = $stateParams.id;
+
 
         // FEEDBACK MESSAGES
 

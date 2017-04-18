@@ -28,10 +28,10 @@ var appRouter = function(router, mongo, app, config, database) {
 
     var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
         console.log('payload received', jwt_payload);
-        console.log('id', jwt_payload.id);
+        //console.log('id', jwt_payload.id, 'tokenId ' + jwt_payload.tokenId);
 
         //comprueba si el id de la cabecera corresponde con alguno de la bbdd
-        database.isValidToken(mongo, jwt_payload.id, jwt_payload, function (response) {
+        database.isValidToken(mongo, jwt_payload.id, jwt_payload.tokenId, function (response) {
             if (response.status === 200) {
                 next(null,response);
             } else {
@@ -84,23 +84,24 @@ var appRouter = function(router, mongo, app, config, database) {
                     console.log(response);
                     res.status(403).json(response);
                 } else {
-
-                    var payload = {id: data[0]._id};
+                    //Generate id for token
+                    var tokenId = Math.random().toString(36).slice(-10);
+                    var payload = {id: data[0]._id, tokenId: tokenId};
                     var token = jwt.sign(payload, jwtOptions.secretOrKey);
                     //next(null, false); //(null, {id: user.id})
                     /*var token = jwt.sign(data[0], app.get('secret'), {
                      expiresIn: 1440 // expires in 24 hours
                      });*/
-                    console.log("Creado token de usuario " + token);
+                    console.log("Creado tokenId de usuario " + tokenId);
 
                     //update last access when user access and jwt
-                    mongo.users.update({_id: data[0]._id}, {lastAccess: new Date(), token: token}, function (err) {
+                    mongo.users.update({_id: data[0]._id}, {lastAccess: new Date(), token: tokenId}, function (err) {
                         if (err) {
                             response = {"message": "Error adding data"};
                             res.status(500).json(response);
                         } else {
                             response = {"message": data[0]._id};   //send user id or link to profile??
-                            res.setHeader("authorization", token);
+                            res.setHeader("Authorization", token);
                             res.status(200).json(response);
                         }
                         console.log("Respuesta enviada:" + response);
@@ -279,7 +280,7 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
     //Return data of user with :id
-    router.get("/users/:id", /*passport.authenticate('jwt', {session:false}),*/ function (req, res) {
+    router.get("/users/:id", passport.authenticate('jwt', {session:false}), function (req, res) {
         console.log("get user");
 
         database.getInfoUser(mongo, req.params.id, function (response) {

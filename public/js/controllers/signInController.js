@@ -21,10 +21,14 @@ angular.module('vignemale')
         };
         // show the error mensage
         var showError = function (error) {
+            /**
+             * quitarlo de aqui?
+             */
             if(error.message === "You must change your password"){
                 //id is necessary for changing the password
                 var userObject = {
                     id: error.id,
+                    email: $scope.email,
                     password: "password"
                 };
 
@@ -53,6 +57,6 @@ angular.module('vignemale')
                 email: $scope.email,
                 password: $scope.password
             };
-            auth.signIn(userObject, showSuccess, showError);
+            auth.signIn(userObject, showError);
         }
     }]);

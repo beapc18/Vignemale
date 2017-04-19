@@ -43,7 +43,7 @@ angular.module('vignemale')
             },
 
             //send the login info to the server
-            signIn: function (userObject, callbackSuccess, callbackError) {
+            signIn: function (userObject, callbackError) {
                 var that = this;
                 $http({
                     method: 'POST',
@@ -55,9 +55,17 @@ angular.module('vignemale')
                 }).success(function (data, status, headers) {
                     that.authenticate(headers().authorization);
                     $state.go('users',{id: data.message}); //redirect user home
-                    callbackSuccess(data);
+                    //callbackSuccess(data);
 
                 }).error(function (data) {
+                    if(data.message === "You must change your password") {
+                        var userObject = {
+                            id: data.id,
+                            email: data.email
+                        };
+                        console.log("Services-signin. id " + userObject.id + " email " + userObject.email);
+                        $state.go('changePassword', {id: userObject.id}, {email: userObject.email});
+                    }
                     callbackError(data);
                 });
             },
@@ -147,7 +155,13 @@ angular.module('vignemale')
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 }).success(function (data) {
-                    callbackSuccess(data);
+                    console.log("Services email " + data.email);
+                    var userObject = {
+                        email: data.email,
+                        password: data.password
+                    };
+                    $state.go('signIn', {email: userObject.email}, {password: userObject.password});
+                    callbackSuccess(userObject);
                 }).error(function (data) {
                     callbackError(data);
                 });

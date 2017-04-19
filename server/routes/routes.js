@@ -80,7 +80,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 }
                 //check if is the first time that user sign in
                 else if (data[0].firstLogin === true) {
-                    response = {"message": "You must change your password", id: data[0]._id};
+                    response = {"message": "You must change your password", id: data[0]._id, email: data[0].email};
                     console.log(response);
                     res.status(403).json(response);
                 } else {
@@ -266,8 +266,17 @@ var appRouter = function(router, mongo, app, config, database) {
                 response = {"message": "Error updating data"};
                 res.status(500).json(response);
             } else {
-                response = {"message": "Password changed successfully"};
-                res.status(200).json(response);
+                mongo.users.find({_id:req.body.id}, function (err, data) {
+                    if(err) {
+                        response = {"message": "Error fetching data"};
+                        //console.log(response);
+                        res.status(500).json(response);
+                    }
+                    else {
+                        response = {"message": "Password changed successfully", email: data[0].email, password: req.body.password};
+                        res.status(200).json(response);
+                    }
+                })
             }
             console.log(response);
         });

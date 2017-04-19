@@ -27,37 +27,37 @@
                 </div>
                 <!--Right part, with button-->
                 <div class="col-md-4">
-                    <button ng-click="showEdit()" class="btn btn-default theme-accent">Edit</button>
+                    <button ng-if="!edit" ng-click="showEdit()" class="btn btn-default theme-accent">Edit</button>
                 </div>
             </div>
 
             <!--Users profile with their info-->
-            <div>
+            <div ng-if="!edit">
                 <div class="row">
                     <nav class="navbar navbar-default">
                         <div class="container-fluid">
                             <ul class="nav navbar-nav">
                                 <li>
                                     <!--<div ng-click="showPOIs();hideRoutes();hideFollows();hideFavs();">-->
-                                        <!--POIS-->
+                                    <!--POIS-->
                                     <!--</div>-->
                                     <a role="button" ng-click="showPOIs();hideRoutes();hideFollows();hideFavs();" class="col-md-3">POIS</a>
                                 </li>
                                 <li>
                                     <!--<div ng-click="showRoutes();hidePOIs();hideFollows();hideFavs();">-->
-                                        <!--Routes-->
+                                    <!--Routes-->
                                     <!--</div>-->
                                     <a role="button" ng-click="showRoutes();hidePOIs();hideFollows();hideFavs();"class="col-md-3">Routes</a>
                                 </li>
                                 <li>
                                     <!--<div ng-click="showFollows();hidePOIs();hideRoutes();hideFavs();" class="col-md-3">-->
-                                        <!--Following-->
+                                    <!--Following-->
                                     <!--</div>-->
                                     <a role="button" ng-click="showFollows();hidePOIs();hideRoutes();hideFavs();" class="col-md-3">Following</a>
                                 </li>
                                 <li>
                                     <!--<div ng-click="showFavs();hidePOIs();hideFollows();hideRoutes();" class="col-md-3">-->
-                                        <!--Favorites-->
+                                    <!--Favorites-->
                                     <!--</div>-->
                                     <a role="button" ng-click="showFavs();hidePOIs();hideFollows();hideRoutes();" class="col-md-3">Favs</a>
                                 </li>
@@ -96,47 +96,29 @@
                 </div>
             </div>
 
-            <!--When user wants to edit it profile-->
-            <div ng-if="edit" role="dialog">
+            <form name="form" ng-submit="modifyUser()" ng-if="edit">
 
-                <!-- Edit pop-up-->
-                <div class="modal-content">
-                    <div class="modal-header theme-color">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Edit account</h4>
-                    </div>
-
-                    <form role="form" ng-submit="modifyUser()">
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <input type="password" ng-model="oldPassword" class="form-control" placeholder="Old password" required/>
-                            </div>
-
-                            <div class="form-group">
-                                <input type="password" ng-model="newPassword"
-                                       class="form-control" placeholder="Password" required />
-                            </div>
-
-                            <div class="form-group">
-                                <input type="password" ng-model="newRePassword"
-                                       class="form-control" placeholder="Repeat password" required />
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-sm theme-accent-sm">Change password</button>
-                            <!--<button type="submit" class="btn btn-sm theme-accent-sm">Remove Account</button>-->
-
-                            <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
-                        </div>
-                    </form>
+                <div ng-if="error" class="alert alert-danger feedbackMessages">
+                    <strong>&#10008</strong> {{errorMsg}}
+                </div>
+                <!-- this div will show only when the operation has been a success -->
+                <div ng-if="success" class="alert alert-success feedbackMessages">
+                    <strong>&#10004</strong> {{successMsg}}
                 </div>
 
-                    </div>
+                <div class="form-group">
+                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="$parent.oldPassword" class="form-control" placeholder="Old password" required/>
+                </div>
+                <div class="form-group">
+                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="$parent.newPassword" class="form-control" placeholder="Password" required />
+                </div>
+                <div class="form-group">
+                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="$parent.newRePassword" class="form-control" placeholder="Repeat password" required />
                 </div>
 
-
-            </div>
-            </div>
+                <button type="submit" class="btn btn-sm theme-accent-sm">Change password</button>
+                <button type="submit" class="btn btn-sm btn-danger">Remove Account</button>
+            </form>
+        </div>
     </div>
-
 </div>

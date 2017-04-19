@@ -1,6 +1,6 @@
 angular.module('vignemale')
 
-    .controller('changePasswordCtrl', ['$scope', '$state', '$stateParams', 'users', function ($scope, $state, $stateParams, users) {
+    .controller('changePasswordCtrl', ['$scope', '$state', 'auth', '$stateParams', 'users', function ($scope, $state, auth, $stateParams, users) {
 
 
         // inputs visual variables
@@ -28,9 +28,8 @@ angular.module('vignemale')
         };
 
         // show the success mensage
-        var showSuccess = function (message) {
-            $scope.successMsg = message.message;
-            $scope.success = true;
+        var showSuccess = function (userObject) {
+            auth.signIn(userObject,showError);
         };
 
         // hide the success mensage
@@ -51,6 +50,7 @@ angular.module('vignemale')
                     password: $scope.password
                 };
                 users.changePassword(user, showSuccess, showError);
+
             }
         };
 

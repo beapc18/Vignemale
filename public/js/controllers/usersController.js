@@ -5,6 +5,10 @@ angular.module('vignemale')
         //user id from url
         $scope.idUser = $stateParams.id;
 
+        $scope.oldPassword = "";
+        $scope.newPassword = "";
+        $scope.newRePassword = "";
+
         //user data
         $scope.user = {};
 
@@ -20,9 +24,7 @@ angular.module('vignemale')
         $scope.favs = false;
         $scope.edit = false;
 
-        $scope.oldPassword = "cc";
-        $scope.newPassword = "";
-        $scope.newRePassword = "";
+
 
         // hide/show different layers
         $scope.showPOIs = function () {
@@ -88,8 +90,27 @@ angular.module('vignemale')
             $scope.successMsg = "";
         };
 
-        //modify user password
+
         $scope.modifyUser = function () {
+            if($scope.newPassword === "" || $scope.oldPassword === ""
+                || $scope.newPassword !== $scope.newRePassword) {
+                window.alert($scope.oldPassword + $scope.newPassword + $scope.newRePassword);
+                showError({"message": "Invalid password"});
+            }
+            else {
+                window.alert($scope.oldPassword + " " + $scope.newPassword + " " + $scope.newRePassword);
+                var userObject = {
+                    id: $scope.idUser,
+                    oldPassword: $scope.oldPassword,
+                    newPassword: $scope.newPassword,
+                    newRePassword: $scope.newRePassword
+                };
+                users.modifyUser(userObject, showSuccess, showError)
+            }
+        };
+
+        //modify user password
+        /*$scope.modifyUser = function () {
             if($scope.newPassword !== $scope.newRePassword || $scope.newPassword !== "") {
                 showError("Invalid passwords")
             } else {
@@ -102,7 +123,7 @@ angular.module('vignemale')
                 };
                 users.modifyUser(userObject, showSuccess, showError)
             }
-        };
+        };*/
 
         //Get data about user
         users.getUser($scope.idUser, function (data) {

@@ -5,6 +5,7 @@ angular.module('vignemale')
         // inputs visual variables
         $scope.email = "";
         $scope.password = "";
+        $scope.click = false;
 
         // FEEDBACK MESSAGES
 
@@ -59,4 +60,27 @@ angular.module('vignemale')
             };
             auth.signIn(userObject, showError);
         }
+
+
+        $scope.allow = function () {
+            $scope.click=true;
+        }
+
+        // send the register form to the auth service
+        window.googleSignIn = function (googleUser) {
+
+            if($scope.click){
+                var id_token = googleUser.getAuthResponse().id_token;
+
+                var data = {
+                    token: id_token
+                };
+
+                var data = {
+                    token: id_token
+                };
+                auth.googleSignIn(data, showSuccess, showError)
+            }
+        }
+
     }]);

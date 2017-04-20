@@ -80,7 +80,9 @@
                 </div>
 
                 <div ng-if="pois">
-                    mostrando pois
+                    <ul class="list-group pre-scrollable" >
+                        <button type="button" class="list-group-item" ng-repeat="row in poisList" ng-click="">{{row.name}}</button>
+                    </ul>
                 </div>
 
                 <div ng-if="routes">

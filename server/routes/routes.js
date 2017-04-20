@@ -2,6 +2,7 @@ var jwt = require('jsonwebtoken');
 var nodemailer = require('nodemailer');
 var passport  = require('passport');
 var passportJWT  = require('passport-jwt');
+var GoogleAuth = require('google-auth-library');
 
 //https://jonathanmh.com/express-passport-json-web-token-jwt-authentication-beginners/
 var ExtractJwt = passportJWT.ExtractJwt;
@@ -109,6 +110,28 @@ var appRouter = function(router, mongo, app, config, database) {
                 }
             });
         }
+    });
+    router.post("/googleSignIn", function (req, res) {
+
+        console.log("googleSignIn user");
+
+        var response = {"error": false, "message": "bien"};
+        var token = req.body.token;
+        console.log(token);
+        var CLIENT_ID="967845224095-uak23gbthvsno7j7g2ulothjbeg2k0ob.apps.googleusercontent.com";
+
+        var auth = new GoogleAuth;
+        var client = new auth.OAuth2(CLIENT_ID, '', '');
+        client.verifyIdToken(token, CLIENT_ID, function(e, login) {
+            var payload = login.getPayload();
+            var userid = payload['sub'];
+            response = {"message": userid};
+            // If request specified a G Suite domain:
+            //var domain = payload['hd'];
+            console.log(userid);
+            res.json(response);
+            //console.log(response);
+        });
     });
 
 

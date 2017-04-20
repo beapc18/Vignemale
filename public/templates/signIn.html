@@ -2,6 +2,14 @@
 
   <h1 id="firstContent">Welcome back!</h1>
   <hr>
+
+  <!--<id class="g-signin2"></id>-->
+  <div align="center" class="g-signin2" ng-click="allow()" data-onsuccess="googleSignIn" />
+  </div>
+
+  <div align="center">
+    <h3>O</h3>
+  </div>
   <form role="form" ng-submit="signIn()">
     <!-- this div will show only when an error occurs -->
     <div ng-if="error" class="alert alert-danger feedbackMessages">
@@ -31,6 +39,6 @@
     <!--HACER PAGINA DE ENVIO DE CONTRASEÑA
     http://stackoverflow.com/questions/32918788/angularjs-forgot-password-->
     <p style="text-align:center"><a href="resetPassword.html">I forgot my password</a></p>
-
   </form>
 </div>
+<script src="https://apis.google.com/js/platform.js" async defer></script>

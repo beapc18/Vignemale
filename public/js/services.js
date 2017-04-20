@@ -41,6 +41,36 @@ angular.module('vignemale')
                 $state.go('starter');
             },
 
+            getIdFromToken: function (callbackSuccess) {
+                var token = 'JWT '+localStorage.sessionJWT.replace(/"/g,'');
+
+                $http({
+                    method: 'GET',
+                    url: '/getIdFromToken',
+                    headers: {
+                        'Authorization': token
+                    }
+                }).success(function (data) {
+                    //callbackSuccess(data.message);
+                    $state.go('users', {id: data.message});
+                });
+            },
+
+            resetPassword: function (email, callbackSuccess, callbackError) {
+                $http({
+                    method: 'POST',
+                    url: '/resetPassword',
+                    data: $httpParamSerializer(email),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data)
+                })
+            },
+
             //send the login info to the server
             signIn: function (userObject, callbackError) {
                 var that = this;
@@ -87,7 +117,7 @@ angular.module('vignemale')
                 });
             },
 
-            //send the register info to the server
+//send the register info to the server
             signUp: function (userObject, callbackSuccess, callbackError) {
                 $http({
                     method: 'POST',
@@ -214,18 +244,18 @@ angular.module('vignemale')
 
     .factory('vignemale', function ($state, $http) {
 
-    return {
-        //send the register info to the server
-        starter: function (url, callbackSuccess,callbackError) {
-            $http({
-                method: 'GET',
-                url: '/starter'
-            }).success(function (data) {
-                callbackSuccess(data);
-            }).error(function (data) {
-                callbackError('ERROR');
-            });
-        }
-    };
+        return {
+            //send the register info to the server
+            starter: function (url, callbackSuccess,callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/starter'
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError('ERROR');
+                });
+            }
+        };
 
-});
+    });

@@ -228,6 +228,39 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     });
 
+    router.get('/getIdFromToken', passport.authenticate('jwt', { session:false}), function (req, res) {
+        var payload = jwt.decode(req.headers.authorization.split(" ")[1]);
+        res.status(200).json({"message":payload.id});
+    });
+
+    router.post('/resetPassword', function (req, res) {
+        database.getInfoUserByEmail(mongo, req.body.email, function (response) {
+            if(response.message === "Error searching user") {
+                res.status(500).json(response.res);
+            }
+            else if(response.message === "Found user") {
+                //send mail
+                var mailOptions = {
+                    from: 'vignemaleSTW@gmail.com', // sender address
+                    to: req.body.email, // list of receivers
+                    subject: 'New password', // Subject line
+                    text: text //, // plaintext body
+                };
+
+                transporter.sendMail(mailOptions, function(error, info){
+                    if(error){
+                        console.log(error);
+                        res.status(500).json({yo: 'error'});
+                    }
+                });
+            }
+            response = {"message": "A message has been sent to change your password"};
+            res.status(200).json(response);
+
+        })
+
+    })
+
     router.get('/users/:id/verifyAccount', function (req, res) {
         console.log("verify user");
 
@@ -392,120 +425,120 @@ var appRouter = function(router, mongo, app, config, database) {
 
 
     router.route("/POIs")
-    .get(function (req,res) {
-        console.log("GET POIs");
-        var response = {};
-        mongo.POIs.find(function(err,data){
-            if(err) {
-                response = {"error" : true,"message" : "Error fetching data"};
-            } else {
-                response = {"error" : false,"message" : data};
-            }
-            res.json(response);
+        .get(function (req,res) {
+            console.log("GET POIs");
+            var response = {};
+            mongo.POIs.find(function(err,data){
+                if(err) {
+                    response = {"error" : true,"message" : "Error fetching data"};
+                } else {
+                    response = {"error" : false,"message" : data};
+                }
+                res.json(response);
+            });
+        })
+        .post(function (req,res) {
+            console.log("POST POIs");
+            var db = new mongo.POIs;
+            var response = {};
+
+            var name = req.body.name;
+            var description = req.body.description;
+            //var keywords = req.body.keywords;
+            var xCoord = req.body.xCoord;
+            var yCoord = req.body.yCoord;
+            //var shortURL = req.body.shortURL;
+            var image = req.body.image;
+            var valoration = 5;
+            var city = req.body.city;
+            var creator = req.body.creator;
+            //var numRec = req.body.numRec;
+
+            // fetch email and password from REST request.
+            db.name = name;
+            db.description = description;
+            db.xCoord = xCoord;
+            db.yCoord = yCoord;
+            db.creator = creator;
+
+
+            db.save(function(err){
+                // save() will run insert() command of MongoDB.
+                // it will add new data in collection.
+                if(err) {
+                    response = {"error" : true,"message" : "Error adding data"};
+                } else {
+                    response = {"error" : false,"message" : "Data added"};
+                }
+                res.json(response);
+            });
+
         });
-    })
-    .post(function (req,res) {
-        console.log("POST POIs");
-        var db = new mongo.POIs;
-        var response = {};
-
-        var name = req.body.name;
-        var description = req.body.description;
-        //var keywords = req.body.keywords;
-        var xCoord = req.body.xCoord;
-        var yCoord = req.body.yCoord;
-        //var shortURL = req.body.shortURL;
-        var image = req.body.image;
-        var valoration = 5;
-        var city = req.body.city;
-        var creator = req.body.creator;
-        //var numRec = req.body.numRec;
-
-        // fetch email and password from REST request.
-        db.name = name;
-        db.description = description;
-        db.xCoord = xCoord;
-        db.yCoord = yCoord;
-        db.creator = creator;
-
-
-        db.save(function(err){
-            // save() will run insert() command of MongoDB.
-            // it will add new data in collection.
-            if(err) {
-                response = {"error" : true,"message" : "Error adding data"};
-            } else {
-                response = {"error" : false,"message" : "Data added"};
-            }
-            res.json(response);
-        });
-
-    });
 
 
 
 
     router.route("/POIs/:id")
-    .get(function (req,res) {
-        console.log("GET POIs/" + req.params.id);
-        var response = {};
-        mongo.POIs.find({_id:req.params.id},function(err,data){
-            if(err) {
-                response = {"error" : true,"message" : "Error fetching data"};
-            } else {
-                response = {"error" : false,"message" : data};
-            }
-            res.json(response);
-        });
-    })
-    .put(function (req,res) {
-        console.log("PUT POIs/" + req.params.id);
-
-
-
-        mongo.POIs.find({_id:req.params.id},function(err,data){
-            if(err) {
-                response = {"error" : true,"message" : "Error fetching data"};
-            } else {
-                var db = new mongo.POIs;
-                var updateInfo = {
-                    name:req.body.name,
-                    description:req.body.description,
-                    image:req.body.image
+        .get(function (req,res) {
+            console.log("GET POIs/" + req.params.id);
+            var response = {};
+            mongo.POIs.find({_id:req.params.id},function(err,data){
+                if(err) {
+                    response = {"error" : true,"message" : "Error fetching data"};
+                } else {
+                    response = {"error" : false,"message" : data};
                 }
+                res.json(response);
+            });
+        })
+        .put(function (req,res) {
+            console.log("PUT POIs/" + req.params.id);
 
 
-                mongo.POIs.update({_id:req.params.id},updateInfo,function(err){
-                    if(err) {
-                        response = {"error" : true,"message" : "Error updating data"};
-                    } else {
-                        response = {"error" : false,"message" : "Data is updated for "+req.params.id};
+
+            mongo.POIs.find({_id:req.params.id},function(err,data){
+                if(err) {
+                    response = {"error" : true,"message" : "Error fetching data"};
+                } else {
+                    var db = new mongo.POIs;
+                    var updateInfo = {
+                        name:req.body.name,
+                        description:req.body.description,
+                        image:req.body.image
                     }
-                    res.json(response);
-                })
-            }
-        });
-    })
-    .delete(function (req,res) {
-        console.log("DELETE POIs/" + req.params.id);
 
-        mongo.POIs.find({_id:req.params.id},function(err,data){
-            if(err) {
-                response = {"error" : true,"message" : "Error fetching data"};
-            } else {
-                //data exists, remove
-                mongo.POIs.remove({_id:req.params.id},function(err,data){
 
-                    if(err) {
-                        response = {"error" : true,"message" : "Error deleting data"};
-                    } else {
-                        response = {"error" : false,"message" : "Data associated with "+req.params.id+" is deleted"};
-                    }
-                    res.json(response);
-                });
-            }
+                    mongo.POIs.update({_id:req.params.id},updateInfo,function(err){
+                        if(err) {
+                            response = {"error" : true,"message" : "Error updating data"};
+                        } else {
+                            response = {"error" : false,"message" : "Data is updated for "+req.params.id};
+                        }
+                        res.json(response);
+                    })
+                }
+            });
+        })
+        .delete(function (req,res) {
+            console.log("DELETE POIs/" + req.params.id);
+
+            mongo.POIs.find({_id:req.params.id},function(err,data){
+                if(err) {
+                    response = {"error" : true,"message" : "Error fetching data"};
+                } else {
+                    //data exists, remove
+                    mongo.POIs.remove({_id:req.params.id},function(err,data){
+
+                        if(err) {
+                            response = {"error" : true,"message" : "Error deleting data"};
+                        } else {
+                            response = {"error" : false,"message" : "Data associated with "+req.params.id+" is deleted"};
+                        }
+                        res.json(response);
+                    });
+                }
+            });
         });
-    });
 };
 
 module.exports = appRouter;

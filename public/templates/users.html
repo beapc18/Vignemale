@@ -27,7 +27,8 @@
                 </div>
                 <!--Right part, with button-->
                 <div class="col-md-4">
-                    <button ng-if="!edit" ng-click="showEdit()" class="btn btn-default theme-accent">Edit</button>
+                    <button ng-if="!edit" ng-click="showEdit()" class="btn btn-default theme-accent">
+                        <span class="glyphicon glyphicon-edit"></span>  Edit</button>
                 </div>
             </div>
 
@@ -38,48 +39,24 @@
                         <div class="container-fluid">
                             <ul class="nav navbar-nav">
                                 <li>
-                                    <!--<div ng-click="showPOIs();hideRoutes();hideFollows();hideFavs();">-->
-                                    <!--POIS-->
-                                    <!--</div>-->
                                     <a role="button" ng-click="showPOIs();hideRoutes();hideFollows();hideFavs();" class="col-md-3">POIS</a>
                                 </li>
                                 <li>
-                                    <!--<div ng-click="showRoutes();hidePOIs();hideFollows();hideFavs();">-->
-                                    <!--Routes-->
-                                    <!--</div>-->
                                     <a role="button" ng-click="showRoutes();hidePOIs();hideFollows();hideFavs();"class="col-md-3">Routes</a>
                                 </li>
                                 <li>
-                                    <!--<div ng-click="showFollows();hidePOIs();hideRoutes();hideFavs();" class="col-md-3">-->
-                                    <!--Following-->
-                                    <!--</div>-->
                                     <a role="button" ng-click="showFollows();hidePOIs();hideRoutes();hideFavs();" class="col-md-3">Following</a>
                                 </li>
                                 <li>
-                                    <!--<div ng-click="showFavs();hidePOIs();hideFollows();hideRoutes();" class="col-md-3">-->
-                                    <!--Favorites-->
-                                    <!--</div>-->
                                     <a role="button" ng-click="showFavs();hidePOIs();hideFollows();hideRoutes();" class="col-md-3">Favs</a>
                                 </li>
                             </ul>
                         </div>
                     </nav>
-
-                    <!--<div ng-click="showPOIs();hideRoutes();hideFollows();hideFavs();" class="col-md-3">
-                        <button type="button" class="btn btn-primary">POIS</button>
-                    </div>
-                    <div ng-click="showRoutes();hidePOIs();hideFollows();hideFavs();" class="col-md-3">
-                        <button type="button" class="btn btn-primary">Routes</button>
-                    </div>
-                    <div ng-click="showFollows();hidePOIs();hideRoutes();hideFavs();" class="col-md-3">
-                        <button type="button" class="btn btn-primary">Following</button>
-                    </div>
-                    <div ng-click="showFavs();hidePOIs();hideFollows();hideRoutes();" class="col-md-3">
-                        <button type="button" class="btn btn-primary">Favorites</button>
-                    </div>-->
                 </div>
 
                 <div ng-if="pois">
+                    <p ng-if="poisList.length==0"> There are no POIs</p>
                     <ul class="list-group pre-scrollable" >
                         <button type="button" class="list-group-item" ng-repeat="row in poisList" ng-click="">{{row.name}}</button>
                     </ul>
@@ -99,12 +76,11 @@
             </div>
 
             <form name="form" ng-submit="modifyUser()" ng-if="edit">
-
-                <div ng-if="error" class="alert alert-danger feedbackMessages">
+                <div ng-if="error" class="alert alert-danger center">
                     <strong>&#10008</strong> {{errorMsg}}
                 </div>
                 <!-- this div will show only when the operation has been a success -->
-                <div ng-if="success" class="alert alert-success feedbackMessages">
+                <div ng-if="success" class="alert alert-success center">
                     <strong>&#10004</strong> {{successMsg}}
                 </div>
 
@@ -119,7 +95,8 @@
                 </div>
 
                 <button type="submit" class="btn btn-sm theme-accent-sm">Change password</button>
-                <a ng-click="removeUser()" class="btn btn-sm btn-danger">Remove Account</a>
+                <a ng-click="removeUser()" class="btn btn-sm btn-danger">
+                    <span class="glyphicon glyphicon-trash"></span>  Remove Account</a>
             </form>
         </div>
     </div>

@@ -40,6 +40,12 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 url: '/users/{id}/changePassword',
                 templateUrl: "templates/changePassword.html",
                 controller: "changePasswordCtrl"
+            })
+
+            .state('resetPassword', {
+                url: '/resetPassword',
+                templateUrl: "templates/resetPassword.html",
+                controller: "resetPasswordCtrl"
             });
 
 

@@ -17,6 +17,24 @@ var getInfoUser = function(mongo, id, callback){
     });
 };
 
+var getInfoUserByEmail = function(mongo, email, callback){
+    var response = {};
+
+    //search the user avoiding return params which are not necessary
+    mongo.users.find({email: email}, function (err, user) {
+        if (err) {
+            response = {"status": 500, "res": {"message": "Error searching user"}};
+        } else if(!user[0]){
+            response = {"status": 200, "res": {"message": "Not found user"}};
+        }
+        else {
+            response = {"status": 200, "res": {"message": "Found user"}};
+        }
+        callback(response);
+    });
+};
+
+
 //check if exist some user with id and password
 var findUserByPassword = function(mongo, id, password, callback){
     var response = {};
@@ -54,29 +72,6 @@ var validPassword = function (mongo, password) {
         .update(password)
         .digest('base64');
     return hashPassword === o
-}
-
-//Se necesita el id?
-var generateJWT = function (mongo, id, config) {
-    var expiry = new Date();
-    expiry.setDate(expiry.getDate() + 7);
-
-    return jwt.sign({
-        _id: this._id,
-        name: this.name,
-        email: this.email,
-        password: this.password,
-        birthDate: this.birthDate,
-        creationDate: this.creationDate,
-        leavingDate: this.leavingDate,
-        lastAccess: this.lastAccess,
-        removed: this.removed,
-        place: this.place,
-        isAdmin: this.isAdmin,
-        isVerified: this.isVerified,
-        firstLogin: this.firstLogin,
-        exp: parseInt(expiry.getTime() / 1000),
-    }, config.secret);
 };
 
 //Return data of user with id
@@ -105,7 +100,7 @@ module.exports = {
     getInfoUser: getInfoUser,
     findUserByPassword: findUserByPassword,
     updatePassword: updatePassword,
-    generateJWT: generateJWT,
     validPassword: validPassword,
-    isValidToken: isValidToken
+    isValidToken: isValidToken,
+    getInfoUserByEmail: getInfoUserByEmail
 };

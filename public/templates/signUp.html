@@ -1,14 +1,14 @@
 <div class="container">
 
-  <h1 id="firstContent">Sign up!</h1>
+  <h1 id="firstContent" class="center">Sign up!</h1>
 
   <form role="form" ng-submit="signUp()">
     <!-- this div will show only when an error occurs -->
-    <div ng-if="error" class="alert alert-danger feedbackMessages">
+    <div ng-if="error" class="alert alert-danger">
       <strong>&#10008</strong> {{errorMsg}}
     </div>
     <!-- this div will show only when the operation has been a success -->
-    <div ng-if="success" class="alert alert-success feedbackMessages">
+    <div ng-if="success" class="alert alert-success center">
       <strong>&#10004</strong> {{successMsg}}
     </div>
 
@@ -44,7 +44,7 @@
     </div>
 
     <!-- submit button form-->
-    <p style="text-align:center">
+    <p class="center">
       <button type="submit" class="btn btn-default theme-accent">Sign up</button>
     </p>
 

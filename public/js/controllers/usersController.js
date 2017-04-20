@@ -1,6 +1,6 @@
 angular.module('vignemale')
 
-    .controller('usersCtrl', ['$scope', '$state', '$stateParams', 'users', function ($scope, $state, $stateParams, users) {
+    .controller('usersCtrl', ['$scope', '$state', '$stateParams', 'users', 'auth', function ($scope, $state, $stateParams, users, auth) {
 
         //user id from url
         $scope.idUser = $stateParams.id;
@@ -90,14 +90,15 @@ angular.module('vignemale')
             $scope.successMsg = "";
         };
 
-
+        //modify user password
         $scope.modifyUser = function () {
             if($scope.newPassword === "" || $scope.oldPassword === ""
                 || $scope.newPassword !== $scope.newRePassword) {
                 window.alert($scope.oldPassword + $scope.newPassword + $scope.newRePassword);
                 showError({"message": "Invalid password"});
-            }
-            else {
+            } else if($scope.newPassword === $scope.oldPassword){
+                showError({"message": "Old and new passwords cannot be the same"});
+            } else {
                 window.alert($scope.oldPassword + " " + $scope.newPassword + " " + $scope.newRePassword);
                 var userObject = {
                     id: $scope.idUser,
@@ -109,21 +110,15 @@ angular.module('vignemale')
             }
         };
 
-        //modify user password
-        /*$scope.modifyUser = function () {
-            if($scope.newPassword !== $scope.newRePassword || $scope.newPassword !== "") {
-                showError("Invalid passwords")
-            } else {
-                window.alert($scope.oldPassword +" " + $scope.newPassword +" "+$scope.newRePassword);
-                var userObject = {
-                    id: $scope.idUser,
-                    oldPassword: $scope.oldPassword,
-                    newPassword: $scope.newPassword,
-                    newRePassword: $scope.newRePassword
-                };
-                users.modifyUser(userObject, showSuccess, showError)
+        //disable user account in db
+        $scope.removeUser = function () {
+            var deleteUser = window.confirm('Are you sure?');
+            if(deleteUser){
+                users.deleteUser($scope.idUser, function (data) {
+                    auth.logout();
+                }, showError);
             }
-        };*/
+        };
 
         //Get data about user
         users.getUser($scope.idUser, function (data) {

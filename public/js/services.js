@@ -2,7 +2,6 @@ angular.module('vignemale')
 // 'auth' service manage the authentication function of the page with the server
     .factory('auth', function ($state, $http, $httpParamSerializer) {
 
-        //window.alert(localStorage.sessionJWT);
         var session = undefined,
             _authenticated = false;
 
@@ -121,7 +120,7 @@ angular.module('vignemale')
                 });
             },
 
-            deleteUser: function (id, callbackSuccess,callbackError) {
+            deleteUser: function (id, callbackSuccess, callbackError) {
                 $http({
                     method: 'DELETE',
                     url: '/users/'+id
@@ -134,7 +133,7 @@ angular.module('vignemale')
 
 
             //verifyAccount
-            verifyAccount: function (id, callbackSuccess,callbackError) {
+            verifyAccount: function (id, callbackSuccess, callbackError) {
                 $http({
                     method: 'GET',
                     url: '/users/'+id+'/verifyAccount'

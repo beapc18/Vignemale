@@ -308,8 +308,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 response = {"message": "Error deleting user"};
                 res.status(500).json(response);
             } else {
-                console.log(user);
-                response = {"message": user};
+                response = {"message": "User deleted succesfully"};
                 res.status(200).json(response);
             }
         });

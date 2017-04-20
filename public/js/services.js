@@ -69,6 +69,24 @@ angular.module('vignemale')
                     callbackError(data);
                 });
             },
+            googleSignIn: function (token, callbackSuccess, callbackError) {
+                var that = this;
+                $http({
+                    method: 'POST',
+                    url: '/googleSignIn',
+                    data: $httpParamSerializer(token),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).success(function (data, status, headers) {
+                    that.authenticate(headers().authorization);
+                    $state.go('users',{id: data.message}); //redirect user home
+                    callbackSuccess(data);
+
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
 
             //send the register info to the server
             signUp: function (userObject, callbackSuccess, callbackError) {
@@ -176,6 +194,19 @@ angular.module('vignemale')
                     callbackSuccess(data);
                 }).error(function (data) {
                     callbackError(data);
+                });
+
+            },
+
+            getUserPOIs: function (id, callbackSuccess) {
+                $http({
+                    method: 'GET',
+                    url: '/users/'+id+'/POIs'
+                }).success(function (data) {
+                    console.log(data);
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    console.log("error");
                 });
 
             }

@@ -4,6 +4,7 @@ angular.module('vignemale')
 
         //user id from url
         $scope.idUser = $stateParams.id;
+        $scope.poisList = "";
 
         $scope.oldPassword = "";
         $scope.newPassword = "";
@@ -27,10 +28,15 @@ angular.module('vignemale')
 
 
         // hide/show different layers
-        $scope.showPOIs = function () {
-            $scope.pois = true;
+        $scope.POIs = function (data) {
+            $scope.poisList = data.message;
         };
 
+
+        $scope.showPOIs = function () {
+            users.getUserPOIs($scope.idUser,$scope.POIs);
+            $scope.pois = true;
+        };
         $scope.hidePOIs = function () {
             $scope.pois = false;
         };

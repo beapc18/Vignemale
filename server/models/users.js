@@ -23,12 +23,12 @@ var getInfoUserByEmail = function(mongo, email, callback){
     //search the user avoiding return params which are not necessary
     mongo.users.find({email: email}, function (err, user) {
         if (err) {
-            response = {"status": 500, "res": {"message": "Error searching user"}};
+            response = {"status": 500, "message": "Error searching user"};
         } else if(!user[0]){
-            response = {"status": 200, "res": {"message": "Not found user"}};
+            response = {"status": 200, "message": "Not found user"};
         }
         else {
-            response = {"status": 200, "res": {"message": "Found user"}};
+            response = {"status": 200, "message": "Found user", "id": user[0]._id};
         }
         callback(response);
     });
@@ -95,6 +95,36 @@ var isValidToken = function(mongo, id, tokenId, callback){
     });
 };
 
+var createAdmin = function (mongo, app) {
+    console.log("");
+    var db = new mongo.users;
+    db.email = "vignemaleSTW@gmail.com";
+    var hashPassword = require('crypto')
+        .createHash('sha1')
+        .update(app.get('pass'))
+        .digest('base64');
+    db.password = hashPassword;
+    db.isAdmin = true;
+    // mongo.users.find({email: email}, function (err, user) {
+    //     if(err) {
+    //         console.log
+    //     }
+    //
+    // })
+    getInfoUserByEmail(mongo, db.email, function (response) {
+        if(response.message === "Not found user") {
+            db.save(function (err) {
+                if (err) {
+                    console.log("Error database creating admin");
+                }
+                else {
+                    console.log("Admin created");
+                }
+            });
+        }
+    });
+};
+
 
 module.exports = {
     getInfoUser: getInfoUser,
@@ -102,5 +132,6 @@ module.exports = {
     updatePassword: updatePassword,
     validPassword: validPassword,
     isValidToken: isValidToken,
-    getInfoUserByEmail: getInfoUserByEmail
+    getInfoUserByEmail: getInfoUserByEmail,
+    createAdmin: createAdmin
 };

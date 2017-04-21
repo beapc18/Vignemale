@@ -67,8 +67,8 @@ var POIsSchema = mongoose.Schema({
 
 //Export all collections
 var users = mongoose.model('users',usersSchema);
-var POIs = mongoose.model('POIs',POIsSchema);
+var pois = mongoose.model('pois',POIsSchema);
 module.exports = {
     users: users,
-    POIs: POIs
+    pois: pois
 };

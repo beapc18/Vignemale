@@ -1,11 +1,11 @@
 angular.module('vignemale')
 
-    .controller('changePasswordCtrl', ['$scope', '$state', 'auth', '$stateParams', 'users', function ($scope, $state, auth, $stateParams, users) {
+    .controller('passwordCtrl', ['$scope', '$state', 'auth', '$stateParams', 'users', function ($scope, $state, auth, $stateParams, users) {
 
 
         // inputs visual variables
-        $scope.password = "";
-        $scope.rePassword = "";
+        $scope.newPassword = "";
+        $scope.newRePassword = "";
         $scope.idUser = "";
 
         // FEEDBACK MESSAGES
@@ -39,17 +39,17 @@ angular.module('vignemale')
         };
 
         // send the register form to the auth service
-        $scope.changePassword = function () {
+        $scope.password = function () {
 
-            if($scope.password !== $scope.rePassword) {
+            if($scope.newPassword !== $scope.newRePassword) {
                 showError("Invalid passwords")
             } else{
                 $scope.idUser = $stateParams.id;
                 var user = {
                     id: $scope.idUser,
-                    password: $scope.password
+                    password: $scope.newPassword
                 };
-                users.changePassword(user, showSuccess, showError);
+                users.password(user, showSuccess, showError);
 
             }
         };

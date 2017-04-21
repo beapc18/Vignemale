@@ -33,7 +33,7 @@ angular.module('vignemale')
                     password: "password"
                 };
 
-                $state.go('changePassword', {id: userObject.id});
+                $state.go('password', {id: userObject.id});
             }else{
                 $scope.errorMsg = error.message;
                 $scope.error = true;

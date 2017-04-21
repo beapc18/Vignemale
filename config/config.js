@@ -2,5 +2,6 @@
 //https://carlosazaustre.es/blog/autenticacion-con-token-en-node-js/
 // config.js
 module.exports = {
-  'secret': 'losubisinquerer'
+  'secret': 'losubisinquerer',
+    'pass': 'vignemale2017'
 };

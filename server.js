@@ -50,5 +50,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/',router);
 
 var server = app.listen(8888, function () {
+
+    database.createAdmin(mongo, app);
     console.log("Server listening in port %s...", server.address().port);
 });

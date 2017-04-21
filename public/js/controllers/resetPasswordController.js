@@ -36,7 +36,7 @@ angular.module('vignemale')
         };
 
         $scope.resetPassword = function () {
-            auth.resetPassword(email, showSuccess, showError);
+            auth.resetPassword({email: $scope.email}, showSuccess, showError);
         };
 
     }]);

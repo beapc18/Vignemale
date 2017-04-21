@@ -54,6 +54,7 @@ angular.module('vignemale')
             },
 
             resetPassword: function (email, callbackSuccess, callbackError) {
+                window.alert(email);
                 $http({
                     method: 'POST',
                     url: '/resetPassword',
@@ -88,7 +89,7 @@ angular.module('vignemale')
                             email: data.email
                         };
                         console.log("Services-signin. id " + userObject.id + " email " + userObject.email);
-                        $state.go('changePassword', {id: userObject.id}, {email: userObject.email});
+                        $state.go('password', {id: userObject.id}, {email: userObject.email});
                     }
                     callbackError(data);
                 });
@@ -190,11 +191,11 @@ angular.module('vignemale')
                 });
             },
 
-            //changePassword
-            changePassword: function (user, callbackSuccess,callbackError) {
+            //password
+            password: function (user, callbackSuccess,callbackError) {
                 $http({
-                    method: 'POST',
-                    url: '/users/'+user.id+'/changePassword',
+                    method: 'PUT',
+                    url: '/users/'+user.id+'/password',
                     data: $httpParamSerializer(user),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -227,7 +228,7 @@ angular.module('vignemale')
             getUserPOIs: function (id, callbackSuccess) {
                 $http({
                     method: 'GET',
-                    url: '/users/'+id+'/POIs'
+                    url: '/users/'+id+'/pois'
                 }).success(function (data) {
                     console.log(data);
                     callbackSuccess(data);

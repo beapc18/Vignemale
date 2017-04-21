@@ -117,20 +117,117 @@ var appRouter = function(router, mongo, app, config, database) {
 
         var response = {"error": false, "message": "bien"};
         var token = req.body.token;
-        console.log(token);
         var CLIENT_ID="967845224095-uak23gbthvsno7j7g2ulothjbeg2k0ob.apps.googleusercontent.com";
 
         var auth = new GoogleAuth;
         var client = new auth.OAuth2(CLIENT_ID, '', '');
+
         client.verifyIdToken(token, CLIENT_ID, function(e, login) {
-            var payload = login.getPayload();
-            var userid = payload['sub'];
-            response = {"message": userid};
-            // If request specified a G Suite domain:
-            //var domain = payload['hd'];
-            console.log(userid);
-            res.json(response);
-            //console.log(response);
+            if(e){
+                console.log("error");
+            }else {
+
+                var payload = login.getPayload();
+                var userid = payload['sub'];
+
+                var name = payload['given_name'];
+                var lastName = payload['family_name'];
+                var email = payload['email'];
+
+
+                //save only if doesn't exist any user with the same email
+                mongo.users.find({email: email}, function (err, data) {
+                    if (err) {
+                        response = {"message": "Error fetching data"};
+                        res.status(500).json(response);
+                    } else if (data.length !== 0) {
+
+                        response = {"message": "Email exists"};
+                        console.log(response);
+
+                        console.log(data[0]._id);
+                        //update last access when user access and jwt
+                        mongo.users.update({_id: data[0]._id}, {google: true},function(err){});
+
+
+                        //Generate id for token
+                        var tokenId = Math.random().toString(36).slice(-10);
+                        var payload = {id: data[0]._id, tokenId: tokenId};
+                        var token = jwt.sign(payload, jwtOptions.secretOrKey);
+
+                        console.log("Creado tokenId de usuario " + tokenId);
+
+
+                        response = {"message": data[0]._id};   //send user id or link to profile??
+
+                        res.setHeader("Authorization", token);
+                        res.status(200).json(response);
+
+                    } else {
+
+                        var db = new mongo.users;
+
+                        db.name = name;
+                        db.lastName = lastName;
+                        db.email = email;
+                        db.creationDate = new Date(); //no esta en formato yyyy-mm-dd
+                        db.lastAccess = new Date();
+                        db.isVerified = false;
+                        db.firstLogin = true;
+                        db.removed = false;
+                        db.google = true;
+
+
+                        db.save(function (err) {
+                            if (err) {
+                                response = {"message": "Error adding user"};
+                                console.log(response);
+                                res.status(500).json(response);
+                            } else {
+                                mongo.users.find({email: email}, function (err, data) {
+                                    if (err) {
+                                        response = {"message": "Error fetching data"};
+                                        res.status(500).json(response);
+                                    } else {
+
+                                        idUser = data[0]._id;
+                                        //enviar mail usuario
+
+                                        var url = 'http://localhost:8888/#/users/' + idUser + '/verifyAccount';
+                                        var text = 'Welcome to POIManager.' +
+                                            ' please, click the link bellow to confirm yout password.\n'
+                                            + url + '\n';
+
+                                        var mailOptions = {
+                                            from: 'vignemaleSTW@gmail.com', // sender address
+                                            to: email, // list of receivers
+                                            subject: 'Confirmation', // Subject line
+                                            text: text //, // plaintext body
+                                            // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
+                                        };
+
+                                        transporter.sendMail(mailOptions);
+
+                                        //Generate id for token
+                                        var tokenId = Math.random().toString(36).slice(-10);
+                                        var payload = {id: data[0]._id, tokenId: tokenId};
+                                        var token = jwt.sign(payload, jwtOptions.secretOrKey);
+
+                                        console.log("Creado tokenId de usuario " + tokenId);
+
+
+                                        response = {"message": data[0]._id};   //send user id or link to profile??
+                                        res.setHeader("Authorization", token);
+                                        res.status(200).json(response)
+                                    }
+                                });
+                            }
+                            console.log(response);
+                        });
+
+                    }
+                });
+            }
         });
     });
 
@@ -164,6 +261,7 @@ var appRouter = function(router, mongo, app, config, database) {
             db.lastAccess = new Date();
             db.isVerified = false;
             db.firstLogin = true;
+            db.google = false;
             db.removed = false;
 
             //save only if doesn't exist any user with the same email

@@ -22,6 +22,7 @@ var usersSchema = mongoose.Schema({
     isAdmin: Boolean,
     isVerified: Boolean,
     firstLogin: Boolean,
+    google: Boolean,
     token: String
     //pois
     //rutas
@@ -40,8 +41,6 @@ var POIsSchema = mongoose.Schema({
     value: Number,
     city: String,
     creator: objectId
-
-
     //Para ofrecer una imagen desde un controlador
     /*
      var img = document.createElement('img');

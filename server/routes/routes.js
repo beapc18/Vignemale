@@ -4,10 +4,8 @@ var passport  = require('passport');
 var passportJWT  = require('passport-jwt');
 var GoogleAuth = require('google-auth-library');
 
-//https://jonathanmh.com/express-passport-json-web-token-jwt-authentication-beginners/
 var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;
-
 
 // Not the movie transporter!
 var transporter = nodemailer.createTransport({
@@ -28,8 +26,7 @@ var appRouter = function(router, mongo, app, config, database) {
     jwtOptions.secretOrKey = app.get('secret'); //config.js
 
     var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
-        console.log('payload received', jwt_payload);
-        //console.log('id', jwt_payload.id, 'tokenId ' + jwt_payload.tokenId);
+        console.log('checking token');
 
         //comprueba si el id de la cabecera corresponde con alguno de la bbdd
         database.isValidToken(mongo, jwt_payload.id, jwt_payload.tokenId, function (response) {
@@ -42,6 +39,13 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
     passport.use(strategy);
+
+    //Verify if the id from user request is the same id that is in the token
+    var verifyIds = function (id, token) {
+        var idToken = jwt.decode(token.split(" ")[1]).id;
+        return id === idToken;
+    };
+
 
     router.post("/signIn", function (req, res) {
         console.log("signIn user");
@@ -93,7 +97,6 @@ var appRouter = function(router, mongo, app, config, database) {
                     /*var token = jwt.sign(data[0], app.get('secret'), {
                      expiresIn: 1440 // expires in 24 hours
                      });*/
-                    console.log("Creado tokenId de usuario " + tokenId);
 
                     //update last access when user access and jwt
                     mongo.users.update({_id: data[0]._id}, {lastAccess: new Date(), token: tokenId}, function (err) {
@@ -228,7 +231,7 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     });
 
-    router.get('/getIdFromToken', passport.authenticate('jwt', { session:false}), function (req, res) {
+    router.get('/getIdFromToken', passport.authenticate('jwt', {session:false}), function (req, res) {
         var payload = jwt.decode(req.headers.authorization.split(" ")[1]);
         res.status(200).json({"message":payload.id});
     });
@@ -256,10 +259,8 @@ var appRouter = function(router, mongo, app, config, database) {
             }
             response = {"message": "A message has been sent to change your password"};
             res.status(200).json(response);
-
         })
-
-    })
+    });
 
     router.get('/users/:id/verifyAccount', function (req, res) {
         console.log("verify user");
@@ -298,7 +299,7 @@ var appRouter = function(router, mongo, app, config, database) {
                                 console.log('Message sent: ' + info.response);
                                 response = {"message": "Account has been verified, you will receive an email with your password"};
                                 res.status(200).json(response);
-                            };
+                            }
                         });
                     }
                 });
@@ -338,73 +339,72 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    //endpoint de prueba que necesita autenticación y solo accede a el si se ha llamado con token(con Postman)
-    router.get("/secret", passport.authenticate('jwt', { session:false}), function (req, res) {
-        console.log("llamado a secret");
-        res.json("Success! You can not see this without token");
-    });
-
     //Return data of user with :id
     router.get("/users/:id", passport.authenticate('jwt', {session:false}), function (req, res) {
         console.log("get user");
 
-        database.getInfoUser(mongo, req.params.id, function (response) {
-            res.status(response.status).json(response.res);
-        });
-
+        if (verifyIds(req.params.id, req.headers.authorization)){
+            database.getInfoUser(mongo, req.params.id, function (response) {
+                res.status(response.status).json(response.res);
+            });
+        } else{
+            res.status(403).json({"message":"Access blocked"});
+        }
     });
 
     //change removed attribute for removing user
-    router.delete("/users/:id", /*passport.authenticate('jwt', {session:false}),*/ function (req, res) {
+    router.delete("/users/:id", passport.authenticate('jwt', {session:false}), function (req, res) {
         console.log("delete user");
 
-        //search the user avoiding return params which are not necessary
-        mongo.users.update({_id: req.params.id}, {removed: true}, function (err, user) {
-            if (err) {
-                response = {"message": "Error deleting user"};
-                res.status(500).json(response);
-            } else {
-                response = {"message": "User deleted succesfully"};
-                res.status(200).json(response);
-            }
-        });
+        if (verifyIds(req.params.id, req.headers.authorization)) {
+            //search the user avoiding return params which are not necessary
+            mongo.users.update({_id: req.params.id}, {removed: true}, function (err, user) {
+                if (err) {
+                    response = {"message": "Error deleting user"};
+                    res.status(500).json(response);
+                } else {
+                    response = {"message": "User deleted succesfully"};
+                    res.status(200).json(response);
+                }
+            });
+        } else{
+            res.status(403).json({"message":"Access blocked"});
+        }
     });
 
     //change password checking old password
-    router.put("/users/:id",/*passport.authenticate('jwt', {session:false}),*/ function (req, res) {
+    router.put("/users/:id", passport.authenticate('jwt', {session:false}), function (req, res) {
         console.log("update user");
         var response = {};
+        if (verifyIds(req.params.id, req.headers.authorization)) {
+            if(req.body.newPassword === req.body.newRePassword) {
+                //create the hash to compare with password in db
+                var hashOldPassword = require('crypto').createHash('sha1')
+                    .update(req.body.oldPassword).digest('base64');
 
-        console.log(req.body.oldPassword);
-        console.log(req.body.newPassword);
-        console.log(req.body.newRePassword);
+                //check if oldPassword is the same
+                database.findUserByPassword(mongo, req.params.id, hashOldPassword, function (response) {
+                    if (response.status === 200) {
+                        var hashNewPassword = require('crypto').createHash('sha1')
+                            .update(req.body.newPassword).digest('base64');
 
-        if(req.body.newPassword === req.body.newRePassword) {
-            //create the hash to compare with password in db
-            var hashOldPassword = require('crypto').createHash('sha1')
-                .update(req.body.oldPassword).digest('base64');
-
-            //check if oldPassword is the same
-            database.findUserByPassword(mongo, req.params.id, hashOldPassword, function (response) {
-                if (response.status === 200) {
-                    var hashNewPassword = require('crypto').createHash('sha1')
-                        .update(req.body.newPassword).digest('base64');
-
-                    //if the old password match, update the new password
-                    database.updatePassword(mongo, req.params.id, hashNewPassword, function (response) {
+                        //if the old password match, update the new password
+                        database.updatePassword(mongo, req.params.id, hashNewPassword, function (response) {
+                            res.status(response.status).json(response.res);
+                        });
+                    } else {
                         res.status(response.status).json(response.res);
-                    });
-                } else {
-                    res.status(response.status).json(response.res);
-                }
+                    }
+                    console.log(response);
+
+                });
+            } else{
+                response = {"message": "Password don't match"};
+                res.status(500).json(response);
                 console.log(response);
-
-            });
-        } else{
-            response = {"message": "Password don't match"};
-            res.status(500).json(response);
-            console.log(response);
-
+            }
+        } else {
+            res.status(403).json({"message":"Access blocked"});
         }
     });
 

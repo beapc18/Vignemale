@@ -100,12 +100,10 @@ angular.module('vignemale')
         $scope.modifyUser = function () {
             if($scope.newPassword === "" || $scope.oldPassword === ""
                 || $scope.newPassword !== $scope.newRePassword) {
-                window.alert($scope.oldPassword + $scope.newPassword + $scope.newRePassword);
                 showError({"message": "Invalid password"});
             } else if($scope.newPassword === $scope.oldPassword){
                 showError({"message": "Old and new passwords cannot be the same"});
             } else {
-                window.alert($scope.oldPassword + " " + $scope.newPassword + " " + $scope.newRePassword);
                 var userObject = {
                     id: $scope.idUser,
                     oldPassword: $scope.oldPassword,

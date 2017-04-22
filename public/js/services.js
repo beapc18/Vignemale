@@ -225,12 +225,11 @@ angular.module('vignemale')
                 });
             },
 
-            getUserPOIs: function (id, callbackSuccess) {
+            getUserPois: function (id, callbackSuccess) {
                 $http({
                     method: 'GET',
                     url: '/users/'+id+'/pois'
                 }).success(function (data) {
-                    console.log(data);
                     callbackSuccess(data);
                 }).error(function (data) {
                     console.log("error");

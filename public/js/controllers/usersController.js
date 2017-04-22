@@ -26,13 +26,37 @@ angular.module('vignemale')
         $scope.favs = false;
         $scope.edit = false;
 
+        var mapOptions = {
+            zoom: 13,
+            center: new google.maps.LatLng(41.64514, -0.8689481)
+        }
+
+        $scope.map = new google.maps.Map(document.getElementById('googleMap'), mapOptions)
 
 
         // hide/show different layers
         var showPoisList = function (data) {
             $scope.poisList = data.message;
-        };
+            var poisLen = $scope.poisList.length;
+            console.log(poisLen);
+            var markers = new Array(poisLen);
 
+            var pos;
+            for (i = 0; i < poisLen; i++) {
+                console.log(data.message[i]);
+                pos = new google.maps.LatLng(data.message[i].xCoord,data.message[i].yCoord);
+                markers[i] = new google.maps.Marker({
+                    position: pos,
+                    map: $scope.map,
+                    animation: google.maps.Animation.DROP,
+                    title: 'Hello World!'
+                });
+                markers[i].addListener('click', $scope.showPoi);
+            }
+        };
+        $scope.showPoi  = function () {
+            console.log("hola");
+        }
 
         $scope.showPois = function () {
             users.getUserPois($scope.idUser,$scope.pois);

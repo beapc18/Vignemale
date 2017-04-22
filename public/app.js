@@ -36,10 +36,10 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 controller: "verifyAccountCtrl"
             })
 
-            .state('changePassword', {
-                url: '/users/{id}/changePassword',
-                templateUrl: "templates/changePassword.html",
-                controller: "changePasswordCtrl"
+            .state('password', {
+                url: '/users/{id}/password',
+                templateUrl: "templates/password.html",
+                controller: "passwordCtrl"
             })
 
             .state('resetPassword', {

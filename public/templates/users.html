@@ -39,16 +39,16 @@
                         <div class="container-fluid">
                             <ul class="nav navbar-nav">
                                 <li>
-                                    <a role="button" ng-click="showPOIs();hideRoutes();hideFollows();hideFavs();" class="col-md-3">POIS</a>
+                                    <a role="button" ng-click="showPois();hideRoutes();hideFollows();hideFavs();" class="col-md-3">Pois</a>
                                 </li>
                                 <li>
-                                    <a role="button" ng-click="showRoutes();hidePOIs();hideFollows();hideFavs();"class="col-md-3">Routes</a>
+                                    <a role="button" ng-click="showRoutes();hidePois();hideFollows();hideFavs();"class="col-md-3">Routes</a>
                                 </li>
                                 <li>
-                                    <a role="button" ng-click="showFollows();hidePOIs();hideRoutes();hideFavs();" class="col-md-3">Following</a>
+                                    <a role="button" ng-click="showFollows();hidePois();hideRoutes();hideFavs();" class="col-md-3">Following</a>
                                 </li>
                                 <li>
-                                    <a role="button" ng-click="showFavs();hidePOIs();hideFollows();hideRoutes();" class="col-md-3">Favs</a>
+                                    <a role="button" ng-click="showFavs();hidePois();hideFollows();hideRoutes();" class="col-md-3">Favs</a>
                                 </li>
                             </ul>
                         </div>
@@ -56,11 +56,26 @@
                 </div>
 
                 <div ng-if="pois">
-                    <p ng-if="poisList.length==0"> There are no POIs</p>
+                    <p ng-if="poisList.length==0"> There are no pois</p>
                     <ul class="list-group pre-scrollable" >
                         <button type="button" class="list-group-item" ng-repeat="row in poisList" ng-click="">{{row.name}}</button>
                     </ul>
+
+
+                    <button type="button" class="btn btn-default theme-accent" ng-click="showCreatepoi()">Create POI</button>
                 </div>
+
+                <form name="form" ng-submit="createpoi()" ng-if="createpoi">
+                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="name" class="form-control" placeholder="Old password" required/>
+                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="description" class="form-control" placeholder="Old password" required/>
+                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="keywords" class="form-control" placeholder="Old password" required/>
+                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="coords" class="form-control" placeholder="Old password" required/>
+                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="shortUrl" class="form-control" placeholder="Old password" required/>
+                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="imagenes" class="form-control" placeholder="Old password" required/>
+                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="evaluate" class="form-control" placeholder="Old password" required/>
+
+                    <button type="button" class="">Create POI</button>
+                </form>
 
                 <div ng-if="routes">
                     mostrando rutas
@@ -98,6 +113,7 @@
                 <a ng-click="removeUser()" class="btn btn-sm btn-danger">
                     <span class="glyphicon glyphicon-trash"></span>  Remove Account</a>
             </form>
+
         </div>
     </div>
 </div>

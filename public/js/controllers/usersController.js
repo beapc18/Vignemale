@@ -5,6 +5,7 @@ angular.module('vignemale')
         //user id from url
         $scope.idUser = $stateParams.id;
         $scope.poisList = "";
+        $scope.createpoi = false;
 
         $scope.oldPassword = "";
         $scope.newPassword = "";
@@ -28,16 +29,16 @@ angular.module('vignemale')
 
 
         // hide/show different layers
-        $scope.POIs = function (data) {
+        var showPoisList = function (data) {
             $scope.poisList = data.message;
         };
 
 
-        $scope.showPOIs = function () {
-            users.getUserPOIs($scope.idUser,$scope.POIs);
+        $scope.showPois = function () {
+            users.getUserPois($scope.idUser,$scope.pois);
             $scope.pois = true;
         };
-        $scope.hidePOIs = function () {
+        $scope.hidePois = function () {
             $scope.pois = false;
         };
 
@@ -96,16 +97,19 @@ angular.module('vignemale')
             $scope.successMsg = "";
         };
 
+        $scope.showCreatepoi = function () {
+            $scope.createpoi = true;
+            $scope.pois = false;
+        };
+
         //modify user password
         $scope.modifyUser = function () {
             if($scope.newPassword === "" || $scope.oldPassword === ""
                 || $scope.newPassword !== $scope.newRePassword) {
-                window.alert($scope.oldPassword + $scope.newPassword + $scope.newRePassword);
                 showError({"message": "Invalid password"});
             } else if($scope.newPassword === $scope.oldPassword){
                 showError({"message": "Old and new passwords cannot be the same"});
             } else {
-                window.alert($scope.oldPassword + " " + $scope.newPassword + " " + $scope.newRePassword);
                 var userObject = {
                     id: $scope.idUser,
                     oldPassword: $scope.oldPassword,
@@ -129,6 +133,7 @@ angular.module('vignemale')
         //Get data about user
         users.getUser($scope.idUser, function (data) {
             //save info about user
+            users.getUserPois($scope.idUser, showPoisList);
             $scope.user = {
                 lastName: data.message[0].lastName,
                 name: data.message[0].name

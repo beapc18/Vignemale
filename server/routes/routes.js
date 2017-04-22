@@ -9,27 +9,28 @@ var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;
 
 
-// Not the movie transporter!
-var transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-        user: 'vignemaleSTW@gmail.com', // Your email id
-        pass: 'vignemale2017' // Your password
-    }
-});
 
 var appRouter = function(router, mongo, app, config, database) {
 
     //secret variable JWT
     app.set('secret', config.secret);
+    app.set('pass', config.pass);
+
+    // Not the movie transporter!
+    var transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+            user: 'vignemaleSTW@gmail.com', // Your email id
+            pass: app.get('pass') // Your password
+        }
+    });
 
     var jwtOptions = {};
     jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
     jwtOptions.secretOrKey = app.get('secret'); //config.js
 
     var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
-        console.log('payload received', jwt_payload);
-        //console.log('id', jwt_payload.id, 'tokenId ' + jwt_payload.tokenId);
+        console.log('checking token');
 
         //comprueba si el id de la cabecera corresponde con alguno de la bbdd
         database.isValidToken(mongo, jwt_payload.id, jwt_payload.tokenId, function (response) {
@@ -42,6 +43,13 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
     passport.use(strategy);
+
+    //Verify if the id from user request is the same id that is in the token
+    var verifyIds = function (id, token) {
+        var idToken = jwt.decode(token.split(" ")[1]).id;
+        return id === idToken;
+    };
+
 
     router.post("/signIn", function (req, res) {
         console.log("signIn user");
@@ -326,7 +334,7 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     });
 
-    router.get('/getIdFromToken', passport.authenticate('jwt', { session:false}), function (req, res) {
+    router.get('/getIdFromToken', passport.authenticate('jwt', {session:false}), function (req, res) {
         var payload = jwt.decode(req.headers.authorization.split(" ")[1]);
         res.status(200).json({"message":payload.id});
     });
@@ -334,15 +342,23 @@ var appRouter = function(router, mongo, app, config, database) {
     router.post('/resetPassword', function (req, res) {
         database.getInfoUserByEmail(mongo, req.body.email, function (response) {
             if(response.message === "Error searching user") {
-                res.status(500).json(response.res);
+                console.log("Error searching user");
+                res.response.status(500).json(response.message);
             }
             else if(response.message === "Found user") {
+                console.log("Found user");
+
+                var pass = Math.random().toString(36).slice(-10);
+                var hashNewPassword= require('crypto').createHash('sha1').update(pass).digest('base64');
+
+                console.log(req.body.email);
+
                 //send mail
                 var mailOptions = {
                     from: 'vignemaleSTW@gmail.com', // sender address
                     to: req.body.email, // list of receivers
                     subject: 'New password', // Subject line
-                    text: text //, // plaintext body
+                    text: "Your new password is " + pass //, // plaintext body
                 };
 
                 transporter.sendMail(mailOptions, function(error, info){
@@ -351,13 +367,16 @@ var appRouter = function(router, mongo, app, config, database) {
                         res.status(500).json({yo: 'error'});
                     }
                 });
+
+                //change in db
+                database.updatePassword(mongo, response.id, hashNewPassword, function () {
+                });
             }
             response = {"message": "A message has been sent to change your password"};
             res.status(200).json(response);
 
         })
-
-    })
+    });
 
     router.get('/users/:id/verifyAccount', function (req, res) {
         console.log("verify user");
@@ -406,7 +425,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
 
 
-    router.post("/users/:id/changePassword", function (req, res) {
+    router.put("/users/:id/password", function (req, res) {
         console.log("change user password");
 
         //create the hash to save in db   --> cifrar en cliente
@@ -436,82 +455,81 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    //endpoint de prueba que necesita autenticación y solo accede a el si se ha llamado con token(con Postman)
-    router.get("/secret", passport.authenticate('jwt', { session:false}), function (req, res) {
-        console.log("llamado a secret");
-        res.json("Success! You can not see this without token");
-    });
-
     //Return data of user with :id
     router.get("/users/:id", passport.authenticate('jwt', {session:false}), function (req, res) {
         console.log("get user");
 
-        database.getInfoUser(mongo, req.params.id, function (response) {
-            res.status(response.status).json(response.res);
-        });
-
-    });
-
-    //change removed attribute for removing user
-    router.delete("/users/:id", /*passport.authenticate('jwt', {session:false}),*/ function (req, res) {
-        console.log("delete user");
-
-        //search the user avoiding return params which are not necessary
-        mongo.users.update({_id: req.params.id}, {removed: true}, function (err, user) {
-            if (err) {
-                response = {"message": "Error deleting user"};
-                res.status(500).json(response);
-            } else {
-                response = {"message": "User deleted succesfully"};
-                res.status(200).json(response);
-            }
-        });
-    });
-
-    //change password checking old password
-    router.put("/users/:id",/*passport.authenticate('jwt', {session:false}),*/ function (req, res) {
-        console.log("update user");
-        var response = {};
-
-        console.log(req.body.oldPassword);
-        console.log(req.body.newPassword);
-        console.log(req.body.newRePassword);
-
-        if(req.body.newPassword === req.body.newRePassword) {
-            //create the hash to compare with password in db
-            var hashOldPassword = require('crypto').createHash('sha1')
-                .update(req.body.oldPassword).digest('base64');
-
-            //check if oldPassword is the same
-            database.findUserByPassword(mongo, req.params.id, hashOldPassword, function (response) {
-                if (response.status === 200) {
-                    var hashNewPassword = require('crypto').createHash('sha1')
-                        .update(req.body.newPassword).digest('base64');
-
-                    //if the old password match, update the new password
-                    database.updatePassword(mongo, req.params.id, hashNewPassword, function (response) {
-                        res.status(response.status).json(response.res);
-                    });
-                } else {
-                    res.status(response.status).json(response.res);
-                }
-                console.log(response);
-
+        if (verifyIds(req.params.id, req.headers.authorization)){
+            database.getInfoUser(mongo, req.params.id, function (response) {
+                res.status(response.status).json(response.res);
             });
         } else{
-            response = {"message": "Password don't match"};
-            res.status(500).json(response);
-            console.log(response);
-
+            res.status(403).json({"message":"Access blocked"});
         }
     });
 
-    //get user POIs
-    router.get("/users/:id/POIs", function (req, res) {
-        var userId = req.params.id;
-        console.log("get user "+ userId + " POIs");
+    //change removed attribute for removing user
+    router.delete("/users/:id", passport.authenticate('jwt', {session:false}), function (req, res) {
+        console.log("delete user");
+
+        if (verifyIds(req.params.id, req.headers.authorization)) {
+            //search the user avoiding return params which are not necessary
+            mongo.users.update({_id: req.params.id}, {removed: true}, function (err, user) {
+                if (err) {
+                    response = {"message": "Error deleting user"};
+                    res.status(500).json(response);
+                } else {
+                    response = {"message": "User deleted succesfully"};
+                    res.status(200).json(response);
+                }
+            });
+        } else{
+            res.status(403).json({"message":"Access blocked"});
+        }
+    });
+
+    //change password checking old password
+    router.put("/users/:id", passport.authenticate('jwt', {session:false}), function (req, res) {
+        console.log("update user");
         var response = {};
-        mongo.POIs.find({creator: userId},function(err,data){
+        if (verifyIds(req.params.id, req.headers.authorization)) {
+            if(req.body.newPassword === req.body.newRePassword) {
+                //create the hash to compare with password in db
+                var hashOldPassword = require('crypto').createHash('sha1')
+                    .update(req.body.oldPassword).digest('base64');
+
+                //check if oldPassword is the same
+                database.findUserByPassword(mongo, req.params.id, hashOldPassword, function (response) {
+                    if (response.status === 200) {
+                        var hashNewPassword = require('crypto').createHash('sha1')
+                            .update(req.body.newPassword).digest('base64');
+
+                        //if the old password match, update the new password
+                        database.updatePassword(mongo, req.params.id, hashNewPassword, function (response) {
+                            res.status(response.status).json(response.res);
+                        });
+                    } else {
+                        res.status(response.status).json(response.res);
+                    }
+                    console.log(response);
+
+                });
+            } else{
+                response = {"message": "Password don't match"};
+                res.status(500).json(response);
+                console.log(response);
+            }
+        } else {
+            res.status(403).json({"message":"Access blocked"});
+        }
+    });
+
+    //get user pois
+    router.get("/users/:id/pois", function (req, res) {
+        var userId = req.params.id;
+        console.log("get user "+ userId + " pois");
+        var response = {};
+        mongo.pois.find({creator: userId},function(err,data){
             if(err) {
                 response = {"error" : true,"message" : "Error fetching data"};
             } else {
@@ -522,11 +540,11 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
 
-    router.route("/POIs")
+    router.route("/pois")
         .get(function (req,res) {
-            console.log("GET POIs");
+            console.log("GET pois");
             var response = {};
-            mongo.POIs.find(function(err,data){
+            mongo.pois.find(function(err,data){
                 if(err) {
                     response = {"error" : true,"message" : "Error fetching data"};
                 } else {
@@ -536,8 +554,8 @@ var appRouter = function(router, mongo, app, config, database) {
             });
         })
         .post(function (req,res) {
-            console.log("POST POIs");
-            var db = new mongo.POIs;
+            console.log("POST pois");
+            var db = new mongo.pois;
             var response = {};
 
             var name = req.body.name;
@@ -576,11 +594,11 @@ var appRouter = function(router, mongo, app, config, database) {
 
 
 
-    router.route("/POIs/:id")
+    router.route("/pois/:id")
         .get(function (req,res) {
-            console.log("GET POIs/" + req.params.id);
+            console.log("GET pois/" + req.params.id);
             var response = {};
-            mongo.POIs.find({_id:req.params.id},function(err,data){
+            mongo.pois.find({_id:req.params.id},function(err,data){
                 if(err) {
                     response = {"error" : true,"message" : "Error fetching data"};
                 } else {
@@ -590,15 +608,15 @@ var appRouter = function(router, mongo, app, config, database) {
             });
         })
         .put(function (req,res) {
-            console.log("PUT POIs/" + req.params.id);
+            console.log("PUT pois/" + req.params.id);
 
 
 
-            mongo.POIs.find({_id:req.params.id},function(err,data){
+            mongo.pois.find({_id:req.params.id},function(err,data){
                 if(err) {
                     response = {"error" : true,"message" : "Error fetching data"};
                 } else {
-                    var db = new mongo.POIs;
+                    var db = new mongo.pois;
                     var updateInfo = {
                         name:req.body.name,
                         description:req.body.description,
@@ -606,7 +624,7 @@ var appRouter = function(router, mongo, app, config, database) {
                     }
 
 
-                    mongo.POIs.update({_id:req.params.id},updateInfo,function(err){
+                    mongo.pois.update({_id:req.params.id},updateInfo,function(err){
                         if(err) {
                             response = {"error" : true,"message" : "Error updating data"};
                         } else {
@@ -618,14 +636,14 @@ var appRouter = function(router, mongo, app, config, database) {
             });
         })
         .delete(function (req,res) {
-            console.log("DELETE POIs/" + req.params.id);
+            console.log("DELETE pois/" + req.params.id);
 
-            mongo.POIs.find({_id:req.params.id},function(err,data){
+            mongo.pois.find({_id:req.params.id},function(err,data){
                 if(err) {
                     response = {"error" : true,"message" : "Error fetching data"};
                 } else {
                     //data exists, remove
-                    mongo.POIs.remove({_id:req.params.id},function(err,data){
+                    mongo.pois.remove({_id:req.params.id},function(err,data){
 
                         if(err) {
                             response = {"error" : true,"message" : "Error deleting data"};

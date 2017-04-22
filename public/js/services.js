@@ -29,8 +29,8 @@ angular.module('vignemale')
                 localStorage.sessionJWT = angular.toJson(session);
             },
 
-            getSession: function () {
-                return session;
+            getToken: function () {
+                return 'JWT '+localStorage.sessionJWT.replace(/"/g,'');
             },
 
             //logout function
@@ -42,21 +42,19 @@ angular.module('vignemale')
             },
 
             getIdFromToken: function (callbackSuccess) {
-                var token = 'JWT '+localStorage.sessionJWT.replace(/"/g,'');
-
                 $http({
                     method: 'GET',
                     url: '/getIdFromToken',
                     headers: {
-                        'Authorization': token
+                        'Authorization': auth.getToken()
                     }
                 }).success(function (data) {
-                    //callbackSuccess(data.message);
                     $state.go('users', {id: data.message});
                 });
             },
 
             resetPassword: function (email, callbackSuccess, callbackError) {
+                window.alert(email);
                 $http({
                     method: 'POST',
                     url: '/resetPassword',
@@ -84,8 +82,6 @@ angular.module('vignemale')
                 }).success(function (data, status, headers) {
                     that.authenticate(headers().authorization);
                     $state.go('users',{id: data.message}); //redirect user home
-                    //callbackSuccess(data);
-
                 }).error(function (data) {
                     if(data.message === "You must change your password") {
                         var userObject = {
@@ -93,11 +89,12 @@ angular.module('vignemale')
                             email: data.email
                         };
                         console.log("Services-signin. id " + userObject.id + " email " + userObject.email);
-                        $state.go('changePassword', {id: userObject.id}, {email: userObject.email});
+                        $state.go('password', {id: userObject.id}, {email: userObject.email});
                     }
                     callbackError(data);
                 });
             },
+
             googleSignIn: function (token, callbackSuccess, callbackError) {
                 var that = this;
                 $http({
@@ -111,7 +108,6 @@ angular.module('vignemale')
                     that.authenticate(headers().authorization);
                     $state.go('users',{id: data.message}); //redirect user home
                     callbackSuccess(data);
-
                 }).error(function (data) {
                     callbackError(data);
                 });
@@ -135,16 +131,15 @@ angular.module('vignemale')
         };
     })
 
-    .factory('users', function ($state, $http, $httpParamSerializer) {
+    .factory('users', function ($state, $http, $httpParamSerializer, auth) {
         return {
 
             getUser: function (id, callbackSuccess,callbackError) {
-                var token = 'JWT '+localStorage.sessionJWT.replace(/"/g,'');
                 $http({
                     method: 'GET',
                     url: '/users/'+id,
                     headers: {
-                        'Authorization': token
+                        'Authorization': auth.getToken()
                     }
                 }).success(function (data) {
                     callbackSuccess(data);
@@ -159,7 +154,8 @@ angular.module('vignemale')
                     url: '/users/'+userObject.id,
                     data: $httpParamSerializer(userObject),
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
                     }
                 }).success(function (data) {
                     callbackSuccess(data);
@@ -171,7 +167,10 @@ angular.module('vignemale')
             deleteUser: function (id, callbackSuccess, callbackError) {
                 $http({
                     method: 'DELETE',
-                    url: '/users/'+id
+                    url: '/users/'+id,
+                    headers: {
+                        'Authorization': auth.getToken()
+                    }
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
@@ -192,11 +191,11 @@ angular.module('vignemale')
                 });
             },
 
-            //changePassword
-            changePassword: function (user, callbackSuccess,callbackError) {
+            //password
+            password: function (user, callbackSuccess,callbackError) {
                 $http({
-                    method: 'POST',
-                    url: '/users/'+user.id+'/changePassword',
+                    method: 'PUT',
+                    url: '/users/'+user.id+'/password',
                     data: $httpParamSerializer(user),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -224,20 +223,18 @@ angular.module('vignemale')
                 }).error(function (data) {
                     callbackError(data);
                 });
-
             },
 
             getUserPOIs: function (id, callbackSuccess) {
                 $http({
                     method: 'GET',
-                    url: '/users/'+id+'/POIs'
+                    url: '/users/'+id+'/pois'
                 }).success(function (data) {
                     console.log(data);
                     callbackSuccess(data);
                 }).error(function (data) {
                     console.log("error");
                 });
-
             }
         };
     })

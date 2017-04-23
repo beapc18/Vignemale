@@ -234,6 +234,16 @@ angular.module('vignemale')
                 }).error(function (data) {
                     console.log("error");
                 });
+            },
+            getUserRoutes: function (id, callbackSuccess) {
+                $http({
+                    method: 'GET',
+                    url: '/users/'+id+'/routes'
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    console.log("error");
+                });
             }
         };
     })

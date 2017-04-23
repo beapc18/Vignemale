@@ -29,16 +29,16 @@ var appRouter = function(router, mongo, app, config, database) {
     jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
     jwtOptions.secretOrKey = app.get('secret'); //config.js
 
-    var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
+    var strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
         console.log('checking token');
 
         //comprueba si el id de la cabecera corresponde con alguno de la bbdd
         database.isValidToken(mongo, jwt_payload.id, jwt_payload.tokenId, function (response) {
             if (response.status === 200) {
-                next(null,response);
+                next(null, response);
             } else {
                 //redirect to login
-                next(null,false);
+                next(null, false);
             }
         });
     });
@@ -125,15 +125,15 @@ var appRouter = function(router, mongo, app, config, database) {
 
         var response = {"error": false, "message": "bien"};
         var token = req.body.token;
-        var CLIENT_ID="967845224095-uak23gbthvsno7j7g2ulothjbeg2k0ob.apps.googleusercontent.com";
+        var CLIENT_ID = "967845224095-uak23gbthvsno7j7g2ulothjbeg2k0ob.apps.googleusercontent.com";
 
         var auth = new GoogleAuth;
         var client = new auth.OAuth2(CLIENT_ID, '', '');
 
-        client.verifyIdToken(token, CLIENT_ID, function(e, login) {
-            if(e){
+        client.verifyIdToken(token, CLIENT_ID, function (e, login) {
+            if (e) {
                 console.log("error");
-            }else {
+            } else {
 
                 var payload = login.getPayload();
                 var userid = payload['sub'];
@@ -153,9 +153,9 @@ var appRouter = function(router, mongo, app, config, database) {
                         response = {"message": "Email exists"};
                         console.log(response);
 
-                        console.log(data[0]._id);
                         //update last access when user access and jwt
-                        mongo.users.update({_id: data[0]._id}, {google: true},function(err){});
+                        mongo.users.update({_id: data[0]._id}, {google: true}, function (err) {
+                        });
 
 
                         //Generate id for token
@@ -301,10 +301,10 @@ var appRouter = function(router, mongo, app, config, database) {
                                     //enviar mail usuario
 
 
-                                    var url = 'http://localhost:8888/#/users/'+idUser+'/verifyAccount';
-                                    var text = 'Welcome to POIManager.'+
+                                    var url = 'http://localhost:8888/#/users/' + idUser + '/verifyAccount';
+                                    var text = 'Welcome to POIManager.' +
                                         ' please, click the link bellow to confirm yout password.\n'
-                                        +url+'\n';
+                                        + url + '\n';
 
                                     var mailOptions = {
                                         from: 'vignemaleSTW@gmail.com', // sender address
@@ -314,11 +314,11 @@ var appRouter = function(router, mongo, app, config, database) {
                                         // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
                                     };
 
-                                    transporter.sendMail(mailOptions, function(error, info){
-                                        if(error){
+                                    transporter.sendMail(mailOptions, function (error, info) {
+                                        if (error) {
                                             console.log(error);
                                             res.json({yo: 'error'});
-                                        }else{
+                                        } else {
                                             console.log('Message sent: ' + info.response);
                                             res.json({yo: info.response});
                                         }
@@ -334,24 +334,22 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     });
 
-    router.get('/getIdFromToken', passport.authenticate('jwt', {session:false}), function (req, res) {
+    router.get('/getIdFromToken', passport.authenticate('jwt', {session: false}), function (req, res) {
         var payload = jwt.decode(req.headers.authorization.split(" ")[1]);
-        res.status(200).json({"message":payload.id});
+        res.status(200).json({"message": payload.id});
     });
 
     router.post('/resetPassword', function (req, res) {
         database.getInfoUserByEmail(mongo, req.body.email, function (response) {
-            if(response.message === "Error searching user") {
+            if (response.message === "Error searching user") {
                 console.log("Error searching user");
                 res.response.status(500).json(response.message);
             }
-            else if(response.message === "Found user") {
+            else if (response.message === "Found user") {
                 console.log("Found user");
 
                 var pass = Math.random().toString(36).slice(-10);
-                var hashNewPassword= require('crypto').createHash('sha1').update(pass).digest('base64');
-
-                console.log(req.body.email);
+                var hashNewPassword = require('crypto').createHash('sha1').update(pass).digest('base64');
 
                 //send mail
                 var mailOptions = {
@@ -361,8 +359,8 @@ var appRouter = function(router, mongo, app, config, database) {
                     text: "Your new password is " + pass //, // plaintext body
                 };
 
-                transporter.sendMail(mailOptions, function(error, info){
-                    if(error){
+                transporter.sendMail(mailOptions, function (error, info) {
+                    if (error) {
                         console.log(error);
                         res.status(500).json({yo: 'error'});
                     }
@@ -383,9 +381,8 @@ var appRouter = function(router, mongo, app, config, database) {
 
         //Generate random number, Convert to base-36 and Cut off last 10 chars
         var pass = Math.random().toString(36).slice(-10);
-        console.log(pass);
         // Hash the password using SHA1 algorithm.
-        var hashPassword= require('crypto').createHash('sha1').update(pass).digest('base64');
+        var hashPassword = require('crypto').createHash('sha1').update(pass).digest('base64');
 
         mongo.users.update({_id: req.params.id}, {isVerified: true, password: hashPassword}, function (err) {
             if (err) {
@@ -393,13 +390,12 @@ var appRouter = function(router, mongo, app, config, database) {
                 res.status(500).json(response);
             } else {
 
-                mongo.users.findById(req.params.id, function (err,data) {
+                mongo.users.findById(req.params.id, function (err, data) {
                     if (err) {
 
-                    }else{
+                    } else {
                         var text = 'Your password is ' + pass;
 
-                        console.log(data._id);
                         var mailOptions = {
                             from: 'vignemaleSTW@gmail.com', // sender address
                             to: data.email, // list of receivers
@@ -407,15 +403,16 @@ var appRouter = function(router, mongo, app, config, database) {
                             text: text //, // plaintext body
                         };
 
-                        transporter.sendMail(mailOptions, function(error, info){
-                            if(error){
+                        transporter.sendMail(mailOptions, function (error, info) {
+                            if (error) {
                                 console.log(error);
                                 res.json({yo: 'error'});
-                            }else{
+                            } else {
                                 console.log('Message sent: ' + info.response);
                                 response = {"message": "Account has been verified, you will receive an email with your password"};
                                 res.status(200).json(response);
-                            };
+                            }
+                            ;
                         });
                     }
                 });
@@ -424,12 +421,11 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
 
-
     router.put("/users/:id/password", function (req, res) {
         console.log("change user password");
 
         //create the hash to save in db   --> cifrar en cliente
-        var hashPassword =  require('crypto')
+        var hashPassword = require('crypto')
             .createHash('sha1')
             .update(req.body.password)
             .digest('base64');
@@ -439,14 +435,18 @@ var appRouter = function(router, mongo, app, config, database) {
                 response = {"message": "Error updating data"};
                 res.status(500).json(response);
             } else {
-                mongo.users.find({_id:req.body.id}, function (err, data) {
-                    if(err) {
+                mongo.users.find({_id: req.body.id}, function (err, data) {
+                    if (err) {
                         response = {"message": "Error fetching data"};
                         //console.log(response);
                         res.status(500).json(response);
                     }
                     else {
-                        response = {"message": "Password changed successfully", email: data[0].email, password: req.body.password};
+                        response = {
+                            "message": "Password changed successfully",
+                            email: data[0].email,
+                            password: req.body.password
+                        };
                         res.status(200).json(response);
                     }
                 })
@@ -456,20 +456,20 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
     //Return data of user with :id
-    router.get("/users/:id", passport.authenticate('jwt', {session:false}), function (req, res) {
+    router.get("/users/:id", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("get user");
 
-        if (verifyIds(req.params.id, req.headers.authorization)){
+        if (verifyIds(req.params.id, req.headers.authorization)) {
             database.getInfoUser(mongo, req.params.id, function (response) {
                 res.status(response.status).json(response.res);
             });
-        } else{
-            res.status(403).json({"message":"Access blocked"});
+        } else {
+            res.status(403).json({"message": "Access blocked"});
         }
     });
 
     //change removed attribute for removing user
-    router.delete("/users/:id", passport.authenticate('jwt', {session:false}), function (req, res) {
+    router.delete("/users/:id", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("delete user");
 
         if (verifyIds(req.params.id, req.headers.authorization)) {
@@ -483,17 +483,17 @@ var appRouter = function(router, mongo, app, config, database) {
                     res.status(200).json(response);
                 }
             });
-        } else{
-            res.status(403).json({"message":"Access blocked"});
+        } else {
+            res.status(403).json({"message": "Access blocked"});
         }
     });
 
     //change password checking old password
-    router.put("/users/:id", passport.authenticate('jwt', {session:false}), function (req, res) {
+    router.put("/users/:id", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("update user");
         var response = {};
         if (verifyIds(req.params.id, req.headers.authorization)) {
-            if(req.body.newPassword === req.body.newRePassword) {
+            if (req.body.newPassword === req.body.newRePassword) {
                 //create the hash to compare with password in db
                 var hashOldPassword = require('crypto').createHash('sha1')
                     .update(req.body.oldPassword).digest('base64');
@@ -514,26 +514,26 @@ var appRouter = function(router, mongo, app, config, database) {
                     console.log(response);
 
                 });
-            } else{
+            } else {
                 response = {"message": "Password don't match"};
                 res.status(500).json(response);
                 console.log(response);
             }
         } else {
-            res.status(403).json({"message":"Access blocked"});
+            res.status(403).json({"message": "Access blocked"});
         }
     });
 
     //get user pois
     router.get("/users/:id/pois", function (req, res) {
         var userId = req.params.id;
-        console.log("get user "+ userId + " pois");
+        console.log("get user " + userId + " pois");
         var response = {};
-        mongo.pois.find({creator: userId},function(err,data){
-            if(err) {
-                response = {"error" : true,"message" : "Error fetching data"};
+        mongo.pois.find({creator: userId}, function (err, data) {
+            if (err) {
+                response = {"error": true, "message": "Error fetching data"};
             } else {
-                response = {"error" : false,"message" : data};
+                response = {"error": false, "message": data};
             }
             res.json(response);
         });
@@ -541,19 +541,19 @@ var appRouter = function(router, mongo, app, config, database) {
 
 
     router.route("/pois")
-        .get(function (req,res) {
+        .get(function (req, res) {
             console.log("GET pois");
             var response = {};
-            mongo.pois.find(function(err,data){
-                if(err) {
-                    response = {"error" : true,"message" : "Error fetching data"};
+            mongo.pois.find(function (err, data) {
+                if (err) {
+                    response = {"error": true, "message": "Error fetching data"};
                 } else {
-                    response = {"error" : false,"message" : data};
+                    response = {"error": false, "message": data};
                 }
                 res.json(response);
             });
         })
-        .post(function (req,res) {
+        .post(function (req, res) {
             console.log("POST pois");
             var db = new mongo.pois;
             var response = {};
@@ -561,8 +561,8 @@ var appRouter = function(router, mongo, app, config, database) {
             var name = req.body.name;
             var description = req.body.description;
             //var keywords = req.body.keywords;
-            var xCoord = req.body.xCoord;
-            var yCoord = req.body.yCoord;
+            var lat = req.body.lat;
+            var lng = req.body.lng;
             //var shortURL = req.body.shortURL;
             var image = req.body.image;
             var valoration = 5;
@@ -573,18 +573,18 @@ var appRouter = function(router, mongo, app, config, database) {
             // fetch email and password from REST request.
             db.name = name;
             db.description = description;
-            db.xCoord = xCoord;
-            db.yCoord = yCoord;
+            db.lat = lat;
+            db.lng = lng;
             db.creator = creator;
 
 
-            db.save(function(err){
+            db.save(function (err) {
                 // save() will run insert() command of MongoDB.
                 // it will add new data in collection.
-                if(err) {
-                    response = {"error" : true,"message" : "Error adding data"};
+                if (err) {
+                    response = {"error": true, "message": "Error adding data"};
                 } else {
-                    response = {"error" : false,"message" : "Data added"};
+                    response = {"error": false, "message": "Data added"};
                 }
                 res.json(response);
             });
@@ -592,69 +592,129 @@ var appRouter = function(router, mongo, app, config, database) {
         });
 
 
-
-
     router.route("/pois/:id")
-        .get(function (req,res) {
+        .get(function (req, res) {
             console.log("GET pois/" + req.params.id);
             var response = {};
-            mongo.pois.find({_id:req.params.id},function(err,data){
-                if(err) {
-                    response = {"error" : true,"message" : "Error fetching data"};
+            mongo.pois.find({_id: req.params.id}, function (err, data) {
+                if (err) {
+                    response = {"error": true, "message": "Error fetching data"};
                 } else {
-                    response = {"error" : false,"message" : data};
+                    response = {"error": false, "message": data};
                 }
                 res.json(response);
             });
         })
-        .put(function (req,res) {
+        .put(function (req, res) {
             console.log("PUT pois/" + req.params.id);
 
 
-
-            mongo.pois.find({_id:req.params.id},function(err,data){
-                if(err) {
-                    response = {"error" : true,"message" : "Error fetching data"};
+            mongo.pois.find({_id: req.params.id}, function (err, data) {
+                if (err) {
+                    response = {"error": true, "message": "Error fetching data"};
                 } else {
                     var db = new mongo.pois;
                     var updateInfo = {
-                        name:req.body.name,
-                        description:req.body.description,
-                        image:req.body.image
+                        name: req.body.name,
+                        description: req.body.description,
+                        image: req.body.image
                     }
 
 
-                    mongo.pois.update({_id:req.params.id},updateInfo,function(err){
-                        if(err) {
-                            response = {"error" : true,"message" : "Error updating data"};
+                    mongo.pois.update({_id: req.params.id}, updateInfo, function (err) {
+                        if (err) {
+                            response = {"error": true, "message": "Error updating data"};
                         } else {
-                            response = {"error" : false,"message" : "Data is updated for "+req.params.id};
+                            response = {"error": false, "message": "Data is updated for " + req.params.id};
                         }
                         res.json(response);
                     })
                 }
             });
         })
-        .delete(function (req,res) {
+        .delete(function (req, res) {
             console.log("DELETE pois/" + req.params.id);
 
-            mongo.pois.find({_id:req.params.id},function(err,data){
-                if(err) {
-                    response = {"error" : true,"message" : "Error fetching data"};
+            mongo.pois.find({_id: req.params.id}, function (err, data) {
+                if (err) {
+                    response = {"error": true, "message": "Error fetching data"};
                 } else {
                     //data exists, remove
-                    mongo.pois.remove({_id:req.params.id},function(err,data){
+                    mongo.pois.remove({_id: req.params.id}, function (err, data) {
 
-                        if(err) {
-                            response = {"error" : true,"message" : "Error deleting data"};
+                        if (err) {
+                            response = {"error": true, "message": "Error deleting data"};
                         } else {
-                            response = {"error" : false,"message" : "Data associated with "+req.params.id+" is deleted"};
+                            response = {
+                                "error": false,
+                                "message": "Data associated with " + req.params.id + " is deleted"
+                            };
                         }
                         res.json(response);
                     });
                 }
             });
         });
+
+
+    //get user routes
+    router.get("/users/:id/routes", function (req, res) {
+        var userId = req.params.id;
+        console.log("get user " + userId + " routes");
+        var response = {};
+        mongo.routes.find({creator: userId}, function (err, data) {
+            if (err) {
+                response = {"error": true, "message": "Error fetching data"};
+            } else {
+                response = {"error": false, "message": data};
+            }
+            res.json(response);
+        });
+    });
+
+
+    router.route("/routes")
+        .get(function (req, res) {
+            console.log("GET routes");
+            var response = {};
+            mongo.routes.find(function (err, data) {
+                if (err) {
+                    response = {"error": true, "message": "Error fetching data"};
+                } else {
+                    response = {"error": false, "message": data};
+                }
+                res.json(response);
+            });
+        })
+        .post(function (req, res) {
+            console.log("POST routes");
+            var db = new mongo.routes;
+            var response = {};
+
+            var name = req.body.name;
+            var pois = req.body.pois;
+            var creator = req.body.creator;
+
+
+            db.name = name;
+            db.numRecommendations = 0;
+            db.pois = pois;
+            db.creator = creator;
+
+
+            db.save(function (err) {
+                // save() will run insert() command of MongoDB.
+                // it will add new data in collection.
+                if (err) {
+                    response = {"error": true, "message": "Error adding data"};
+                } else {
+                    response = {"error": false, "message": "Data added"};
+                }
+                res.json(response);
+            });
+
+        });
+
 };
 
 module.exports = appRouter;

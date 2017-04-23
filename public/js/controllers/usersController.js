@@ -5,6 +5,7 @@ angular.module('vignemale')
         //user id from url
         $scope.idUser = $stateParams.id;
         $scope.poisList = "";
+        $scope.routesList = "";
         $scope.createpoi = false;
 
         $scope.oldPassword = "";
@@ -26,52 +27,75 @@ angular.module('vignemale')
         $scope.favs = false;
         $scope.edit = false;
 
-        var mapOptions = {
-            zoom: 13,
-            center: new google.maps.LatLng(41.64514, -0.8689481)
-        }
 
-        $scope.map = new google.maps.Map(document.getElementById('googleMap'), mapOptions)
+        var markers= [];
+
+        var map;
+        var directionsService;
+        var directionsDisplay;
+
 
 
         // hide/show different layers
         var showPoisList = function (data) {
+
+            //update pois list
             $scope.poisList = data.message;
             var poisLen = $scope.poisList.length;
-            console.log(poisLen);
-            var markers = new Array(poisLen);
 
+            //create markers from pois list
             var pos;
             for (i = 0; i < poisLen; i++) {
-                console.log(data.message[i]);
-                pos = new google.maps.LatLng(data.message[i].xCoord,data.message[i].yCoord);
-                markers[i] = new google.maps.Marker({
-                    position: pos,
-                    map: $scope.map,
-                    animation: google.maps.Animation.DROP,
-                    title: 'Hello World!'
-                });
-                markers[i].addListener('click', $scope.showPoi);
+                addMarker({lat:data.message[i].lat,lng:data.message[i].lng},data.message[i].name);
             }
         };
+
+        $scope.showPois = function () {
+            users.getUserPois($scope.idUser,showPoisList);
+            $scope.pois = true;
+        };
+
+
+
         $scope.showPoi  = function () {
             console.log("hola");
         }
 
-        $scope.showPois = function () {
-            users.getUserPois($scope.idUser,$scope.pois);
-            $scope.pois = true;
-        };
+
         $scope.hidePois = function () {
             $scope.pois = false;
+            deleteMarkers();
         };
 
+
+        var showRoutesList  = function (data) {
+            $scope.routesList = data.message;
+        }
+
         $scope.showRoutes = function () {
+            users.getUserRoutes($scope.idUser,showRoutesList);
             $scope.routes = true;
         };
 
+        $scope.showRoute = function (route) {
+            directionsDisplay.setMap(map);
+
+            var pois = route.pois;
+            var waypts = [];
+            for(i = 0; i < pois.length; i++) {
+                waypts.push({
+                    location: {lat:pois[i].lat,lng:pois[i].lng},
+                    stopover: true
+                });
+            }
+            createRoute(waypts);
+            $scope.routes = true;
+        };
+
+
         $scope.hideRoutes = function () {
             $scope.routes = false;
+            directionsDisplay.setMap(null);
         };
 
         $scope.showFollows = function () {
@@ -157,12 +181,64 @@ angular.module('vignemale')
         //Get data about user
         users.getUser($scope.idUser, function (data) {
             //save info about user
+            initMap();
             users.getUserPois($scope.idUser, showPoisList);
             $scope.user = {
                 lastName: data.message[0].lastName,
                 name: data.message[0].name
             };
         }, showError);
+
+
+        //*******************************************************************//
+        //                  GOOGLE MAPS FUNCTIONS                            //
+        //*******************************************************************//
+
+        function initMap(){
+            var mapOptions = {
+                zoom: 13,
+                center: new google.maps.LatLng(41.64514, -0.8689481)
+            };
+            map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+
+            directionsService = new google.maps.DirectionsService;
+            directionsDisplay = new google.maps.DirectionsRenderer({map: map});
+
+
+        }
+
+        // Adds a marker to the map and push to the array.
+        function addMarker(location, name) {
+            var marker = new google.maps.Marker({
+                position: location,
+                map: map,
+                tittle: name
+            });
+            //marker.addListener('click', $scope.showPoi);
+            markers.push(marker);
+        }
+
+        // Deletes all markers in the array by removing references to them.
+        function deleteMarkers() {
+            for (var i = 0; i < markers.length; i++) {
+                markers[i].setMap(null);
+            }
+            markers = [];
+        }
+
+        function createRoute(waypts){
+            directionsService.route({
+                origin: waypts[0].location,
+                destination: waypts[waypts.length-1].location,
+                waypoints: waypts.slice(1, waypts.length-1),
+                optimizeWaypoints: true,
+                travelMode: 'DRIVING'
+            }, function(response, status) {
+                if (status === 'OK') {
+                    directionsDisplay.setDirections(response);
+                }
+            });
+        }
 
     }]);
 

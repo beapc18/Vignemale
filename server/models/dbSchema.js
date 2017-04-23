@@ -34,8 +34,8 @@ var usersSchema = mongoose.Schema({
 var POIsSchema = mongoose.Schema({
     name: String,
     description: String,
-    xCoord: Number,
-    yCoord: Number,
+    lat: Number,
+    lng: Number,
     shortURL: String,
     image: String,
     value: Number,
@@ -63,11 +63,21 @@ var POIsSchema = mongoose.Schema({
      */
 });
 
+var routesSchema = mongoose.Schema({
+    name: String,
+    pois: [{poi: objectId, lat: Number, lng:Number}],
+    numRecommendations: Number,
+    creator: objectId
+});
+
 
 //Export all collections
 var users = mongoose.model('users',usersSchema);
 var pois = mongoose.model('pois',POIsSchema);
+var routes = mongoose.model('routes',routesSchema);
+
 module.exports = {
     users: users,
-    pois: pois
+    pois: pois,
+    routes: routes
 };

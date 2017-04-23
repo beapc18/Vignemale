@@ -5,8 +5,6 @@
         <div class="col-md-8 leftPanel">
             <div id="googleMap" style="width:100%;height:480px;"></div>
 
-
-
         </div>
 
         <!--Right panel, with data user-->
@@ -69,7 +67,10 @@
                 </form>
 
                 <div ng-if="routes">
-                    mostrando rutas
+                    <p ng-if="routesList.length==0"> There are no routes</p>
+                    <ul class="list-group pre-scrollable" >
+                        <button type="button" class="list-group-item" ng-repeat="row in routesList" ng-click="showRoute(row)">{{row.name}}</button>
+                    </ul>
                 </div>
 
                 <div ng-if="follows">

@@ -38,6 +38,7 @@ angular.module('vignemale')
         $scope.favs = false;
         $scope.edit = false;
         $scope.createpoi = false;
+        $scope.onePoiSelected = false;
 
         var markers= [];
         var map;
@@ -46,7 +47,6 @@ angular.module('vignemale')
 
         // hide/show different layers
         var showPoisList = function (data) {
-
             //update pois list
             $scope.poisList = data.message;
             var poisLen = $scope.poisList.length;
@@ -67,9 +67,16 @@ angular.module('vignemale')
 
         $scope.showPoi  = function (lat, lng, name) {
             deleteMarkers();
+            $scope.hidePois();
             addMarker({lat:lat, lng:lng}, name);
+            $scope.onePoiSelected = true;
+            $scope.showInfoPoi(lat, lng, name)
         };
 
+        $scope.showInfoPoi = function (lat, lng, name) {
+            window.alert($scope.newPoi.name);
+            //hacer llamada a servidor con url /users/id/poi/idPoi??
+        };
 
         $scope.hidePois = function () {
             $scope.pois = false;

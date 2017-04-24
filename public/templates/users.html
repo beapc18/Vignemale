@@ -58,8 +58,16 @@
                         <button type="button" class="list-group-item" ng-repeat="row in poisList" ng-click="showPoi(row.lat,row.lng,row.name)">{{row.name}}</button>
                     </ul>
 
-
                     <button type="button" class="btn btn-default theme-accent" ng-click="showCreatepoi()">Create POI</button>
+                </div>
+                <div ng-if="onePoiSelected">
+                    <h2>{{newPoi.name}}</h2>
+                    <p>{{newPoi.description}}</p>
+                    <p>{{newPoi.keywords}}</p>
+                    <p>{{newPoi.lat}}</p>
+                    <p>{{newPoi.lng}}</p>
+                    <p>{{newPoi.lng}}</p>
+                    <p>{{newPoi.url}}</p>
                 </div>
 
                 <!--FORM CREATE POI-->

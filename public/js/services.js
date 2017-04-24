@@ -259,6 +259,7 @@ angular.module('vignemale')
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 }).success(function (data) {
+                    window.alert("Al controller.. " + data);
                     callbackSuccess(data);
                 }).error(function (data) {
                     callbackError(data);

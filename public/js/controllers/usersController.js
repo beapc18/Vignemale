@@ -39,13 +39,10 @@ angular.module('vignemale')
         $scope.edit = false;
         $scope.createpoi = false;
 
-
         var markers= [];
         var map;
         var directionsService;
         var directionsDisplay;
-
-
 
         // hide/show different layers
         var showPoisList = function (data) {
@@ -68,9 +65,9 @@ angular.module('vignemale')
         };
 
 
-
-        $scope.showPoi  = function () {
-            console.log("hola");
+        $scope.showPoi  = function (lat, lng, name) {
+            deleteMarkers();
+            addMarker({lat:lat, lng:lng}, name);
         };
 
 
@@ -169,6 +166,17 @@ angular.module('vignemale')
         $scope.createpoiFun = function () {
             $scope.newPoi.creator = $stateParams.id;
             pois.createPoi($scope.newPoi, showSuccess, showError);
+            $scope.newPoi = {
+                name: "",
+                description: "",
+                keywords: "",
+                lat: "",
+                lng: "",
+                url: "",
+                images: "",
+                valoration: "",
+                creator: ""
+            };
         };
 
         //modify user password

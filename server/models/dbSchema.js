@@ -34,13 +34,15 @@ var usersSchema = mongoose.Schema({
 var POIsSchema = mongoose.Schema({
     name: String,
     description: String,
+    keywords: Array,
     lat: Number,
     lng: Number,
     shortURL: String,
     image: String,
     value: Number,
     city: String,
-    creator: objectId
+    creator: objectId,
+    valoration: Number
     //Para ofrecer una imagen desde un controlador
     /*
      var img = document.createElement('img');

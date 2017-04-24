@@ -28,20 +28,28 @@
                         <div class="container-fluid">
                             <ul class="nav navbar-nav">
                                 <li>
-                                    <a role="button" ng-click="showPois();hideRoutes();hideFollows();hideFavs();" class="col-md-3">Pois</a>
+                                    <a role="button" ng-click="showPois();hideRoutes();hideFollows();hideFavs();hideError();hideSuccess;" class="col-md-3">Pois</a>
                                 </li>
                                 <li>
-                                    <a role="button" ng-click="showRoutes();hidePois();hideFollows();hideFavs();"class="col-md-3">Routes</a>
+                                    <a role="button" ng-click="showRoutes();hidePois();hideFollows();hideFavs();hideError();hideSuccess;" class="col-md-3">Routes</a>
                                 </li>
                                 <li>
-                                    <a role="button" ng-click="showFollows();hidePois();hideRoutes();hideFavs();" class="col-md-3">Following</a>
+                                    <a role="button" ng-click="showFollows();hidePois();hideRoutes();hideFavs();hideError();hideSuccess;" class="col-md-3">Following</a>
                                 </li>
                                 <li>
-                                    <a role="button" ng-click="showFavs();hidePois();hideFollows();hideRoutes();" class="col-md-3">Favs</a>
+                                    <a role="button" ng-click="showFavs();hidePois();hideFollows();hideRoutes();hideError();hideSuccess;" class="col-md-3">Favs</a>
                                 </li>
                             </ul>
                         </div>
                     </nav>
+                </div>
+
+                <!--Error & success messages-->
+                <div ng-if="error" class="alert alert-danger center">
+                    <strong>&#10008</strong> {{errorMsg}}
+                </div>
+                <div ng-if="success" class="alert alert-success center">
+                    <strong>&#10004</strong> {{successMsg}}
                 </div>
 
                 <div ng-if="pois">
@@ -54,16 +62,30 @@
                     <button type="button" class="btn btn-default theme-accent" ng-click="showCreatepoi()">Create POI</button>
                 </div>
 
-                <form name="form" ng-submit="createpoi()" ng-if="createpoi">
-                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="name" class="form-control" placeholder="Old password" required/>
-                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="description" class="form-control" placeholder="Old password" required/>
-                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="keywords" class="form-control" placeholder="Old password" required/>
-                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="coords" class="form-control" placeholder="Old password" required/>
-                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="shortUrl" class="form-control" placeholder="Old password" required/>
-                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="imagenes" class="form-control" placeholder="Old password" required/>
-                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="evaluate" class="form-control" placeholder="Old password" required/>
+                <form name="form" ng-submit="createpoiFun()" ng-if="createpoi">
+                    <input ng-click="hideError();hideSuccess()" type="text" ng-model="$parent.newPoi.name" class="form-control form-group" placeholder="Name" required/>
+                    <input ng-click="hideError();hideSuccess()" type="text" ng-model="$parent.newPoi.description" class="form-control form-group" placeholder="Description" required/>
+                    <input ng-click="hideError();hideSuccess()" type="text" ng-model="$parent.newPoi.keywords" class="form-control form-group" placeholder="Keywords (separate by comma)" required/>
+                    <input ng-click="hideError();hideSuccess()" type="number" step="any" ng-model="$parent.newPoi.lat" class="form-control form-group" placeholder="Latitude" required/>
+                    <input ng-click="hideError();hideSuccess()" type="number" step="any" ng-model="$parent.newPoi.lng" class="form-control form-group" placeholder="Longitude" required/>
+                    <input ng-click="hideError();hideSuccess()" type="url" ng-model="$parent.newPoi.url" class="form-control form-group" placeholder="URL" required/>
+                    <input ng-click="hideError();hideSuccess()" type="text" ng-model="$parent.newPoi.images" class="form-control form-group" placeholder="Images" required/>
+                    <!--<input ng-click="hideError();hideSuccess()" type="text" ng-model="$parent.newPoi.valoration" class="form-control form-group" placeholder="Valoration" required/>-->
 
-                    <button type="button" class="">Create POI</button>
+                    <fieldset class="rating form-control form-group">
+                        Valoration:<input type="radio" ng-model="$parent.newPoi.valoration" id="star5" value="5"/><label class="full" for="star5" title="5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star4half" value="4.5"/><label class="half" for="star4half" title="4.5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star4" value="4"/><label class="full" for="star4" title="4"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star3half" value="3.5" /><label class="half" for="star3half" title="3.5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star3" value="3"/><label class="full" for="star3" title="3"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star2half" value="2.5" /><label class="half" for="star2half" title="2.5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star2" value="2"/><label class="full" for="star2" title="2"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star1half" value="1.5"/><label class="half" for="star1half" title="1.5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star1" value="1"/><label class="full" for="star1" title="1"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="starhalf" value="half"/><label class="half" for="starhalf" title="0.5"></label>
+                    </fieldset>
+
+                    <button type="submit" class="btn btn-default theme-accent">Create POI</button>
                 </form>
 
                 <div ng-if="routes">
@@ -83,10 +105,11 @@
             </div>
 
             <form name="form" ng-submit="modifyUser()" ng-if="edit">
+
+                <!--Error & success messages-->
                 <div ng-if="error" class="alert alert-danger center">
                     <strong>&#10008</strong> {{errorMsg}}
                 </div>
-                <!-- this div will show only when the operation has been a success -->
                 <div ng-if="success" class="alert alert-success center">
                     <strong>&#10004</strong> {{successMsg}}
                 </div>

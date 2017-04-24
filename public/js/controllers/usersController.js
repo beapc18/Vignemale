@@ -1,12 +1,23 @@
 angular.module('vignemale')
 
-    .controller('usersCtrl', ['$scope', '$state', '$stateParams', 'users', 'auth', function ($scope, $state, $stateParams, users, auth) {
+    .controller('usersCtrl', ['$scope', '$state', '$stateParams', 'users', 'auth', 'pois', function ($scope, $state, $stateParams, users, auth, pois) {
 
         //user id from url
         $scope.idUser = $stateParams.id;
         $scope.poisList = "";
         $scope.routesList = "";
-        $scope.createpoi = false;
+
+        $scope.newPoi = {
+            name: "",
+            description: "",
+            keywords: "",
+            lat: "",
+            lng: "",
+            url: "",
+            images: "",
+            valoration: "",
+            creator: ""
+        };
 
         $scope.oldPassword = "";
         $scope.newPassword = "";
@@ -26,10 +37,10 @@ angular.module('vignemale')
         $scope.follows = false;
         $scope.favs = false;
         $scope.edit = false;
+        $scope.createpoi = false;
 
 
         var markers= [];
-
         var map;
         var directionsService;
         var directionsDisplay;
@@ -53,13 +64,14 @@ angular.module('vignemale')
         $scope.showPois = function () {
             users.getUserPois($scope.idUser,showPoisList);
             $scope.pois = true;
+            $scope.createpoi = false;
         };
 
 
 
         $scope.showPoi  = function () {
             console.log("hola");
-        }
+        };
 
 
         $scope.hidePois = function () {
@@ -70,11 +82,12 @@ angular.module('vignemale')
 
         var showRoutesList  = function (data) {
             $scope.routesList = data.message;
-        }
+        };
 
         $scope.showRoutes = function () {
             users.getUserRoutes($scope.idUser,showRoutesList);
             $scope.routes = true;
+            $scope.createpoi = false;
         };
 
         $scope.showRoute = function (route) {
@@ -100,6 +113,7 @@ angular.module('vignemale')
 
         $scope.showFollows = function () {
             $scope.follows = true;
+            $scope.createpoi = false;
         };
 
         $scope.hideFollows = function () {
@@ -108,6 +122,7 @@ angular.module('vignemale')
 
         $scope.showFavs = function () {
             $scope.favs = true;
+            $scope.createpoi = false;
         };
 
         $scope.hideFavs = function () {
@@ -150,6 +165,12 @@ angular.module('vignemale')
             $scope.pois = false;
         };
 
+        //Create the poi with values
+        $scope.createpoiFun = function () {
+            $scope.newPoi.creator = $stateParams.id;
+            pois.createPoi($scope.newPoi, showSuccess, showError);
+        };
+
         //modify user password
         $scope.modifyUser = function () {
             if($scope.newPassword === "" || $scope.oldPassword === ""
@@ -190,16 +211,30 @@ angular.module('vignemale')
         }, showError);
 
 
+
         //*******************************************************************//
         //                  GOOGLE MAPS FUNCTIONS                            //
         //*******************************************************************//
 
+        var mapOptions = {
+            zoom: 13,
+            center: new google.maps.LatLng(41.64514, -0.8689481)
+        };
+
+         var map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+
+        google.maps.event.addListener(map, "click", function (event) {
+            var latitude = event.latLng.lat();
+            var longitude = event.latLng.lng();
+            console.log( latitude + ', ' + longitude );
+        });
+
         function initMap(){
-            var mapOptions = {
+            /*var mapOptions = {
                 zoom: 13,
                 center: new google.maps.LatLng(41.64514, -0.8689481)
             };
-            map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+            map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);*/
 
             directionsService = new google.maps.DirectionsService;
             directionsDisplay = new google.maps.DirectionsRenderer({map: map});

@@ -248,6 +248,26 @@ angular.module('vignemale')
         };
     })
 
+    .factory('pois', function ($state, $http, $httpParamSerializer) {
+        return {
+            createPoi: function (poi, callbackSuccess, callbackError) {
+                $http({
+                    method: 'POST',
+                    url: '/pois',
+                    data: $httpParamSerializer(poi),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            }
+
+        };
+    })
+
     .factory('vignemale', function ($state, $http) {
 
         return {

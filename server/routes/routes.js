@@ -531,9 +531,9 @@ var appRouter = function(router, mongo, app, config, database) {
         var response = {};
         mongo.pois.find({creator: userId}, function (err, data) {
             if (err) {
-                response = {"error": true, "message": "Error fetching data"};
+                response = {"status": 500, "message": "Error fetching data"};
             } else {
-                response = {"error": false, "message": data};
+                response = {"status": 201, "message": data};
             }
             res.json(response);
         });
@@ -558,37 +558,26 @@ var appRouter = function(router, mongo, app, config, database) {
             var db = new mongo.pois;
             var response = {};
 
-            var name = req.body.name;
-            var description = req.body.description;
-            //var keywords = req.body.keywords;
-            var lat = req.body.lat;
-            var lng = req.body.lng;
-            //var shortURL = req.body.shortURL;
-            var image = req.body.image;
-            var valoration = 5;
-            var city = req.body.city;
-            var creator = req.body.creator;
-            //var numRec = req.body.numRec;
-
-            // fetch email and password from REST request.
-            db.name = name;
-            db.description = description;
-            db.lat = lat;
-            db.lng = lng;
-            db.creator = creator;
-
+            db.name = req.body.name;
+            db.description = req.body.description;
+            db.keywords = req.body.keywords.split(","); //separate by comma, save in array
+            db.lat = req.body.lat;
+            db.lng = req.body.lng;
+            var url = req.body.url; //acortar!
+            db.image = req.body.image;
+            db.valoration = req.body.valoration;
+            var city = req.body.city;       //hacefalta??
+            db.creator = req.body.creator;
+            db.numRec = 0;                   //nº recomendaciones
 
             db.save(function (err) {
-                // save() will run insert() command of MongoDB.
-                // it will add new data in collection.
                 if (err) {
-                    response = {"error": true, "message": "Error adding data"};
+                    response = {"status": 500, "message": "Error creatting POI"};
                 } else {
-                    response = {"error": false, "message": "Data added"};
+                    response = {"status": 201, "message": "POI has been created successfully"};
                 }
-                res.json(response);
+                res.status(response.status).json(response);
             });
-
         });
 
 

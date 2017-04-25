@@ -49,6 +49,7 @@ angular.module('vignemale')
                         'Authorization': auth.getToken()
                     }
                 }).success(function (data) {
+                    window.alert("ID DE USUARIO " + data.message);
                     $state.go('users', {id: data.message});
                 });
             },
@@ -248,7 +249,7 @@ angular.module('vignemale')
         };
     })
 
-    .factory('pois', function ($state, $http, $httpParamSerializer) {
+    .factory('pois', function ($state, $http, $httpParamSerializer, auth) {
         return {
             createPoi: function (poi, callbackSuccess, callbackError) {
                 $http({
@@ -274,6 +275,40 @@ angular.module('vignemale')
                  }).error(function (data) {
                      callbackError(data);
                  });
+            },
+            
+            editPoi: function (newPoi, callbackSuccess, callbackError) {
+                $http({
+                    method: 'PUT',
+                    url: '/pois/' + newPoi.idPoi,
+                    data: $httpParamSerializer(newPoi),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
+                    }
+
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+            
+            deletePoi: function (idPoi, callbackSuccess, callbackError) {
+                $http({
+                    method: 'DELETE',
+                    url: '/pois/'+idPoi,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
+                    }
+                }).success(function (data) {
+                    //ir a home
+                    $state.go('users',{id: data.message});
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
             }
         };
     })

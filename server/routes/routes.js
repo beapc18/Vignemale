@@ -334,8 +334,10 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     });
 
+    //no llega a hacer este metodo (sin razon)--> problema para ir al home
     router.get('/getIdFromToken', passport.authenticate('jwt', {session: false}), function (req, res) {
         var payload = jwt.decode(req.headers.authorization.split(" ")[1]);
+        console.log("ID DEL TOKEN " + payload.id)
         res.status(200).json({"message": payload.id});
     });
 
@@ -597,7 +599,6 @@ var appRouter = function(router, mongo, app, config, database) {
         .put(function (req, res) {
             console.log("PUT pois/" + req.params.id);
 
-
             mongo.pois.find({_id: req.params.id}, function (err, data) {
                 if (err) {
                     response = {"status": 500, "message": "Error fetching data"};
@@ -606,9 +607,13 @@ var appRouter = function(router, mongo, app, config, database) {
                     var updateInfo = {
                         name: req.body.name,
                         description: req.body.description,
+                        keywords: req.body.keywords,
+                        lat: req.body.lat,
+                        lng: req.body.lng,
+                        shorturl: req.body.shortURL,
+                        valoration: req.body.valoration,
                         image: req.body.image
-                    }
-
+                    };
 
                     mongo.pois.update({_id: req.params.id}, updateInfo, function (err) {
                         if (err) {
@@ -616,7 +621,7 @@ var appRouter = function(router, mongo, app, config, database) {
                         } else {
                             response = {"status": 200,  "message": "Data is updated for " + req.params.id};
                         }
-                        res.status(response.status).json(response.message);
+                        res.status(response.status).json(response);
                     })
                 }
             });
@@ -636,10 +641,11 @@ var appRouter = function(router, mongo, app, config, database) {
                         } else {
                             response = {
                                 "status": 200,
-                                "message": "Data associated with " + req.params.id + " is deleted"
+                                "message": "Data associated with " + req.params.id + " is deleted",
+                                //"idUser": creator
                             };
                         }
-                        res.status(response.status).json(response.message);
+                        res.status(response.status).json(response);
                     });
                 }
             });

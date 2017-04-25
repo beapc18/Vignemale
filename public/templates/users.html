@@ -17,13 +17,13 @@
                 </div>
                 <!--Right part, with button-->
                 <div class="col-md-4">
-                    <button ng-if="!edit" ng-click="showEdit()" class="btn btn-default theme-accent">
+                    <button ng-if="!editUser" ng-click="showEdit()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-edit"></span>  Edit</button>
                 </div>
             </div>
 
             <!--Users profile with their info-->
-            <div ng-if="!edit">
+            <div ng-if="!editUser">
                 <div class="row">
                     <nav class="navbar navbar-default">
                         <div class="container-fluid">
@@ -72,11 +72,37 @@
                     <!--<p>{{newPoi.images}}</p>-->
                     <p>URL: {{newPoi.shortURL}}</p>
                     <p>Valoration: {{newPoi.valoration}}</p>
-                    <button ng-click="editPoi()" class="btn btn-default theme-accent">
+                    <button ng-click="showEditPoi()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-edit"></span>  Edit</button>
                     <button ng-click="removePoi()" class="btn btn-default btn-danger">
                         <span class="glyphicon glyphicon-trash"></span>  Remove</button>
                 </div>
+
+                <!--FORM EDIT POI-->
+                <form name=form ng-submit="editPoiFun()" ng-if="editpoi" ng-click="hideError();hideSuccess()">
+                    Name <input type="text" ng-model="$parent.newPoi.name" class="form-control form-group" placeholder="{{$parent.newPoi.name}}" required/>
+                    Description <input type="text" ng-model="$parent.newPoi.description" class="form-control form-group" placeholder="{{$parent.newPoi.description}}" required/>
+                    Keywords <input type="text" ng-model="$parent.newPoi.keywords" class="form-control form-group" placeholder="{{$parent.newPoi.keywords}}" required/>
+                    Latitude <input type="number" step="any" ng-model="$parent.newPoi.lat" class="form-control form-group" placeholder="{{$parent.newPoi.lat}}" required/>
+                    Longitude <input type="number" step="any" ng-model="$parent.newPoi.lng" class="form-control form-group" placeholder="{{$parent.newPoi.lng}}" required/>
+                    URL <input type="url" ng-model="$parent.newPoi.shortURL" class="form-control form-group" placeholder="{{$parent.newPoi.shortURL}}" />
+                    Valoration <input type="text" ng-model="$parent.newPoi.valoration" class="form-control form-group" placeholder="{{$parent.newPoi.valoration}}" required/>
+                    <!--stars rating-->
+                    <!--<fieldset class="rating form-control form-group">  Como ponerlos con el mismo id que en otro form?
+                        Valoration
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star5" name="v1" value="5" required/><label class="full" for="star5" title="5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star4half" name="v1" value="4.5"/><label class="half" for="star4half" title="4.5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star4" name="v1" value="4"/><label class="full" for="star4" title="4"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star3half" name="v1" value="3.5" /><label class="half" for="star3half" title="3.5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star3" name="v1" value="3"/><label class="full" for="star3" title="3"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star2half" name="v1" value="2.5" /><label class="half" for="star2half" title="2.5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star2" name="v1" value="2"/><label class="full" for="star2" title="2"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star1half" name="v1" value="1.5"/><label class="half" for="star1half" title="1.5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star1" name="v1" value="1"/><label class="full" for="star1" title="1"></label>
+                        <input type="radio" ng-model="$parent.newPoi.valoration" id="starhalf" name="v1" value="half"/><label class="half" for="starhalf" title="0.5"></label>
+                    </fieldset>-->
+                    <button type="submit" class="btn btn-default theme-accent">Edit POI</button>
+                </form>
 
                 <!--FORM CREATE POI-->
                 <form name="form" ng-submit="createpoiFun()" ng-if="createpoi" ng-click="hideError();hideSuccess()">
@@ -85,7 +111,7 @@
                     <input type="text" ng-model="$parent.newPoi.keywords" class="form-control form-group" placeholder="Keywords (separate by comma)" required/>
                     <input type="number" step="any" ng-model="$parent.newPoi.lat" class="form-control form-group" placeholder="Latitude" required/>
                     <input type="number" step="any" ng-model="$parent.newPoi.lng" class="form-control form-group" placeholder="Longitude" required/>
-                    <input type="url" ng-model="$parent.newPoi.shortURL" class="form-control form-group" placeholder="URL" required/>
+                    <input type="url" ng-model="$parent.newPoi.shortURL" class="form-control form-group" placeholder="URL"/>
                     <input type="file" ng-model="$parent.newPoi.images" placeholder="Images" multiple/>
                     <!--stars rating-->
                     <fieldset class="rating form-control form-group">
@@ -124,7 +150,7 @@
             </div>
 
             <!--FORM to EDIT USER-->
-            <form name="form" ng-submit="modifyUser()" ng-if="edit">
+            <form name="form" ng-submit="modifyUser()" ng-if="editUser">
 
                 <!--Error & success messages-->
                 <div ng-if="error" class="alert alert-danger center">

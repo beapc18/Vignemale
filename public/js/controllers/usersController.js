@@ -6,6 +6,7 @@ angular.module('vignemale')
         $scope.idUser = $stateParams.id;
         $scope.poisList = "";
         $scope.routesList = "";
+        $scope.idPoi = "";
 
         $scope.newPoi = {
             name: "",
@@ -36,9 +37,11 @@ angular.module('vignemale')
         $scope.routes = false;
         $scope.follows = false;
         $scope.favs = false;
-        $scope.edit = false;
+        $scope.editUser = false;
         $scope.createpoi = false;
         $scope.onePoiSelected = false;
+        $scope.editpoi = false;
+
 
         var markers= [];
         var map;
@@ -50,6 +53,7 @@ angular.module('vignemale')
         // hide/show different layers
         var showPoisList = function (data) {
             //update pois list
+            $scope.editpoi = false;
             $scope.poisList = data.message;
             var poisLen = $scope.poisList.length;
 
@@ -72,6 +76,7 @@ angular.module('vignemale')
             $scope.hidePois();
             addMarker({lat:lat, lng:lng}, name);
             $scope.onePoiSelected = true;
+            $scope.idPoi = id;
             pois.getPoi(id, function (data) {
                 $scope.newPoi = data;
             }, showError);
@@ -139,11 +144,11 @@ angular.module('vignemale')
         };
 
         $scope.showEdit = function () {
-            $scope.edit = true;
+            $scope.editUser = true;
         };
 
         $scope.showProfile = function () {
-            $scope.edit = false;
+            $scope.editUser = false;
         };
 
         // hide the error mensage
@@ -160,6 +165,7 @@ angular.module('vignemale')
         // show the success mensage
         var showSuccess = function (message) {
             $scope.successMsg = message.message;
+            //$scope.successMsg = message;
             $scope.success = true;
         };
 
@@ -179,6 +185,36 @@ angular.module('vignemale')
             $scope.newPoi.creator = $stateParams.id;
             pois.createPoi($scope.newPoi, showSuccess, showError);
             resetPoiInfo();
+        };
+
+        $scope.showEditPoi = function () {
+            $scope.editpoi = true;
+            $scope.onePoiSelected = false;
+        };
+        
+        $scope.editPoiFun = function () {
+            var newPoi = {
+                idPoi : $scope.idPoi,
+                name : $scope.newPoi.name,
+                description : $scope.newPoi.description,
+                keywords : $scope.newPoi.keywords,
+                lat : $scope.newPoi.lat,
+                lng : $scope.newPoi.lng,
+                url : $scope.newPoi.shortURL,
+                valoration : $scope.newPoi.valoration
+            };
+            pois.editPoi(newPoi, showSuccess, showError);
+
+        };
+
+        //al borrar un poi,si se vuelve a Pois sigue saliendo su marker hasta que se clika en alguno del resto
+        $scope.removePoi = function () {
+            var deletePoi = window.confirm('Are you sure?');
+            if(deletePoi){
+                pois.deletePoi($scope.idPoi, function (data) {
+                    window.alert(data.message);
+                }, showError);
+            }
         };
 
         //modify user password

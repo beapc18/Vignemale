@@ -44,6 +44,8 @@ angular.module('vignemale')
         var map;
         var directionsService;
         var directionsDisplay;
+        $scope.latitude = "";
+        $scope.longitude = "";
 
         // hide/show different layers
         var showPoisList = function (data) {
@@ -238,17 +240,17 @@ angular.module('vignemale')
         //                  GOOGLE MAPS FUNCTIONS                            //
         //*******************************************************************//
 
+        var myLatlng = new google.maps.LatLng(41.64514, -0.8689481);
         var mapOptions = {
             zoom: 13,
-            center: new google.maps.LatLng(41.64514, -0.8689481)
+            center: myLatlng
         };
 
-         var map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+        var map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
 
-        google.maps.event.addListener(map, "click", function (event) {
-            var latitude = event.latLng.lat();
-            var longitude = event.latLng.lng();
-            console.log( latitude + ', ' + longitude );
+        google.maps.event.addListener(map, "click", function(event) {
+            $scope.newPoi.lat = event.latLng.lat();
+            $scope.newPoi.lng = event.latLng.lng();
         });
 
         function initMap(){

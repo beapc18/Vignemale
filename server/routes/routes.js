@@ -587,11 +587,11 @@ var appRouter = function(router, mongo, app, config, database) {
             var response = {};
             mongo.pois.find({_id: req.params.id}, function (err, data) {
                 if (err) {
-                    response = {"error": true, "message": "Error fetching data"};
+                    response = {"status": 500, "message": "Error fetching data"};
                 } else {
-                    response = {"error": false, "message": data};
+                    response = {"status": 200, "message": data[0]};
                 }
-                res.json(response);
+                res.status(response.status).json(response.message);
             });
         })
         .put(function (req, res) {
@@ -600,7 +600,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
             mongo.pois.find({_id: req.params.id}, function (err, data) {
                 if (err) {
-                    response = {"error": true, "message": "Error fetching data"};
+                    response = {"status": 500, "message": "Error fetching data"};
                 } else {
                     var db = new mongo.pois;
                     var updateInfo = {
@@ -612,11 +612,11 @@ var appRouter = function(router, mongo, app, config, database) {
 
                     mongo.pois.update({_id: req.params.id}, updateInfo, function (err) {
                         if (err) {
-                            response = {"error": true, "message": "Error updating data"};
+                            response = {"status": 500, "message": "Error updating data"};
                         } else {
-                            response = {"error": false, "message": "Data is updated for " + req.params.id};
+                            response = {"status": 200,  "message": "Data is updated for " + req.params.id};
                         }
-                        res.json(response);
+                        res.status(response.status).json(response.message);
                     })
                 }
             });
@@ -626,20 +626,20 @@ var appRouter = function(router, mongo, app, config, database) {
 
             mongo.pois.find({_id: req.params.id}, function (err, data) {
                 if (err) {
-                    response = {"error": true, "message": "Error fetching data"};
+                    response = {"status": 500, "message": "Error fetching data"};
                 } else {
                     //data exists, remove
                     mongo.pois.remove({_id: req.params.id}, function (err, data) {
 
                         if (err) {
-                            response = {"error": true, "message": "Error deleting data"};
+                            response = {"status": 500, "message": "Error deleting data"};
                         } else {
                             response = {
-                                "error": false,
+                                "status": 200,
                                 "message": "Data associated with " + req.params.id + " is deleted"
                             };
                         }
-                        res.json(response);
+                        res.status(response.status).json(response.message);
                     });
                 }
             });
@@ -653,11 +653,11 @@ var appRouter = function(router, mongo, app, config, database) {
         var response = {};
         mongo.routes.find({creator: userId}, function (err, data) {
             if (err) {
-                response = {"error": true, "message": "Error fetching data"};
+                response = {"status": 500, "message": "Error fetching data"};
             } else {
-                response = {"error": false, "message": data};
+                response = {"status": 200, "message": data};
             }
-            res.json(response);
+            res.status(response.status).json(response.message);
         });
     });
 
@@ -668,11 +668,11 @@ var appRouter = function(router, mongo, app, config, database) {
             var response = {};
             mongo.routes.find(function (err, data) {
                 if (err) {
-                    response = {"error": true, "message": "Error fetching data"};
+                    response = {"status": 500, "message": "Error fetching data"};
                 } else {
-                    response = {"error": false, "message": data};
+                    response = {"status": 200, "message": data};
                 }
-                res.json(response);
+                res.status(response.status).json(response.message);
             });
         })
         .post(function (req, res) {
@@ -695,13 +695,12 @@ var appRouter = function(router, mongo, app, config, database) {
                 // save() will run insert() command of MongoDB.
                 // it will add new data in collection.
                 if (err) {
-                    response = {"error": true, "message": "Error adding data"};
+                    response = {"status": 500, "message": "Error adding data"};
                 } else {
-                    response = {"error": false, "message": "Data added"};
+                    response = {"status": 200, "message": "Data added"};
                 }
-                res.json(response);
+                res.status(response.status).json(response.message);
             });
-
         });
 
 };

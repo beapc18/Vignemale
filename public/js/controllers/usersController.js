@@ -13,7 +13,7 @@ angular.module('vignemale')
             keywords: "",
             lat: "",
             lng: "",
-            url: "",
+            shortURL: "",
             images: "",
             valoration: "",
             creator: ""
@@ -62,20 +62,17 @@ angular.module('vignemale')
             users.getUserPois($scope.idUser,showPoisList);
             $scope.pois = true;
             $scope.createpoi = false;
+            $scope.onePoiSelected = false;
+            resetPoiInfo();
         };
 
-
-        $scope.showPoi  = function (lat, lng, name) {
-            deleteMarkers();
+        $scope.showPoi  = function (lat, lng, name, id) {
             $scope.hidePois();
             addMarker({lat:lat, lng:lng}, name);
             $scope.onePoiSelected = true;
-            $scope.showInfoPoi(lat, lng, name)
-        };
-
-        $scope.showInfoPoi = function (lat, lng, name) {
-            window.alert($scope.newPoi.name);
-            //hacer llamada a servidor con url /users/id/poi/idPoi??
+            pois.getPoi(id, function (data) {
+                $scope.newPoi = data;
+            }, showError);
         };
 
         $scope.hidePois = function () {
@@ -92,6 +89,8 @@ angular.module('vignemale')
             users.getUserRoutes($scope.idUser,showRoutesList);
             $scope.routes = true;
             $scope.createpoi = false;
+            $scope.onePoiSelected = false;
+            resetPoiInfo();
         };
 
         $scope.showRoute = function (route) {
@@ -118,6 +117,8 @@ angular.module('vignemale')
         $scope.showFollows = function () {
             $scope.follows = true;
             $scope.createpoi = false;
+            $scope.onePoiSelected = false;
+            resetPoiInfo();
         };
 
         $scope.hideFollows = function () {
@@ -127,6 +128,8 @@ angular.module('vignemale')
         $scope.showFavs = function () {
             $scope.favs = true;
             $scope.createpoi = false;
+            $scope.onePoiSelected = false;
+            resetPoiInfo();
         };
 
         $scope.hideFavs = function () {
@@ -173,17 +176,7 @@ angular.module('vignemale')
         $scope.createpoiFun = function () {
             $scope.newPoi.creator = $stateParams.id;
             pois.createPoi($scope.newPoi, showSuccess, showError);
-            $scope.newPoi = {
-                name: "",
-                description: "",
-                keywords: "",
-                lat: "",
-                lng: "",
-                url: "",
-                images: "",
-                valoration: "",
-                creator: ""
-            };
+            resetPoiInfo();
         };
 
         //modify user password
@@ -225,6 +218,20 @@ angular.module('vignemale')
             };
         }, showError);
 
+        //Reset info about poi for avoiding show wrong info
+        function resetPoiInfo() {
+            $scope.newPoi = {
+                name: "",
+                description: "",
+                keywords: "",
+                lat: "",
+                lng: "",
+                shortURL: "",
+                images: "",
+                valoration: "",
+                creator: ""
+            };
+        }
 
 
         //*******************************************************************//

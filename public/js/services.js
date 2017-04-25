@@ -259,13 +259,22 @@ angular.module('vignemale')
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 }).success(function (data) {
-                    window.alert("Al controller.. " + data);
                     callbackSuccess(data);
                 }).error(function (data) {
                     callbackError(data);
                 });
-            }
+            },
 
+             getPoi: function (id, callbackSuccess, callbackError) {
+                 $http({
+                     method: 'GET',
+                     url: '/pois/' + id
+                 }).success(function (data) {
+                     callbackSuccess(data);
+                 }).error(function (data) {
+                     callbackError(data);
+                 });
+            }
         };
     })
 

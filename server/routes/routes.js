@@ -705,9 +705,21 @@ var appRouter = function(router, mongo, app, config, database) {
                 } else {
                     response = {"status": 200, "message": "Data added"};
                 }
-                res.status(response.status).json(response.message);
+                res.status(response.status).json(response.messag);
             });
         });
+
+    router.get("/short/:id", function (req, res) {
+
+        console.log("redirect");
+        mongo.shorturls.find({_id: req.params.id},function (err, data) {
+            if (err) {
+                response = {"status": 500, "message": "Error fetching data"};
+            } else {
+                res.redirect("/pois/"+data[0].poi);
+            }
+        });
+    });
 
 };
 

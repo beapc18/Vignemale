@@ -309,6 +309,16 @@ angular.module('vignemale')
                 }).error(function (data) {
                     callbackError(data);
                 });
+            },
+            short: function (id, callbackSuccess, callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/short/'+id
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
             }
         };
     })

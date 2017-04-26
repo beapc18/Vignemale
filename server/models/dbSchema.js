@@ -65,6 +65,7 @@ var POIsSchema = mongoose.Schema({
      */
 });
 
+
 var routesSchema = mongoose.Schema({
     name: String,
     pois: [{poi: objectId, lat: Number, lng:Number}],
@@ -72,14 +73,20 @@ var routesSchema = mongoose.Schema({
     creator: objectId
 });
 
+var shorturlsSchema = mongoose.Schema({
+    poi: objectId
+});
+
 
 //Export all collections
 var users = mongoose.model('users',usersSchema);
 var pois = mongoose.model('pois',POIsSchema);
 var routes = mongoose.model('routes',routesSchema);
+var shorturls = mongoose.model('shorturls',shorturlsSchema);
 
 module.exports = {
     users: users,
     pois: pois,
-    routes: routes
+    routes: routes,
+    shorturls: shorturls
 };

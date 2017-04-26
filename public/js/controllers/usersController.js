@@ -89,7 +89,7 @@ angular.module('vignemale')
 
 
         var showRoutesList  = function (data) {
-            $scope.routesList = data.message;
+            $scope.routesList = data;
         };
 
         $scope.showRoutes = function () {
@@ -102,7 +102,6 @@ angular.module('vignemale')
 
         $scope.showRoute = function (route) {
             directionsDisplay.setMap(map);
-
             var pois = route.pois;
             var waypts = [];
             for(i = 0; i < pois.length; i++) {

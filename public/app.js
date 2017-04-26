@@ -46,6 +46,11 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 url: '/resetPassword',
                 templateUrl: "templates/resetPassword.html",
                 controller: "resetPasswordCtrl"
+            })
+            .state('short', {
+                url: '/short/{id}',
+                templateUrl: "templates/shorturl.html",
+                controller: "shorturlCtrl"
             });
 
 

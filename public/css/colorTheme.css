@@ -23,8 +23,6 @@
   color: rgba(77, 77, 77, 0.7) !important;
   background-color: #73eeff !important;
   border: 1px solid #00a9d7;
-  padding: 10px 20px;
-  font-weight: 600;
 }
 
 .theme-accent-sm {
@@ -38,8 +36,6 @@
   color: rgba(77, 77, 77, 0.7) !important;
   background-color: #1bffdc !important;
   border: 1px solid #00a9d7;
-  padding: 10px 20px;
-  font-weight: 600;
 }
 
 /*action 100*/

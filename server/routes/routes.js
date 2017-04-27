@@ -615,6 +615,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 } else {
                     console.log(data[0].image);
                     response = {"status": 200, "message": data[0]};
+                    response = {"status": 200, "message": data[0]};
                 }
                 res.status(response.status).json(response.message);
             });
@@ -642,7 +643,7 @@ var appRouter = function(router, mongo, app, config, database) {
                         if (err) {
                             response = {"status": 500, "message": "Error updating data"};
                         } else {
-                            response = {"status": 200,  "message": "Data is updated for " + req.params.id};
+                            response = {"status": 200,  "message": "POI updated successfully"};
                         }
                         res.status(response.status).json(response);
                     })
@@ -664,8 +665,7 @@ var appRouter = function(router, mongo, app, config, database) {
                         } else {
                             response = {
                                 "status": 200,
-                                "message": "Data associated with " + req.params.id + " is deleted",
-                                //"idUser": creator
+                                "message": "POI deleted successfully"
                             };
                         }
                         res.status(response.status).json(response);

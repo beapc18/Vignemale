@@ -10,7 +10,7 @@
         </div>
 
         <!--Right panel, with data user-->
-        <div class="col-md-4 rightPanel">
+        <div class="col-md-4 rightPanel" ng-click="hideError();hideSuccess()">
             <div class="row">
                 <!--Left part, with username-->
                 <div class="col-md-8">
@@ -30,16 +30,16 @@
                         <div class="container-fluid">
                             <ul class="nav navbar-nav">
                                 <li>
-                                    <a role="button" ng-click="showPois();hideRoutes();hideFollows();hideFavs();hideError();hideSuccess();" class="col-md-3">Pois</a>
+                                    <a role="button" ng-click="showPois();hideRoutes();hideFollows();hideFavs();" class="col-md-3">Pois</a>
                                 </li>
                                 <li>
-                                    <a role="button" ng-click="showRoutes();hidePois();hideFollows();hideFavs();hideError();hideSuccess();" class="col-md-3">Routes</a>
+                                    <a role="button" ng-click="showRoutes();hidePois();hideFollows();hideFavs();" class="col-md-3">Routes</a>
                                 </li>
                                 <li>
-                                    <a role="button" ng-click="showFollows();hidePois();hideRoutes();hideFavs();hideError();hideSuccess();" class="col-md-3">Following</a>
+                                    <a role="button" ng-click="showFollows();hidePois();hideRoutes();hideFavs();" class="col-md-3">Following</a>
                                 </li>
                                 <li>
-                                    <a role="button" ng-click="showFavs();hidePois();hideFollows();hideRoutes();hideError();hideSuccess();" class="col-md-3">Favs</a>
+                                    <a role="button" ng-click="showFavs();hidePois();hideFollows();hideRoutes();" class="col-md-3">Favs</a>
                                 </li>
                             </ul>
                         </div>
@@ -81,34 +81,8 @@
                         <span class="glyphicon glyphicon-trash"></span>  Remove</button>
                 </div>
 
-                <!--FORM EDIT POI-->
-                <form name=form ng-submit="editPoiFun()" ng-if="editpoi" ng-click="hideError();hideSuccess()">
-                    Name <input type="text" ng-model="$parent.newPoi.name" class="form-control form-group" placeholder="{{$parent.newPoi.name}}" required/>
-                    Description <input type="text" ng-model="$parent.newPoi.description" class="form-control form-group" placeholder="{{$parent.newPoi.description}}" required/>
-                    Keywords <input type="text" ng-model="$parent.newPoi.keywords" class="form-control form-group" placeholder="{{$parent.newPoi.keywords}}" required/>
-                    Latitude <input type="number" step="any" ng-model="$parent.newPoi.lat" class="form-control form-group" placeholder="{{$parent.newPoi.lat}}" required/>
-                    Longitude <input type="number" step="any" ng-model="$parent.newPoi.lng" class="form-control form-group" placeholder="{{$parent.newPoi.lng}}" required/>
-                    URL <input type="url" ng-model="$parent.newPoi.shortURL" class="form-control form-group" placeholder="{{$parent.newPoi.shortURL}}" />
-                    Valoration <input type="text" ng-model="$parent.newPoi.valoration" class="form-control form-group" placeholder="{{$parent.newPoi.valoration}}" required/>
-                    <!--stars rating-->
-                    <!--<fieldset class="rating form-control form-group">  Como ponerlos con el mismo id que en otro form?
-                        Valoration
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star5" name="v1" value="5" required/><label class="full" for="star5" title="5"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star4half" name="v1" value="4.5"/><label class="half" for="star4half" title="4.5"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star4" name="v1" value="4"/><label class="full" for="star4" title="4"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star3half" name="v1" value="3.5" /><label class="half" for="star3half" title="3.5"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star3" name="v1" value="3"/><label class="full" for="star3" title="3"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star2half" name="v1" value="2.5" /><label class="half" for="star2half" title="2.5"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star2" name="v1" value="2"/><label class="full" for="star2" title="2"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star1half" name="v1" value="1.5"/><label class="half" for="star1half" title="1.5"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star1" name="v1" value="1"/><label class="full" for="star1" title="1"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="starhalf" name="v1" value="half"/><label class="half" for="starhalf" title="0.5"></label>
-                    </fieldset>-->
-                    <button type="submit" class="btn btn-default theme-accent">Edit POI</button>
-                </form>
-
-                <!--FORM CREATE POI-->
-                <form name="form" ng-submit="createpoiFun()" ng-if="createpoi" ng-click="hideError();hideSuccess()">
+                <!--FORM CREATE OR EDIT POI-->
+                <form name="form" ng-if="createpoi||editpoi">
                     <input type="text" ng-model="$parent.newPoi.name" class="form-control form-group" placeholder="Name" required/>
                     <input type="text" ng-model="$parent.newPoi.description" class="form-control form-group" placeholder="Description" required/>
                     <input type="text" ng-model="$parent.newPoi.keywords" class="form-control form-group" placeholder="Keywords (separate by comma)" required/>
@@ -131,7 +105,8 @@
                         <input type="radio" ng-model="$parent.newPoi.valoration" id="star1" name="v1" value="1"/><label class="full" for="star1" title="1"></label>
                         <input type="radio" ng-model="$parent.newPoi.valoration" id="starhalf" name="v1" value="half"/><label class="half" for="starhalf" title="0.5"></label>
                     </fieldset>
-                    <button type="submit" class="btn btn-default theme-accent">Create POI</button>
+                    <button type="submit" ng-if="createpoi" ng-click="createpoiFun()"  class="btn btn-default theme-accent">Create POI</button>
+                    <button type="submit" ng-if="editpoi" ng-click="editPoiFun()"  class="btn btn-default theme-accent">Edit POI</button>
                 </form>
 
                 <!--Show ALL routes or message if there aren't routes-->
@@ -165,13 +140,13 @@
                 </div>
 
                 <div class="form-group">
-                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="$parent.oldPassword" class="form-control" placeholder="Old password" required/>
+                    <input type="password" ng-model="$parent.oldPassword" class="form-control" placeholder="Old password" required/>
                 </div>
                 <div class="form-group">
-                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="$parent.newPassword" class="form-control" placeholder="Password" required />
+                    <input type="password" ng-model="$parent.newPassword" class="form-control" placeholder="Password" required />
                 </div>
                 <div class="form-group">
-                    <input ng-click="hideError();hideSuccess()" type="password" ng-model="$parent.newRePassword" class="form-control" placeholder="Repeat password" required />
+                    <input type="password" ng-model="$parent.newRePassword" class="form-control" placeholder="Repeat password" required />
                 </div>
 
                 <button type="submit" class="btn btn-sm theme-accent-sm">Change password</button>

@@ -52,13 +52,13 @@ angular.module('vignemale')
 
         // hide/show different layers
         var showPoisList = function (data) {
+            deleteMarkers();
             //update pois list
             $scope.editpoi = false;
             $scope.poisList = data.message;
             var poisLen = $scope.poisList.length;
 
             //create markers from pois list
-            var pos;
             for (i = 0; i < poisLen; i++) {
                 addMarker({lat:data.message[i].lat,lng:data.message[i].lng},data.message[i].name);
             }
@@ -196,12 +196,9 @@ angular.module('vignemale')
                   //  'data:image/png;base64,' + btoa(data);
                 //send your binary data via $http or $resource or do anything else with it
                 pois.createPoi($scope.newPoi, showSuccess, showError);
-                resetPoiInfo();
+                $scope.showPois();
             }
 
-
-
-            //console.log($scope.newPoi.creator);
         };
 
         $scope.showEditPoi = function () {
@@ -228,8 +225,9 @@ angular.module('vignemale')
         $scope.removePoi = function () {
             var deletePoi = window.confirm('Are you sure?');
             if(deletePoi){
-                pois.deletePoi($scope.idPoi, function (data) {
-                    window.alert(data.message);
+                pois.deletePoi($scope.idPoi, function (msg) {
+                    showSuccess(msg);
+                    $scope.showPois();
                 }, showError);
             }
         };

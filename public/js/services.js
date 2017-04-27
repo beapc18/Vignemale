@@ -303,8 +303,6 @@ angular.module('vignemale')
                         'Authorization': auth.getToken()
                     }
                 }).success(function (data) {
-                    //ir a home
-                    $state.go('users',{id: data.message});
                     callbackSuccess(data);
                 }).error(function (data) {
                     callbackError(data);

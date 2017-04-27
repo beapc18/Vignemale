@@ -1,6 +1,7 @@
 <div class="container">
 
     <div id="firstContentPanel" class="row">
+        {{source}}
 
         <!--Left panel, with map-->
         <div class="col-md-8 leftPanel">
@@ -71,6 +72,8 @@
                     <p>Longitude: {{newPoi.lng}}</p>
                     <!--<p>{{newPoi.images}}</p>-->
                     <p>URL: {{newPoi.shortURL}}</p>
+                    <p>Image:</p>
+                    <img ng-src="{{newPoi.image}}" class="img-responsive">
                     <p>Valoration: {{newPoi.valoration}}</p>
                     <button ng-click="showEditPoi()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-edit"></span>  Edit</button>
@@ -112,7 +115,8 @@
                     <input type="number" step="any" ng-model="$parent.newPoi.lat" class="form-control form-group" placeholder="Latitude" required/>
                     <input type="number" step="any" ng-model="$parent.newPoi.lng" class="form-control form-group" placeholder="Longitude" required/>
                     <input type="url" ng-model="$parent.newPoi.shortURL" class="form-control form-group" placeholder="URL"/>
-                    <input type="file" ng-model="$parent.newPoi.images" placeholder="Images" multiple/>
+                    <input type="file" id="image" ng-model="$parent.newPoi.images" placeholder="Images" multiple/>
+
                     <!--stars rating-->
                     <fieldset class="rating form-control form-group">
                         Valoration:

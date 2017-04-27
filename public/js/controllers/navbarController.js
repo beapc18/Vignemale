@@ -13,7 +13,7 @@ angular.module('vignemale')
         };
 
         $scope.getIdFromToken = function () {
-            auth.getIdFromToken(function(id) {
+            auth.getIdFromToken(auth.getToken(),function(id) {
                 $scope.idUser = id;
             });
         }

@@ -7,6 +7,7 @@ angular.module('vignemale')
         $scope.poisList = "";
         $scope.routesList = "";
         $scope.idPoi = "";
+        $scope.source = "";
 
         $scope.newPoi = {
             name: "",
@@ -43,10 +44,9 @@ angular.module('vignemale')
         $scope.editpoi = false;
 
 
+
         var markers= [];
-        var map;
-        var directionsService;
-        var directionsDisplay;
+
         $scope.latitude = "";
         $scope.longitude = "";
 
@@ -182,8 +182,26 @@ angular.module('vignemale')
         //Create the poi with values
         $scope.createpoiFun = function () {
             $scope.newPoi.creator = $stateParams.id;
-            pois.createPoi($scope.newPoi, showSuccess, showError);
-            resetPoiInfo();
+
+            $scope.newPoi.images = document.getElementById('image').files[0],
+                r = new FileReader();
+            r.readAsBinaryString($scope.newPoi.images);
+
+            r.onloadend = function(e){
+                var data = e.target.result;
+                console.log(data);
+                $scope.newPoi.image = 'data:image/png;base64,' + btoa(data);
+                //console.log($scope.source);
+
+                  //  'data:image/png;base64,' + btoa(data);
+                //send your binary data via $http or $resource or do anything else with it
+                pois.createPoi($scope.newPoi, showSuccess, showError);
+                resetPoiInfo();
+            }
+
+
+
+            //console.log($scope.newPoi.creator);
         };
 
         $scope.showEditPoi = function () {

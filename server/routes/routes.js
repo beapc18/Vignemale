@@ -562,23 +562,45 @@ var appRouter = function(router, mongo, app, config, database) {
 
             db.name = req.body.name;
             db.description = req.body.description;
-            db.keywords = req.body.keywords.split(","); //separate by comma, save in array
+            //db.keywords = req.body.keywords.split(","); //separate by comma, save in array
             db.lat = req.body.lat;
             db.lng = req.body.lng;
-            var url = req.body.url; //acortar!
             db.image = req.body.image;
             db.valoration = req.body.valoration;
             var city = req.body.city;       //hacefalta??
             db.creator = req.body.creator;
             db.numRec = 0;                   //nº recomendaciones
 
-            db.save(function (err) {
+            db.save(function (err,data) {
                 if (err) {
                     response = {"status": 500, "message": "Error creatting POI"};
+                    res.status(response.status).json(response);
                 } else {
-                    response = {"status": 201, "message": "POI has been created successfully"};
+                    var poiId = data._id;
+
+                    var shorturls = new mongo.shorturls;
+
+                    shorturls.poi = poiId;
+
+                    shorturls.save(function (err,data) {
+                        if (err) {
+                            response = {"status": 500, "message": "Error creatting POI"};
+                            res.status(response.status).json(response);
+                        }else{
+
+                            //update last access when user access and jwt
+                            mongo.pois.update({_id: poiId}, {shorturl: data._id}, function (err) {
+                                if (err) {
+                                    response = {"status": 500, "message": "Error creatting POI"};
+                                } else {
+                                    response = {"status": 201, "message": "POI has been created successfully"};
+                                }
+                                res.status(response.status).json(response);
+                            });
+                        }
+                    });
+
                 }
-                res.status(response.status).json(response);
             });
         });
 
@@ -591,6 +613,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 if (err) {
                     response = {"status": 500, "message": "Error fetching data"};
                 } else {
+                    console.log(data[0].image);
                     response = {"status": 200, "message": data[0]};
                 }
                 res.status(response.status).json(response.message);
@@ -716,6 +739,7 @@ var appRouter = function(router, mongo, app, config, database) {
             if (err) {
                 response = {"status": 500, "message": "Error fetching data"};
             } else {
+                console.log("redirect to "+"/pois/"+data[0].poi);
                 res.redirect("/pois/"+data[0].poi);
             }
         });

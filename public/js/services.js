@@ -41,12 +41,12 @@ angular.module('vignemale')
                 $state.go('starter');
             },
 
-            getIdFromToken: function (callbackSuccess) {
+            getIdFromToken: function (token,callbackSuccess) {
                 $http({
                     method: 'GET',
                     url: '/getIdFromToken',
                     headers: {
-                        'Authorization': auth.getToken()
+                        'Authorization': token
                     }
                 }).success(function (data) {
                     window.alert("ID DE USUARIO " + data.message);
@@ -326,6 +326,8 @@ angular.module('vignemale')
     .factory('vignemale', function ($state, $http) {
 
         return {
+
+
             //send the register info to the server
             starter: function (url, callbackSuccess,callbackError) {
                 $http({

@@ -4,6 +4,7 @@ var passport  = require('passport');
 var passportJWT  = require('passport-jwt');
 var GoogleAuth = require('google-auth-library');
 
+
 //https://jonathanmh.com/express-passport-json-web-token-jwt-authentication-beginners/
 var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;
@@ -15,6 +16,7 @@ var appRouter = function(router, mongo, app, config, database) {
     //secret variable JWT
     app.set('secret', config.secret);
     app.set('pass', config.pass);
+    app.set('keymaps', config.keymaps);
 
     // Not the movie transporter!
     var transporter = nodemailer.createTransport({
@@ -23,6 +25,10 @@ var appRouter = function(router, mongo, app, config, database) {
             user: 'vignemaleSTW@gmail.com', // Your email id
             pass: app.get('pass') // Your password
         }
+    });
+
+    var googleMapsClient = require('@google/maps').createClient({
+        key: app.get('keymaps')
     });
 
     var jwtOptions = {};
@@ -562,43 +568,63 @@ var appRouter = function(router, mongo, app, config, database) {
 
             db.name = req.body.name;
             db.description = req.body.description;
-            //db.keywords = req.body.keywords.split(","); //separate by comma, save in array
+            db.keywords = req.body.keywords.split(","); //separate by comma, save in array
             db.lat = req.body.lat;
             db.lng = req.body.lng;
             db.image = req.body.image;
             db.valoration = req.body.valoration;
-            var city = req.body.city;       //hacefalta??
             db.creator = req.body.creator;
-            db.numRec = 0;                   //nº recomendaciones
+            db.numRec = 0; //nº recomendaciones
 
-            db.save(function (err,data) {
-                if (err) {
-                    response = {"status": 500, "message": "Error creatting POI"};
-                    res.status(response.status).json(response);
-                } else {
-                    var poiId = data._id;
-
-                    var shorturls = new mongo.shorturls;
-
-                    shorturls.url = req.body.shortURL;
-
-                    shorturls.save(function (err,data) {
+            //Collect data to statistics of country and city
+            googleMapsClient.reverseGeocode({
+                latlng: [req.body.lat, req.body.lng]
+            }, function(err, response) {
+                if (!err) {
+                    db.city = response.json.results[0].address_components[3].long_name;
+                    db.country = response.json.results[0].address_components[5].long_name;
+                    db.save(function (err,data) {
                         if (err) {
                             response = {"status": 500, "message": "Error creatting POI"};
                             res.status(response.status).json(response);
-                        }else{
-                            //update last access when user access and jwt
-                            mongo.pois.update({_id: poiId}, {shortURL: "http://localhost:8888/short/"+data._id}, function (err) {
+                        } else {
+                            var poiId = data._id;
+
+                            var shorturls = new mongo.shorturls;
+
+                            shorturls.url = req.body.shortURL;
+
+                            shorturls.save(function (err,data) {
                                 if (err) {
                                     response = {"status": 500, "message": "Error creatting POI"};
-                                } else {
-                                    response = {"status": 201, "message": "POI has been created successfully"};
+                                    res.status(response.status).json(response);
+                                }else{
+                                    //update last access when user access and jwt
+                                    mongo.pois.update({_id: poiId}, {shortURL: "http://localhost:8888/short/"+data._id}, function (err) {
+                                        if (err) {
+                                            response = {"status": 500, "message": "Error creatting POI"};
+                                            res.status(response.status).json(response);
+                                        } else {
+
+                                            //update last access when user access and jwt
+                                            mongo.pois.update({_id: poiId}, {shorturl: data._id}, function (err) {
+                                                if (err) {
+                                                    response = {"status": 500, "message": "Error creatting POI"};
+                                                } else {
+                                                    response = {
+                                                        "status": 201,
+                                                        "message": "POI has been created successfully"
+                                                    };
+                                                }
+                                                res.status(response.status).json(response);
+                                            });
+                                        }
+                                    });
                                 }
-                                res.status(response.status).json(response);
                             });
+
                         }
                     });
-
                 }
             });
         });

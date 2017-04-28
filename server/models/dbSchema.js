@@ -74,7 +74,7 @@ var routesSchema = mongoose.Schema({
 });
 
 var shorturlsSchema = mongoose.Schema({
-    poi: objectId
+    url: String
 });
 
 

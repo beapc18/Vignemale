@@ -71,7 +71,7 @@
                     <p>Latitude: {{newPoi.lat}}</p>
                     <p>Longitude: {{newPoi.lng}}</p>
                     <!--<p>{{newPoi.images}}</p>-->
-                    <p>URL: {{newPoi.shortURL}}</p>
+                    <p>URL: <a ng-href="{{newPoi.shortURL}}">{{newPoi.shortURL}}</a></p>
                     <p>Image:</p>
                     <img ng-src="{{newPoi.image}}" class="img-responsive">
                     <p>Valoration: {{newPoi.valoration}}</p>

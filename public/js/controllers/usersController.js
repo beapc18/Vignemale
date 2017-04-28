@@ -79,6 +79,7 @@ angular.module('vignemale')
             $scope.idPoi = id;
             pois.getPoi(id, function (data) {
                 $scope.newPoi = data;
+                $scope.newPoi.shortURL = data.shortURL;
             }, showError);
         };
 
@@ -182,6 +183,7 @@ angular.module('vignemale')
         //Create the poi with values
         $scope.createpoiFun = function () {
             $scope.newPoi.creator = $stateParams.id;
+            console.log($scope.newPoi.shortURL);
 
             $scope.newPoi.images = document.getElementById('image').files[0],
                 r = new FileReader();
@@ -189,7 +191,6 @@ angular.module('vignemale')
 
             r.onloadend = function(e){
                 var data = e.target.result;
-                console.log(data);
                 $scope.newPoi.image = 'data:image/png;base64,' + btoa(data);
                 //console.log($scope.source);
 
@@ -214,7 +215,7 @@ angular.module('vignemale')
                 keywords : $scope.newPoi.keywords,
                 lat : $scope.newPoi.lat,
                 lng : $scope.newPoi.lng,
-                url : $scope.newPoi.shortURL,
+                shortURL : $scope.newPoi.shortURL,
                 valoration : $scope.newPoi.valoration
             };
             pois.editPoi(newPoi, showSuccess, showError);
@@ -349,6 +350,17 @@ angular.module('vignemale')
                 }
             });
         }
+        // sort: true
+        Sortable.create(sortTrue, {
+            group: "sorting",
+            sort: true
+        });
+
+// sort: false
+        Sortable.create(sortFalse, {
+            group: "sorting",
+            sort: false
+        });
 
     }]);
 

@@ -580,16 +580,15 @@ var appRouter = function(router, mongo, app, config, database) {
 
                     var shorturls = new mongo.shorturls;
 
-                    shorturls.poi = poiId;
+                    shorturls.url = req.body.shortURL;
 
                     shorturls.save(function (err,data) {
                         if (err) {
                             response = {"status": 500, "message": "Error creatting POI"};
                             res.status(response.status).json(response);
                         }else{
-
                             //update last access when user access and jwt
-                            mongo.pois.update({_id: poiId}, {shorturl: data._id}, function (err) {
+                            mongo.pois.update({_id: poiId}, {shortURL: "http://localhost:8888/short/"+data._id}, function (err) {
                                 if (err) {
                                     response = {"status": 500, "message": "Error creatting POI"};
                                 } else {
@@ -634,18 +633,42 @@ var appRouter = function(router, mongo, app, config, database) {
                         keywords: req.body.keywords,
                         lat: req.body.lat,
                         lng: req.body.lng,
-                        shorturl: req.body.shortURL,
                         valoration: req.body.valoration,
                         image: req.body.image
                     };
+                    var url = req.body.shortURL;
 
-                    mongo.pois.update({_id: req.params.id}, updateInfo, function (err) {
+                    mongo.pois.update({_id: req.params.id}, updateInfo, function (err,data) {
                         if (err) {
                             response = {"status": 500, "message": "Error updating data"};
                         } else {
-                            response = {"status": 200,  "message": "POI updated successfully"};
+                            if(url != data.shortURL){
+                                var shorturls = new mongo.shorturls;
+
+                                shorturls.url = url;
+                                shorturls.save(function (err,data) {
+                                    if (err) {
+                                        response = {"status": 500, "message": "Error updating data"};
+                                        res.status(response.status).json(response);
+                                    }else{
+                                        //update last access when user access and jwt
+                                        mongo.pois.update({_id: req.params.id}, {shortURL: "http://localhost:8888/short/"+data._id}, function (err) {
+                                            if (err) {
+                                                response = {"status": 500, "message": "Error updating data"};
+                                            } else {
+                                                response = {"status": 201, "message": "POI updated successfully"};
+                                            }
+                                            res.status(response.status).json(response);
+                                        });
+                                    }
+                                });
+
+                            }else{
+                                response = {"status": 200,  "message": "POI updated successfully"};
+                                res.status(response.status).json(response);
+                            }
+
                         }
-                        res.status(response.status).json(response);
                     })
                 }
             });
@@ -739,8 +762,7 @@ var appRouter = function(router, mongo, app, config, database) {
             if (err) {
                 response = {"status": 500, "message": "Error fetching data"};
             } else {
-                console.log("redirect to "+"/pois/"+data[0].poi);
-                res.redirect("/pois/"+data[0].poi);
+                res.redirect(data[0].url);
             }
         });
     });

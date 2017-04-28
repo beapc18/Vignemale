@@ -191,12 +191,13 @@ angular.module('vignemale')
                 var data = e.target.result;
                 console.log(data);
                 $scope.newPoi.image = 'data:image/png;base64,' + btoa(data);
-                //console.log($scope.source);
 
-                  //  'data:image/png;base64,' + btoa(data);
+                //  'data:image/png;base64,' + btoa(data);
                 //send your binary data via $http or $resource or do anything else with it
-                pois.createPoi($scope.newPoi, showSuccess, showError);
-                $scope.showPois();
+                pois.createPoi($scope.newPoi, function (data) {
+                    showSuccess(data);
+                    $scope.showPois();
+                }, showError);
             }
 
         };

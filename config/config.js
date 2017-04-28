@@ -3,5 +3,6 @@
 // config.js
 module.exports = {
     'secret': 'losubisinquerer',
-    'pass': 'vignemale2017'
+    'pass': 'vignemale2017',
+    'keymaps': 'AIzaSyBp14v_6ObuRDmKB2o-dUm9NCSHkyIT9Ks'
 };

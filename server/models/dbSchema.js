@@ -41,6 +41,7 @@ var POIsSchema = mongoose.Schema({
     image: String,
     value: Number,
     city: String,
+    country: String,
     creator: objectId,
     valoration: Number
     //Para ofrecer una imagen desde un controlador

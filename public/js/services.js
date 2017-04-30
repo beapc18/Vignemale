@@ -320,6 +320,24 @@ angular.module('vignemale')
             }
         };
     })
+    .factory('routes', function ($state, $http, $httpParamSerializer, auth) {
+        return {
+            createRoute: function (route, callbackSuccess, callbackError) {
+                $http({
+                    method: 'POST',
+                    url: '/routes',
+                    data: $httpParamSerializer(route),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            }
+        };
+    })
 
     .factory('vignemale', function ($state, $http) {
 

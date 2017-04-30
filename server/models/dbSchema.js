@@ -69,7 +69,7 @@ var POIsSchema = mongoose.Schema({
 
 var routesSchema = mongoose.Schema({
     name: String,
-    pois: [{poi: objectId, lat: Number, lng:Number}],
+    pois: [{poi: objectId, location: {lat: Number, lng:Number}}],
     numRecommendations: Number,
     creator: objectId
 });

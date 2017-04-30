@@ -1,7 +1,7 @@
 <div class="container">
 
     <div id="firstContentPanel" class="row">
-        {{source}}
+
 
         <!--Left panel, with map-->
         <div class="col-md-8 leftPanel">
@@ -115,7 +115,26 @@
                     <ul class="list-group pre-scrollable" >
                         <button type="button" class="list-group-item" ng-repeat="row in routesList" ng-click="showRoute(row)">{{row.name}}</button>
                     </ul>
+
+                    <button type="button" class="btn btn-default theme-accent" ng-click="showCreateRoute()">Create Route</button>
                 </div>
+
+
+                <!--FORM CREATE ROUTE-->
+                <form name="form" ng-if="createroute">
+                    <input type="text" ng-model="$parent.newRoute.name" class="form-control form-group" placeholder="Name" required/>
+
+                    <div id="drop" class="list-group pre-scrollable" ng-sortable>
+                        New Route:
+                    </div>
+
+                    <div id="drag" class="list-group pre-scrollable" ng-store>
+                        Your Pois:
+                        <div ng-repeat="row in poisList" class="list-group-item" id="{{row._id}}">{{row.name}}</div>
+                    </div>
+
+                    <button type="button" class="btn btn-default theme-accent" ng-click="createRoute()">Create Route</button>
+                </form>
 
                 <!--Show ALL follows or message if there aren't follows-->
                 <div ng-if="follows">

@@ -1,6 +1,6 @@
 angular.module('vignemale')
 
-    .controller('usersCtrl', ['$scope', '$state', '$stateParams', 'users', 'auth', 'pois', function ($scope, $state, $stateParams, users, auth, pois) {
+    .controller('usersCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'users', 'auth', 'pois','routes', function ($scope, $state, $stateParams,$httpParamSerializer, users, auth, pois, routes) {
 
         //user id from url
         $scope.idUser = $stateParams.id;
@@ -8,6 +8,9 @@ angular.module('vignemale')
         $scope.routesList = "";
         $scope.idPoi = "";
         $scope.source = "";
+
+        $scope.dragList;
+        $scope.dropList;
 
         $scope.newPoi = {
             name: "",
@@ -18,6 +21,12 @@ angular.module('vignemale')
             shortURL: "",
             images: "",
             valoration: "",
+            creator: ""
+        };
+
+        $scope.newRoute = {
+            name: "",
+            pois: "",
             creator: ""
         };
 
@@ -40,10 +49,12 @@ angular.module('vignemale')
         $scope.favs = false;
         $scope.editUser = false;
         $scope.createpoi = false;
+        $scope.createroute = false;
         $scope.onePoiSelected = false;
         $scope.editpoi = false;
 
 
+        var sort;
 
         var markers= [];
 
@@ -68,8 +79,10 @@ angular.module('vignemale')
             users.getUserPois($scope.idUser,showPoisList);
             $scope.pois = true;
             $scope.createpoi = false;
+            $scope.createroute = false;
             $scope.onePoiSelected = false;
             resetPoiInfo();
+            resetRouteInfo();
         };
 
         $scope.showPoi  = function (lat, lng, name, id) {
@@ -97,8 +110,10 @@ angular.module('vignemale')
             users.getUserRoutes($scope.idUser,showRoutesList);
             $scope.routes = true;
             $scope.createpoi = false;
+            $scope.createroute = false;
             $scope.onePoiSelected = false;
             resetPoiInfo();
+            resetRouteInfo();
         };
 
         $scope.showRoute = function (route) {
@@ -107,7 +122,7 @@ angular.module('vignemale')
             var waypts = [];
             for(i = 0; i < pois.length; i++) {
                 waypts.push({
-                    location: {lat:pois[i].lat,lng:pois[i].lng},
+                    location: pois[i].location,
                     stopover: true
                 });
             }
@@ -124,8 +139,10 @@ angular.module('vignemale')
         $scope.showFollows = function () {
             $scope.follows = true;
             $scope.createpoi = false;
+            $scope.createroute = false;
             $scope.onePoiSelected = false;
             resetPoiInfo();
+            resetRouteInfo();
         };
 
         $scope.hideFollows = function () {
@@ -135,8 +152,10 @@ angular.module('vignemale')
         $scope.showFavs = function () {
             $scope.favs = true;
             $scope.createpoi = false;
+            $scope.createroute = false;
             $scope.onePoiSelected = false;
             resetPoiInfo();
+            resetRouteInfo();
         };
 
         $scope.hideFavs = function () {
@@ -183,7 +202,6 @@ angular.module('vignemale')
         //Create the poi with values
         $scope.createpoiFun = function () {
             $scope.newPoi.creator = $stateParams.id;
-            console.log($scope.newPoi.shortURL);
 
             $scope.newPoi.images = document.getElementById('image').files[0],
                 r = new FileReader();
@@ -200,8 +218,28 @@ angular.module('vignemale')
                     $scope.showPois();
                 }, showError);
             }
-
         };
+
+        $scope.showCreateRoute = function () {
+            $scope.createroute = true;
+            $scope.routes = false;
+            //users.getUserPois($scope.idUser,showPoisList);
+        };
+
+        $scope.createRoute = function () {
+            var route = sort.el.childNodes;
+
+            if (route.length > 2){
+                $scope.newRoute.creator = $stateParams.id;
+                $scope.newRoute.pois = getWaypts();
+
+                routes.createRoute($scope.newRoute, function (data) {
+                    showSuccess(data);
+                    $scope.showRoutes();
+                }, showError);
+            }
+        };
+
 
         $scope.showEditPoi = function () {
             $scope.editpoi = true;
@@ -288,6 +326,15 @@ angular.module('vignemale')
             };
         }
 
+        //Reset info about poi for avoiding show wrong info
+        function resetRouteInfo() {
+            $scope.newPoi = {
+                name: "",
+                pois: "",
+                creator: ""
+            };
+        }
+
 
         //*******************************************************************//
         //                  GOOGLE MAPS FUNCTIONS                            //
@@ -351,17 +398,56 @@ angular.module('vignemale')
                 }
             });
         }
-        // sort: true
-        Sortable.create(sortTrue, {
-            group: "sorting",
-            sort: true
-        });
 
-// sort: false
-        Sortable.create(sortFalse, {
-            group: "sorting",
-            sort: false
-        });
+
+        /** SORTABLE FUNCTIONS */
+        $scope.initDrag = function(){
+            Sortable.create(drag, {
+                group: "sorting",
+                sort: true
+            });
+        }
+
+        $scope.initDrop = function(){
+
+            sort = Sortable.create(drop, {
+                group: "sorting",
+                sort: true,
+                animation: 200,
+                onSort: function (/**Event*/evt) {
+                    var waypts = getWaypts();
+                    if(waypts.length > 1){
+                        var e = waypts.map(function(a) {return {location:a.location};});
+                        createRoute(e);
+
+                    }
+                    // same properties as onUpdate
+                }
+            })
+        }
+
+        function getWaypts(){
+
+            var route = sort.el.childNodes;
+
+            var waypts = [];
+            var pois = $scope.poisList;
+
+            for(i = 1; i<route.length ;i++){
+                var j = 0;
+                while(route[i].id != pois[j]._id){
+                    j++;
+                }
+
+                waypts.push({
+                    poi: pois[j]._id,
+                    location: {lat:pois[j].lat,lng:pois[j].lng}
+                });
+            }
+
+            return waypts;
+        }
+
 
     }]);
 

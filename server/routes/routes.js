@@ -568,6 +568,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
             db.name = req.body.name;
             db.description = req.body.description;
+            console.log(req.body.keywords.split(","));
             db.keywords = req.body.keywords.split(","); //separate by comma, save in array
             db.lat = req.body.lat;
             db.lng = req.body.lng;
@@ -760,12 +761,23 @@ var appRouter = function(router, mongo, app, config, database) {
 
             var name = req.body.name;
             var pois = req.body.pois;
+
+
+            var array = [];
+
+            for(i = 0; i < pois.length; i++){
+                array.push(JSON.parse(pois[i]));
+            }
+
+            console.log(array);
+            //console.log(JSON.stringify(pois[0]));
             var creator = req.body.creator;
 
 
             db.name = name;
             db.numRecommendations = 0;
-            db.pois = pois;
+
+            db.pois = array;
             db.creator = creator;
 
 
@@ -773,11 +785,13 @@ var appRouter = function(router, mongo, app, config, database) {
                 // save() will run insert() command of MongoDB.
                 // it will add new data in collection.
                 if (err) {
+                    console.log(err);
                     response = {"status": 500, "message": "Error adding data"};
                 } else {
+                    console.log("asdfas");
                     response = {"status": 200, "message": "Data added"};
                 }
-                res.status(response.status).json(response.messag);
+                res.status(response.status).json(response.message);
             });
         });
 

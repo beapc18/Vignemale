@@ -125,6 +125,33 @@ var createAdmin = function (mongo, app) {
     });
 };
 
+var addFollowing = function (mongo, idUser, idFollow, callback) {
+    mongo.users.update({_id: idUser}, {$addToSet: {following: idFollow}}, function (err, user) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error following user"}};
+        }
+        else {
+            console.log("User " + idFollow + " followed succesfully");
+            response = {"status": 200, "res": {"message": "User " + idFollow + " followed succesfully"}};
+        }
+        callback(response);
+    })
+};
+
+var removeFollowing = function (mongo, idUser, idUnfollow, callback) {
+    mongo.users.update({_id: idUser}, {$pull: {following: idUnfollow}}, function (err, user) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error unfollowing user"}};
+        }
+        else {
+            console.log("User " + idUnfollow + " unfollowed succesfully");
+            response = {"status": 200, "res": {"message": "User " + idUnfollow + " unfollowed succesfully"}};
+        }
+        callback(response);
+    })
+};
 
 module.exports = {
     getInfoUser: getInfoUser,
@@ -133,5 +160,7 @@ module.exports = {
     validPassword: validPassword,
     isValidToken: isValidToken,
     getInfoUserByEmail: getInfoUserByEmail,
-    createAdmin: createAdmin
+    createAdmin: createAdmin,
+    addFollowing: addFollowing,
+    removeFollowing: removeFollowing
 };

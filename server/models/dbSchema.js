@@ -23,7 +23,8 @@ var usersSchema = mongoose.Schema({
     isVerified: Boolean,
     firstLogin: Boolean,
     google: Boolean,
-    token: String
+    token: String,
+    following: Array
     //pois
     //rutas
     //favoritos

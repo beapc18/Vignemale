@@ -18,8 +18,14 @@
                 </div>
                 <!--Right part, with button-->
                 <div class="col-md-4">
-                    <button ng-if="!editUser" ng-click="showEdit()" class="btn btn-default theme-accent">
+                    <button ng-if="!editUser && itsme" ng-click="showEdit()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-edit"></span>  Edit</button>
+
+                    <button ng-if="!itsme && !itsfollowed" ng-click="followFun()" class="btn btn-default theme-accent">
+                        <span class="glyphicon glyphicon-user"></span>  Follow</button>
+                    <button ng-if="!itsme && itsfollowed" ng-click="unfollowFun()" class="btn btn-default theme-accent">
+                        <span class="glyphicon glyphicon-remove"></span>  Unfollow </button>
+
                 </div>
             </div>
 
@@ -60,7 +66,7 @@
                     <ul class="list-group pre-scrollable" >
                         <button type="button" class="list-group-item" ng-repeat="row in poisList" ng-click="showPoi(row.lat,row.lng,row.name,row._id)">{{row.name}}</button>
                     </ul>
-                    <button type="button" class="btn btn-default theme-accent" ng-click="showCreatepoi()">Create POI</button>
+                    <button ng-if="itsme" type="button" class="btn btn-default theme-accent" ng-click="showCreatepoi()">Create POI</button>
                 </div>
 
                 <!--Show ONE poi when it's selected-->
@@ -138,7 +144,11 @@
 
                 <!--Show ALL follows or message if there aren't follows-->
                 <div ng-if="follows">
-                    mostrando follows
+                    <p ng-if="followingList.length==0"> You are following anyone</p>
+                    <ul class="list-group pre-scrollable">
+                        <button type="button" class="list-group-item" ng-repeat="row in followingList" ng-click="showOneFollow(row)">{{row}}</button>
+
+                    </ul>
                 </div>
 
                 <!--Show ALL favs or message if there aren't favs-->

@@ -1,6 +1,6 @@
 angular.module('vignemale')
 // 'auth' service manage the authentication function of the page with the server
-    .factory('auth', function ($state, $http, $httpParamSerializer) {
+    .factory('auth', function ($state, $http, $httpParamSerializer, $stateParams) {
 
         var session = undefined,
             _authenticated = false;
@@ -49,8 +49,8 @@ angular.module('vignemale')
                         'Authorization': token
                     }
                 }).success(function (data) {
-                    window.alert("ID DE USUARIO " + data.message);
-                    $state.go('users', {id: data.message});
+                    //$state.go('users', {id: data.message}); --> poner en el callback del sign in q vaya a home
+                    callbackSuccess(data);
                 });
             },
 
@@ -80,9 +80,12 @@ angular.module('vignemale')
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
-                }).success(function (data, status, headers) {
+                }).success(function (data, status, headers, params) {
                     that.authenticate(headers().authorization);
-                    $state.go('users',{id: data.message}); //redirect user home
+                    /*window.alert($stateParams.idRequest);
+                    window.alert(params.idRequest);*/
+
+                    $state.go('users',{id: data.message, idRequest: data.message}); //redirect user home
                 }).error(function (data) {
                     if(data.message === "You must change your password") {
                         var userObject = {
@@ -136,9 +139,13 @@ angular.module('vignemale')
         return {
 
             getUser: function (id, callbackSuccess,callbackError) {
+                //idRequest
                 $http({
                     method: 'GET',
                     url: '/users/'+id,
+                    /*params: {
+                        idRequest
+                    },*/
                     headers: {
                         'Authorization': auth.getToken()
                     }
@@ -244,6 +251,48 @@ angular.module('vignemale')
                     callbackSuccess(data);
                 }).error(function (data) {
                     console.log("error");
+                });
+            },
+
+            getUserFollows: function (id, callbackSuccess) {
+                $http({
+                    method: 'GET',
+                    url: '/users/'+id+'/following'
+                }).success(function (data) {
+                    callbackSuccess(data[0].following);  //en data tiene q ir [following]
+                }).error(function (data) {
+                    console.log("error");
+                });
+            },
+            
+            followUser: function (idsUsers, callbackSuccess) {
+                $http({
+                    method: 'POST',
+                    url: '/followUser/',
+                    data: $httpParamSerializer(idsUsers),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
+            unfollowUser: function (idsUsers, callbackSuccess) {
+                $http({
+                    method: 'POST',
+                    url: '/unfollowUser/',
+                    data: $httpParamSerializer(idsUsers),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
                 });
             }
         };

@@ -26,6 +26,9 @@ angular.module('vignemale', ['ui.router', 'base64'])
 
             .state('users', {
                 url: '/users/{id}',
+                params: {
+                  idRequest: null   //id user from request, pass it always to recognize it
+                },
                 templateUrl: "templates/users.html",
                 controller: "usersCtrl"
             })

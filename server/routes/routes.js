@@ -36,7 +36,7 @@ var appRouter = function(router, mongo, app, config, database) {
     jwtOptions.secretOrKey = app.get('secret'); //config.js
 
     var strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
-        console.log('checking token');
+        //console.log('checking token');
 
         //comprueba si el id de la cabecera corresponde con alguno de la bbdd
         database.isValidToken(mongo, jwt_payload.id, jwt_payload.tokenId, function (response) {
@@ -343,7 +343,7 @@ var appRouter = function(router, mongo, app, config, database) {
     //no llega a hacer este metodo (sin razon)--> problema para ir al home
     router.get('/getIdFromToken', passport.authenticate('jwt', {session: false}), function (req, res) {
         var payload = jwt.decode(req.headers.authorization.split(" ")[1]);
-        console.log("ID DEL TOKEN " + payload.id)
+        //console.log("ID DEL TOKEN " + payload.id)
         res.status(200).json({"message": payload.id});
     });
 
@@ -467,13 +467,13 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/users/:id", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("get user");
 
-        if (verifyIds(req.params.id, req.headers.authorization)) {
+        //if (verifyIds(req.params.id, req.headers.authorization)) {
             database.getInfoUser(mongo, req.params.id, function (response) {
                 res.status(response.status).json(response.res);
             });
-        } else {
+        /*} else {
             res.status(403).json({"message": "Access blocked"});
-        }
+        }*/
     });
 
     //change removed attribute for removing user
@@ -530,6 +530,24 @@ var appRouter = function(router, mongo, app, config, database) {
         } else {
             res.status(403).json({"message": "Access blocked"});
         }
+    });
+
+    //Follow user, updating field "following"
+    router.post("/followUser/", function (req, res) {
+        console.log("Follow user " + req.body.idFollow + " from " + req.body.idRequest);
+        database.addFollowing(mongo,req.body.idRequest, req.body.idFollow, function (response) {
+            console.log(response);
+            res.status(response.status).json(response.res);
+        });
+    });
+
+    //Unfollow user, updating field "following"
+    router.post("/unfollowUser/", function (req, res) {
+        console.log("Unfollow user " + req.body.idUnfollow + " from " + req.body.idRequest);
+        database.removeFollowing(mongo,req.body.idRequest, req.body.idUnfollow, function (response) {
+            console.log(response);
+            res.status(response.status).json(response.res);
+        });
     });
 
     //get user pois
@@ -710,6 +728,7 @@ var appRouter = function(router, mongo, app, config, database) {
                     //data exists, remove
                     mongo.pois.remove({_id: req.params.id}, function (err, data) {
 
+
                         if (err) {
                             response = {"status": 500, "message": "Error deleting data"};
                         } else {
@@ -739,6 +758,25 @@ var appRouter = function(router, mongo, app, config, database) {
             res.status(response.status).json(response.message);
         });
     });
+    
+    //get user follows
+    router.get("/users/:id/following", function (req, res) {
+        var userId = req.params.id;
+        console.log("Get follows");
+        mongo.users.find({_id: userId},{following: 1, _id: 0}, function (err, data) {
+            if (err) {
+                console.log("Error getting follows");
+                response = {"status": 500, "message": "Error getting follows"};
+            } else {
+                console.log("follows del usuario " + data);
+                //while(u.hasNext()){print(u.Next().text);}
+                response = {"status": 200, "message": data}; //devolver solo la lista de seguidores
+            }
+            res.status(response.status).json(response.message);
+            
+        })
+        
+    });
 
 
     router.route("/routes")
@@ -751,7 +789,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 } else {
                     response = {"status": 200, "message": data};
                 }
-                res.status(response.status).json(response.message);
+                res.status(response.status).json(response);
             });
         })
         .post(function (req, res) {

@@ -3,11 +3,13 @@ angular.module('vignemale')
     .controller('usersCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'users', 'auth', 'pois','routes', function ($scope, $state, $stateParams,$httpParamSerializer, users, auth, pois, routes) {
 
         //user id from url
+        $scope.idRequest = "";
         $scope.idUser = $stateParams.id;
         $scope.poisList = "";
         $scope.routesList = "";
         $scope.idPoi = "";
         $scope.source = "";
+        $scope.followingList = "";
 
         $scope.dragList;
         $scope.dropList;
@@ -52,6 +54,8 @@ angular.module('vignemale')
         $scope.createroute = false;
         $scope.onePoiSelected = false;
         $scope.editpoi = false;
+        $scope.itsme = true;
+        $scope.itsfollowed = false;
 
 
         var sort;
@@ -60,6 +64,42 @@ angular.module('vignemale')
 
         $scope.latitude = "";
         $scope.longitude = "";
+
+        var showFollowingList = function (data) {
+            $scope.followingList = data;
+        };
+
+        $scope.showFollows = function () {
+            users.getUserFollows($scope.idUser,showFollowingList);
+            $scope.follows = true;
+            $scope.createpoi = false;
+            $scope.createroute = false;
+            $scope.onePoiSelected = false;
+            resetPoiInfo();
+            resetRouteInfo();
+
+        };
+
+        $scope.hideFollows = function () {
+            $scope.follows = false;
+        };
+
+        // acceder al home de otro, NO CAMBIA EN LA URL
+        $scope.showOneFollow = function (id) {
+            $scope.idUser = id;
+            users.getUser($scope.idUser, function (data) {
+                //save info about user
+                initMap();
+                users.getUserPois($scope.idUser, showPoisList);
+                $scope.user = {
+                    lastName: data.message[0].lastName,
+                    name: data.message[0].name
+                };
+                $scope.itsMe();
+                $scope.hideFollows();
+                $scope.itsFollowed($scope.idUser);
+            }, showError);
+        };
 
         // hide/show different layers
         var showPoisList = function (data) {
@@ -136,14 +176,6 @@ angular.module('vignemale')
             directionsDisplay.setMap(null);
         };
 
-        $scope.showFollows = function () {
-            $scope.follows = true;
-            $scope.createpoi = false;
-            $scope.createroute = false;
-            $scope.onePoiSelected = false;
-            resetPoiInfo();
-            resetRouteInfo();
-        };
 
         $scope.hideFollows = function () {
             $scope.follows = false;
@@ -245,7 +277,7 @@ angular.module('vignemale')
             $scope.editpoi = true;
             $scope.onePoiSelected = false;
         };
-        
+
         $scope.editPoiFun = function () {
             var newPoi = {
                 idPoi : $scope.idPoi,
@@ -309,6 +341,8 @@ angular.module('vignemale')
                 lastName: data.message[0].lastName,
                 name: data.message[0].name
             };
+            $scope.itsMe();
+            $scope.itsFollowed($scope.idUser);
         }, showError);
 
         //Reset info about poi for avoiding show wrong info
@@ -325,6 +359,53 @@ angular.module('vignemale')
                 creator: ""
             };
         }
+
+        $scope.itsMe = function () {
+            auth.getIdFromToken(auth.getToken(),function (data) {
+                $scope.idRequest = data.message;
+                if($scope.idUser === $scope.idRequest) {
+                    $scope.itsme = true;
+                }
+                else {
+                    $scope.itsme = false;
+                }
+            })
+        };
+
+        $scope.itsFollowed  = function (id) {
+            if($scope.followingList.indexOf(id) !== -1) {
+               //window.alert('id encontrado en array');
+               $scope.itsfollowed = true;
+            }
+            else{
+                //window.alert("No encontrado en array");
+                $scope.itsfollowed = false;
+            }
+        };
+
+        $scope.followFun = function () {
+            auth.getIdFromToken(auth.getToken(),function (data) {
+                $scope.idRequest = data.message;
+            });
+            var idsUsers = {
+                idFollow: $scope.idUser,
+                idRequest: $scope.idRequest
+            };
+            users.followUser(idsUsers, showSuccess);
+            $scope.itsfollowed = true;
+        };
+
+        $scope.unfollowFun = function () {
+            auth.getIdFromToken(auth.getToken(),function (data) {
+                $scope.idRequest = data.message;
+            });
+            var idsUsers = {
+                idUnfollow: $scope.idUser,
+                idRequest: $scope.idRequest
+            };
+            users.unfollowUser(idsUsers, showSuccess);
+            $scope.itsfollowed = false;
+        };
 
         //Reset info about poi for avoiding show wrong info
         function resetRouteInfo() {

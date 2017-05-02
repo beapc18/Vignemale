@@ -79,6 +79,8 @@ var shorturlsSchema = mongoose.Schema({
     url: String
 });
 
+//create index for searching pois by keywords or name
+POIsSchema.index({keywords: "text", name: "text"});
 
 //Export all collections
 var users = mongoose.model('users',usersSchema);

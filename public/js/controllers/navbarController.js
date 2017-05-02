@@ -13,8 +13,9 @@ angular.module('vignemale')
         };
 
         $scope.getIdFromToken = function () {
+
             auth.getIdFromToken(auth.getToken(),function(id) {
-                $scope.idUser = id;
+                $state.go('users', {id: id.message});
             });
         }
     }]);

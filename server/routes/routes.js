@@ -657,7 +657,6 @@ var appRouter = function(router, mongo, app, config, database) {
                 if (err) {
                     response = {"status": 500, "message": "Error fetching data"};
                 } else {
-                    console.log(data[0].image);
                     response = {"status": 200, "message": data[0]};
                     response = {"status": 200, "message": data[0]};
                 }
@@ -807,8 +806,6 @@ var appRouter = function(router, mongo, app, config, database) {
                 array.push(JSON.parse(pois[i]));
             }
 
-            console.log(array);
-            //console.log(JSON.stringify(pois[0]));
             var creator = req.body.creator;
 
 
@@ -823,10 +820,8 @@ var appRouter = function(router, mongo, app, config, database) {
                 // save() will run insert() command of MongoDB.
                 // it will add new data in collection.
                 if (err) {
-                    console.log(err);
                     response = {"status": 500, "message": "Error adding data"};
                 } else {
-                    console.log("asdfas");
                     response = {"status": 200, "message": "Data added"};
                 }
                 res.status(response.status).json(response.message);

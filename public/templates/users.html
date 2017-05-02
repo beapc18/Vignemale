@@ -85,6 +85,8 @@
                         <span class="glyphicon glyphicon-edit"></span>  Edit</button>
                     <button ng-click="removePoi()" class="btn btn-default btn-danger">
                         <span class="glyphicon glyphicon-trash"></span>  Remove</button>
+                    <button ng-click="duplicatePoi()" class="btn btn-default btn-primary">
+                        <span class="glyphicon glyphicon-duplicate"></span>  Duplicate</button>
                 </div>
 
                 <!--FORM CREATE OR EDIT POI-->
@@ -130,11 +132,11 @@
                 <form name="form" ng-if="createroute">
                     <input type="text" ng-model="$parent.newRoute.name" class="form-control form-group" placeholder="Name" required/>
 
-                    <div id="drop" class="list-group pre-scrollable" ng-sortable>
+                    <div id="drop" class="list-group pre-scrollable" ng-drop>
                         New Route:
                     </div>
 
-                    <div id="drag" class="list-group pre-scrollable" ng-store>
+                    <div id="drag" class="list-group pre-scrollable" ng-drag>
                         Your Pois:
                         <div ng-repeat="row in poisList" class="list-group-item" id="{{row._id}}">{{row.name}}</div>
                     </div>

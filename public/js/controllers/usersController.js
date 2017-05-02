@@ -11,9 +11,6 @@ angular.module('vignemale')
         $scope.source = "";
         $scope.followingList = "";
 
-        $scope.dragList;
-        $scope.dropList;
-
         $scope.newPoi = {
             name: "",
             description: "",
@@ -252,6 +249,16 @@ angular.module('vignemale')
             }
         };
 
+        //al borrar un poi,si se vuelve a Pois sigue saliendo su marker hasta que se clika en alguno del resto
+        $scope.duplicatePoi = function () {
+            $scope.newPoi.creator = $stateParams.id;
+
+            pois.createPoi($scope.newPoi, function (data) {
+                showSuccess(data);
+                $scope.showPois();
+            }, showError);
+        };
+
         $scope.showCreateRoute = function () {
             $scope.createroute = true;
             $scope.routes = false;
@@ -303,6 +310,8 @@ angular.module('vignemale')
                 }, showError);
             }
         };
+
+
 
         //modify user password
         $scope.modifyUser = function () {

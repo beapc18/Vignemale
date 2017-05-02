@@ -52,6 +52,8 @@ angular.module('vignemale')
             pois.search($scope.poiSearch, function (data) {
                 //console.log(data);
                 $scope.found = true;
+                $scope.onePoiSelected = false;
+                deleteMarkers();
                 $scope.foundPois = data;
 
                 //create markers from pois list

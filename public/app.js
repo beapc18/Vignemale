@@ -54,9 +54,17 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 url: '/short/{id}',
                 templateUrl: "templates/shorturl.html",
                 controller: "shorturlCtrl"
+            })
+            .state('searchPois', {
+                url: '/search/pois',
+                templateUrl: "templates/searchpois.html",
+                controller: "searchPoisCtrl"
+            })
+            .state('searchUsers', {
+                url: '/search/users',
+                templateUrl: "templates/searchusers.html",
+                controller: "searchUsersCtrl"
             });
-
-
 
         //llevar mejor a una pagina de error si la url no existe
         $urlRouterProvider.otherwise('starter');

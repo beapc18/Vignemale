@@ -845,6 +845,23 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
+    router.route("/search/pois/:words")
+        .get(function (req, res) {
+            console.log("GET /search/pois/" + req.params.words);
+            var response = {};
+            //find similar results
+            //mongo.pois.find({$text: { $search: req.params.words}},
+            mongo.pois.find({keywords: req.params.words}, function (err, data) {
+                if (err) {
+                    response = {"status": 500, "message": "Error fetching pois"};
+                } else {
+                    console.log(data);
+                    response = {"status": 200, "message": data};
+                }
+                res.status(response.status).json(response.message);
+            });
+        });
+
 };
 
 module.exports = appRouter;

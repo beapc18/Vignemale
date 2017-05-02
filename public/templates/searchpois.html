@@ -1,0 +1,45 @@
+<div class="container" id="firstContentPanel">
+
+    <form class="form-inline" role="form" ng-submit="searchPois()">
+        <input type="text" ng-model="poiSearch"
+               class="form-control" placeholder="Search" required />
+        <button type="submit" class="btn btn-default theme-accent"><span class="glyphicon glyphicon-search"></span>  Search</button>
+    </form>
+
+    <div class="row">
+        <!--Show pois founds in the map in left panel-->
+        <div class="col-md-8 leftPanel">
+            <div id="googleMap" style="width:100%;height:480px;"></div>
+        </div>
+
+        <!--Show results pois in a list on right panel-->
+        <div class="col-md-4 leftPanel">
+
+            <div ng-if="found">
+                <h2> Results</h2>
+                <p ng-if="foundPois.length==0"> There are no pois</p>
+                <ul class="list-group pre-scrollable" >
+                    <button type="button" class="list-group-item" ng-repeat="row in foundPois" ng-click="showPoi(row.lat,row.lng,row.name,row._id)">{{row.name}}</button>
+            </div>
+
+            <!--Show ONE poi when it's selected-->
+            <div ng-if="onePoiSelected">
+                <h2>{{newPoi.name}}</h2>
+                <p>Description: {{newPoi.description}}</p>
+                <p>Keywords: {{newPoi.keywords}}</p>
+                <p>Latitude: {{newPoi.lat}}</p>
+                <p>Longitude: {{newPoi.lng}}</p>
+                <!--<p>{{newPoi.images}}</p>-->
+                <p>URL: <a ng-href="{{newPoi.shortURL}}">{{newPoi.shortURL}}</a></p>
+                <p>Image:</p>
+                <img ng-src="{{newPoi.image}}" class="img-responsive">
+                <p>Valoration: {{newPoi.valoration}}</p>
+                <button ng-click="showEditPoi()" class="btn btn-default theme-accent">
+                    <span class="glyphicon glyphicon-heart"></span>  Add to fav</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

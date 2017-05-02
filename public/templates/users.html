@@ -129,7 +129,7 @@
 
 
                 <!--FORM CREATE ROUTE-->
-                <form name="form" ng-if="createroute">
+                <form role="form" ng-if="createroute" ng-submit="createNewRoute()">
                     <input type="text" ng-model="$parent.newRoute.name" class="form-control form-group" placeholder="Name" required/>
 
                     <div id="drop" class="list-group pre-scrollable" ng-drop>
@@ -141,15 +141,14 @@
                         <div ng-repeat="row in poisList" class="list-group-item" id="{{row._id}}">{{row.name}}</div>
                     </div>
 
-                    <button type="button" class="btn btn-default theme-accent" ng-click="createRoute()">Create Route</button>
+                    <button type="submit" class="btn btn-default theme-accent">Create Route</button>
                 </form>
 
                 <!--Show ALL follows or message if there aren't follows-->
                 <div ng-if="follows">
                     <p ng-if="followingList.length==0"> You are following anyone</p>
                     <ul class="list-group pre-scrollable">
-                        <button type="button" class="list-group-item" ng-repeat="row in followingList" ng-click="showOneFollow(row)">{{row}}</button>
-
+                        <a type="button" class="list-group-item" ng-repeat="row in followingList" ng-href="#/users/{{row}}">{{row}}</a>
                     </ul>
                 </div>
 

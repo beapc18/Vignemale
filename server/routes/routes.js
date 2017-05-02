@@ -822,7 +822,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 if (err) {
                     response = {"status": 500, "message": "Error adding data"};
                 } else {
-                    response = {"status": 200, "message": "Data added"};
+                    response = {"status": 200, "message": "Route created successfully"};
                 }
                 res.status(response.status).json(response.message);
             });

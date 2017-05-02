@@ -133,7 +133,7 @@ var addFollowing = function (mongo, idUser, idFollow, callback) {
         }
         else {
             console.log("User " + idFollow + " followed succesfully");
-            response = {"status": 200, "res": {"message": "User " + idFollow + " followed succesfully"}};
+            response = {"status": 200, "res": {"message": "User followed succesfully"}};
         }
         callback(response);
     })
@@ -147,7 +147,7 @@ var removeFollowing = function (mongo, idUser, idUnfollow, callback) {
         }
         else {
             console.log("User " + idUnfollow + " unfollowed succesfully");
-            response = {"status": 200, "res": {"message": "User " + idUnfollow + " unfollowed succesfully"}};
+            response = {"status": 200, "res": {"message": "User unfollowed succesfully"}};
         }
         callback(response);
     })

@@ -265,7 +265,7 @@ angular.module('vignemale')
             //users.getUserPois($scope.idUser,showPoisList);
         };
 
-        $scope.createRoute = function () {
+        $scope.createNewRoute = function () {
             var route = sort.el.childNodes;
 
             if (route.length > 2){

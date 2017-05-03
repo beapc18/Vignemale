@@ -82,10 +82,12 @@ angular.module('vignemale')
                     }
                 }).success(function (data, status, headers, params) {
                     that.authenticate(headers().authorization);
-                    /*window.alert($stateParams.idRequest);
-                    window.alert(params.idRequest);*/
-
-                    $state.go('users',{id: data.message, idRequest: data.message}); //redirect user home
+                    if(data.message === "admin") {
+                        $state.go('adminList');
+                    }
+                    else {
+                        $state.go('users', {id: data.message, idRequest: data.message}); //redirect user home
+                    }
                 }).error(function (data) {
                     if(data.message === "You must change your password") {
                         var userObject = {
@@ -397,11 +399,27 @@ angular.module('vignemale')
             }
         };
     })
+    
+    .factory('adminList', function ($state, $http, $httpParamSerializer) {
+        
+        return {
+            
+            listUsers: function (callbackSuccess, callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/admin/usersList'
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError('ERROR');
+                });
+            }
+        }
+        })
 
     .factory('vignemale', function ($state, $http) {
 
         return {
-
 
             //send the register info to the server
             starter: function (url, callbackSuccess,callbackError) {

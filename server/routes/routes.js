@@ -103,10 +103,6 @@ var appRouter = function(router, mongo, app, config, database) {
                     var tokenId = Math.random().toString(36).slice(-10);
                     var payload = {id: data[0]._id, tokenId: tokenId};
                     var token = jwt.sign(payload, jwtOptions.secretOrKey);
-                    //next(null, false); //(null, {id: user.id})
-                    /*var token = jwt.sign(data[0], app.get('secret'), {
-                     expiresIn: 1440 // expires in 24 hours
-                     });*/
                     console.log("Creado tokenId de usuario " + tokenId);
 
                     //update last access when user access and jwt
@@ -115,11 +111,16 @@ var appRouter = function(router, mongo, app, config, database) {
                             response = {"message": "Error adding data"};
                             res.status(500).json(response);
                         } else {
-                            response = {"message": data[0]._id};   //send user id or link to profile??
+                            if(email === "vignemaleSTW@gmail.com") { //es admin ->indicarlo
+                                response = {"message": "admin"};
+                            }
+                            else {
+                                response = {"message": data[0]._id};
+                            }
                             res.setHeader("Authorization", token);
                             res.status(200).json(response);
                         }
-                        console.log("Respuesta enviada:" + response);
+                        //console.log("Respuesta enviada:" + response);
                     });
                 }
             });
@@ -854,6 +855,22 @@ var appRouter = function(router, mongo, app, config, database) {
                 res.status(response.status).json(response.message);
             });
         });
+
+    router.get("/admin/usersList", function (req, res) {
+        console.log("Management list...");
+
+        mongo.users.find({ email: { $ne: "vignemaleSTW@gmail.com" } }, function (err, data) {
+            if (err) {
+                response = {"status": 500, "message": "Error returning all users"};
+            } else {
+                response = {"status": 200, "message": data};
+            }
+
+            console.log("INFO LISTA: " + response.message);
+            res.status(response.status).json(response.message);
+        })
+
+    })
 
 };
 

@@ -1,0 +1,32 @@
+<div class="container">
+    <br><br>
+    <h2>Users in the system</h2>
+    <br><br>
+
+    <table class="table table-responsive">
+        <thead class="thead-inverse">
+        <tr>
+            <th>Nombre</th>
+            <th>Id</th>
+            <th>Email</th>
+            <th>Creation date</th>
+            <th>Last access</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="row in listOfUsers">
+            <td>{{row.name}}</td>
+            <td>{{row._id}}</td>
+            <td>{{row.email}}</td>
+            <td>{{row.creationDate}}</td>
+            <td>{{row.lastAccess}}</td>
+            <!--Falta hacer acciones-->
+            <td><a data-method="delete" ng-href="#/users/{{row._id}}" class="icon">
+                <span class="glyphicon glyphicon glyphicon-trash"></span>
+            </a></td>
+            <td><a class="icon" role="button" ng-click="sendMail({{row._id}})">
+                <span class="glyphicon glyphicon glyphicon-envelope"></span></a></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

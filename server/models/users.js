@@ -153,6 +153,7 @@ var removeFollowing = function (mongo, idUser, idUnfollow, callback) {
     })
 };
 
+
 module.exports = {
     getInfoUser: getInfoUser,
     findUserByPassword: findUserByPassword,

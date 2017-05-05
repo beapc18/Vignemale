@@ -260,6 +260,7 @@ angular.module('vignemale')
         };
 
         $scope.showCreateRoute = function () {
+            resetRouteInfo();
             $scope.createroute = true;
             $scope.routes = false;
             //users.getUserPois($scope.idUser,showPoisList);
@@ -418,7 +419,7 @@ angular.module('vignemale')
 
         //Reset info about poi for avoiding show wrong info
         function resetRouteInfo() {
-            $scope.newPoi = {
+            $scope.newRoute = {
                 name: "",
                 pois: "",
                 creator: ""

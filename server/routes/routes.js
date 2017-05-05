@@ -825,7 +825,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 } else {
                     response = {"status": 200, "message": "Route created successfully"};
                 }
-                res.status(response.status).json(response.message);
+                res.status(response.status).json(response);
             });
         });
 
@@ -855,6 +855,22 @@ var appRouter = function(router, mongo, app, config, database) {
                 res.status(response.status).json(response.message);
             });
         });
+
+    router.route("/search/users/:words")
+        .get(function (req, res) {
+            console.log("GET /search/users/" + req.params.words);
+            var response = {};
+            //find similar results using an index
+            mongo.users.find({$text: { $search: req.params.words}}, function (err, data) {
+                if (err) {
+                    response = {"status": 500, "message": "Error fetching users"};
+                } else {
+                    response = {"status": 200, "message": data};
+                }
+                res.status(response.status).json(response.message);
+            });
+        });
+
 
     router.get("/admin/usersList", function (req, res) {
         console.log("Management list...");

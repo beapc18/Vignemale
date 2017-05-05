@@ -20,6 +20,7 @@
                 <p ng-if="foundPois.length==0"> There are no pois</p>
                 <ul class="list-group pre-scrollable" >
                     <button type="button" class="list-group-item" ng-repeat="row in foundPois" ng-click="showPoi(row.lat,row.lng,row.name,row._id)">{{row.name}}</button>
+                </ul>
             </div>
 
             <!--Show ONE poi when it's selected-->

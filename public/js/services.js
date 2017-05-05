@@ -296,6 +296,17 @@ angular.module('vignemale')
                 }).error(function (data) {
                     callbackError(data);
                 });
+            },
+
+            search: function (words, callbackSuccess, callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/search/users/'+words
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
             }
         };
     })

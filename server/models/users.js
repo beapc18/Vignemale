@@ -154,11 +154,12 @@ var removeFollowing = function (mongo, idUser, idUnfollow, callback) {
 };
 
 var getFavs = function (mongo, idUser, callback) {
-    mongo.users.find({_id: idUser}, {favs: 1}, function (err, data) {
+    mongo.users.find({_id: idUser}, {favs: 1, _id: 0}, function (err, data) {
         if (err) {
             console.log("Error database");
             response = {"status": 500, "message": "Error finding favs"};
         } else {
+            console.log(data)
             response = {"status": 200, "res": {"message": data}};
         }
         callback(response);

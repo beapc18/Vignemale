@@ -30,12 +30,11 @@
                 <p>Keywords: {{newPoi.keywords}}</p>
                 <p>Latitude: {{newPoi.lat}}</p>
                 <p>Longitude: {{newPoi.lng}}</p>
-                <!--<p>{{newPoi.images}}</p>-->
                 <p>URL: <a ng-href="{{newPoi.shortURL}}">{{newPoi.shortURL}}</a></p>
                 <p>Image:</p>
                 <img ng-src="{{newPoi.image}}" class="img-responsive">
                 <p>Valoration: {{newPoi.valoration}}</p>
-                <button ng-click="showEditPoi()" class="btn btn-default theme-accent">
+                <button ng-click="addFav()" class="btn btn-default theme-accent">
                     <span class="glyphicon glyphicon-heart"></span>  Add to fav</button>
             </div>
 

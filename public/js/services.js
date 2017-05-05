@@ -267,7 +267,7 @@ angular.module('vignemale')
                 });
             },
 
-            getUserFavs:  function (idUser, callbackSuccess, callbackError) {
+            getUserFavs: function (idUser, callbackSuccess, callbackError) {
                 $http({
                     method: 'GET',
                     url: '/users/'+ idUser + '/favs'

@@ -26,6 +26,7 @@
                     <button ng-if="!itsme && itsfollowed" ng-click="unfollowFun()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-remove"></span>  Unfollow </button>
 
+
                 </div>
             </div>
 
@@ -76,7 +77,6 @@
                     <p>Keywords: {{newPoi.keywords}}</p>
                     <p>Latitude: {{newPoi.lat}}</p>
                     <p>Longitude: {{newPoi.lng}}</p>
-                    <!--<p>{{newPoi.images}}</p>-->
                     <p>URL: <a ng-href="{{newPoi.shortURL}}">{{newPoi.shortURL}}</a></p>
                     <p>Image:</p>
                     <img ng-src="{{newPoi.image}}" class="img-responsive">
@@ -87,6 +87,8 @@
                         <span class="glyphicon glyphicon-trash"></span>  Remove</button>
                     <button ng-click="duplicatePoi()" class="btn btn-default btn-primary">
                         <span class="glyphicon glyphicon-duplicate"></span>  Duplicate</button>
+                    <button ng-click="addFav()" class="btn btn-default theme-accent">
+                        <span class="glyphicon glyphicon-heart"></span>  Add to fav</button>
                 </div>
 
                 <!--FORM CREATE OR EDIT POI-->
@@ -154,7 +156,10 @@
 
                 <!--Show ALL favs or message if there aren't favs-->
                 <div ng-if="favs">
-                    mostrando favs
+                    <p ng-if="favsList.length==0"> There are no favs</p>
+                    <ul class="list-group pre-scrollable" >
+                        <button type="button" class="list-group-item" ng-repeat="row in favsList" ng-click="showPoi(row.lat,row.lng,row.name,row)">{{row}}</button>
+                    </ul>
                 </div>
             </div>
 

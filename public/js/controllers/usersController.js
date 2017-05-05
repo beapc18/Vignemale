@@ -10,6 +10,7 @@ angular.module('vignemale')
         $scope.idPoi = "";
         $scope.source = "";
         $scope.followingList = "";
+        $scope.favsList = "";
 
         $scope.newPoi = {
             name: "",
@@ -178,7 +179,12 @@ angular.module('vignemale')
             $scope.follows = false;
         };
 
+        var showFavsList  = function (data) {
+            $scope.favsList = data.message[0].favs;
+        };
+
         $scope.showFavs = function () {
+            users.getUserFavs($scope.idUser, showFavsList);
             $scope.favs = true;
             $scope.createpoi = false;
             $scope.createroute = false;
@@ -415,6 +421,16 @@ angular.module('vignemale')
             };
             users.unfollowUser(idsUsers, showSuccess);
             $scope.itsfollowed = false;
+        };
+
+        //add poi selected to fav to this user
+        $scope.addFav = function () {
+            auth.getIdFromToken(auth.getToken(), function (idUser) {
+                var idPoi = {
+                    "idPoi": $scope.idPoi
+                };
+                users.addFav(idUser.message, idPoi, showSuccess, showError);
+            })
         };
 
         //Reset info about poi for avoiding show wrong info

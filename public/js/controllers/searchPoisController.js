@@ -1,12 +1,23 @@
 angular.module('vignemale')
 
-    .controller('searchPoisCtrl', ['$scope', '$state', 'auth', 'pois', function ($scope, $state, auth, pois) {
+    .controller('searchPoisCtrl', ['$scope', '$state', 'auth', 'pois', 'users', function ($scope, $state, auth, pois, users) {
 
         // variables
         $scope.search = false;
         $scope.poiSearch = "";
         $scope.foundPois = "";
         $scope.idPoi = "";
+        $scope.newPoi = {
+            name: "",
+            description: "",
+            keywords: "",
+            lat: "",
+            lng: "",
+            shortURL: "",
+            images: "",
+            valoration: "",
+            creator: ""
+        };
         var markers = [];
 
         // FEEDBACK MESSAGES
@@ -71,12 +82,21 @@ angular.module('vignemale')
             $scope.idPoi = id;
             pois.getPoi(id, function (data) {
                 $scope.newPoi = data;
-                $scope.newPoi.shortURL = data.shortURL;
             }, showError);
         };
 
-        initMap();
+        //add poi selected to fav to this user
+        $scope.addFav = function () {
+            auth.getIdFromToken(auth.getToken(), function (idUser) {
+                var idPoi = {
+                    "idPoi": $scope.idPoi
+                };
+                users.addFav(idUser.message, idPoi, showSuccess, showError);
+            })
+        };
 
+
+        initMap();
 
  // google maps functions
         var myLatlng = new google.maps.LatLng(41.64514, -0.8689481);

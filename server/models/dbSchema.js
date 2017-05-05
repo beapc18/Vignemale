@@ -24,10 +24,10 @@ var usersSchema = mongoose.Schema({
     firstLogin: Boolean,
     google: Boolean,
     token: String,
-    following: Array
+    following: Array,
+    favs: Array
     //pois
     //rutas
-    //favoritos
 });
 
 

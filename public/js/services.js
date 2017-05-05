@@ -266,7 +266,48 @@ angular.module('vignemale')
                     console.log("error");
                 });
             },
-            
+
+            getUserFavs:  function (idUser, callbackSuccess, callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/users/'+ idUser + '/favs'
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
+            addFav:  function (idUser, idPoi, callbackSuccess, callbackError) {
+                $http({
+                    method: 'POST',
+                    url: '/users/'+ idUser + '/favs',
+                    data: $httpParamSerializer(idPoi),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
+            deleteFav:  function (idUser, idPoi, callbackSuccess, callbackError) {
+                $http({
+                    method: 'DELETE',
+                    url: '/users/'+ idUser + '/favs',
+                    data: $httpParamSerializer(idPoi),
+                    headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
             followUser: function (idsUsers, callbackSuccess) {
                 $http({
                     method: 'POST',
@@ -370,6 +411,7 @@ angular.module('vignemale')
                     callbackError(data);
                 });
             },
+
             short: function (id, callbackSuccess, callbackError) {
                 $http({
                     method: 'GET',
@@ -380,6 +422,7 @@ angular.module('vignemale')
                     callbackError(data);
                 });
             },
+
             search: function (words, callbackSuccess, callbackError) {
                 $http({
                     method: 'GET',
@@ -390,6 +433,7 @@ angular.module('vignemale')
                     callbackError(data);
                 });
             }
+
         };
     })
     .factory('routes', function ($state, $http, $httpParamSerializer, auth) {

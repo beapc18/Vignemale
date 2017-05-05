@@ -533,6 +533,30 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     });
 
+    //get fav pois from user
+    router.get("/users/:id/favs", function (req, res) {
+        console.log("GET favs from user " + req.params.id);
+        database.getFavs(mongo, req.params.id, function (response) {
+            res.status(response.status).json(response.res);
+        });
+    });
+
+    //add poi to fav to a user
+    router.post("/users/:id/favs", function (req, res) {
+        console.log("POST "+req.body.idPoi+ " poi to "+ req.params.id +" user");
+        database.addFav(mongo, req.params.id, req.body.idPoi, function (response) {
+            res.status(response.status).json(response.res);
+        });
+    });
+
+    //add poi to fav to a user
+    router.delete("/users/:id/favs", function (req, res) {
+        console.log("DELETE "+req.body.idPoi+ " poi to "+ req.params.id +" user");
+        database.deleteFav(mongo, req.params.id, req.body.idPoi, function (response) {
+            res.status(response.status).json(response.res);
+        });
+    });
+
     //Follow user, updating field "following"
     router.post("/followUser/", function (req, res) {
         console.log("Follow user " + req.body.idFollow + " from " + req.body.idRequest);

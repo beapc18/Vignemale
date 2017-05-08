@@ -193,6 +193,19 @@ var deleteFav = function (mongo, idUser, idPoi, callback) {
     })
 };
 
+var getName = function (mongo, idUser, callback) {
+    mongo.users.find({_id: idUser}, {name: 1, _id: 0}, function (err, data) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error getting name"}};
+        }
+        else {
+            response = {"status": 200, "res": {"message": data}};
+        }
+        callback(response.res);
+    });
+};
+
 
 module.exports = {
     getInfoUser: getInfoUser,
@@ -206,5 +219,6 @@ module.exports = {
     removeFollowing: removeFollowing,
     getFavs: getFavs,
     addFav: addFav,
-    deleteFav: deleteFav
+    deleteFav: deleteFav,
+    getName: getName
 };

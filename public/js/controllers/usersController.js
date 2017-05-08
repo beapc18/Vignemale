@@ -456,8 +456,11 @@ angular.module('vignemale')
         var map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
 
         google.maps.event.addListener(map, "click", function(event) {
-            $scope.newPoi.lat = event.latLng.lat();
-            $scope.newPoi.lng = event.latLng.lng();
+            $scope.$apply(function () {
+                $scope.newPoi.lat = event.latLng.lat();
+                $scope.newPoi.lng = event.latLng.lng();
+            });
+
         });
 
         function initMap(){

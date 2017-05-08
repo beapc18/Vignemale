@@ -469,32 +469,32 @@ var appRouter = function(router, mongo, app, config, database) {
         console.log("get user");
 
         //if (verifyIds(req.params.id, req.headers.authorization)) {
-            database.getInfoUser(mongo, req.params.id, function (response) {
-                res.status(response.status).json(response.res);
-            });
+        database.getInfoUser(mongo, req.params.id, function (response) {
+            res.status(response.status).json(response.res);
+        });
         /*} else {
-            res.status(403).json({"message": "Access blocked"});
-        }*/
+         res.status(403).json({"message": "Access blocked"});
+         }*/
     });
 
     //change removed attribute for removing user
     router.delete("/users/:id", passport.authenticate('jwt', {session: false}), function (req, res) {
-        console.log("delete user");
-
-        if (verifyIds(req.params.id, req.headers.authorization)) {
-            //search the user avoiding return params which are not necessary
-            mongo.users.update({_id: req.params.id}, {removed: true}, function (err, user) {
-                if (err) {
-                    response = {"message": "Error deleting user"};
-                    res.status(500).json(response);
-                } else {
-                    response = {"message": "User deleted succesfully"};
-                    res.status(200).json(response);
-                }
-            });
-        } else {
-            res.status(403).json({"message": "Access blocked"});
-        }
+        //Cuando quiere borrar el administrador, no es igual su id que el que quiere borrar!
+        //if (verifyIds(req.params.id, req.headers.authorization)) {
+        console.log("delete user " + req.params.id);
+        //search the user avoiding return params which are not necessary
+        mongo.users.update({_id: req.params.id}, {removed: true}, function (err, user) {
+            if (err) {
+                response = {"message": "Error deleting user"};
+                res.status(500).json(response);
+            } else {
+                response = {"message": "User deleted succesfully"};
+                res.status(200).json(response);
+            }
+        });
+        /*} else {
+         res.status(403).json({"message": "Access blocked"});
+         }*/
     });
 
     //change password checking old password
@@ -782,7 +782,7 @@ var appRouter = function(router, mongo, app, config, database) {
             res.status(response.status).json(response.message);
         });
     });
-    
+
     //get user follows
     router.get("/users/:id/following", function (req, res) {
         var userId = req.params.id;
@@ -792,14 +792,44 @@ var appRouter = function(router, mongo, app, config, database) {
                 console.log("Error getting follows");
                 response = {"status": 500, "message": "Error getting follows"};
             } else {
+
+                var map = function (array, callback) {
+                    var nuevo = array.map(function (obj) {
+                        database.getName(mongo, obj, function (response) {
+                            var index = array.indexOf(obj);
+                            console.log("INDEX " + index);
+                            if (index !== -1) {
+                                console.log(array[0] + " " + response.message[0].name)
+                                array[0] = response.message[0].name;
+                            }
+                        })
+                    });
+                    callback(); //donde poner el callback para que haya terminado lo de arriba?
+                };
+                map(data[0].following, function () {
+                    console.log("cambiado " + data);
+                });
+
+
+                /* for(var i=0; i < data[0].following.length; i++) {
+                 database.getName(mongo, data[0].following[i], function (response) {
+                 var index = data[0].following.indexOf(data[0].following[0]);
+                 console.log("INDEX " + index);
+                 if(index !== -1) {
+                 data[0].following[0] = response.message[0].name;
+                 }
+
+                 }, function () {
+                 console.log("cambiado " + data);
+                 });
+                 }*/
                 console.log("follows del usuario " + data);
-                //while(u.hasNext()){print(u.Next().text);}
                 response = {"status": 200, "message": data}; //devolver solo la lista de seguidores
             }
             res.status(response.status).json(response.message);
-            
+
         })
-        
+
     });
 
 
@@ -899,17 +929,41 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/admin/usersList", function (req, res) {
         console.log("Management list...");
 
-        mongo.users.find({ email: { $ne: "vignemaleSTW@gmail.com" } }, function (err, data) {
+        mongo.users.find({ $and: [{email: {$ne: "vignemaleSTW@gmail.com"}}, {removed: {$ne: "true"}}]}, function (err, data) {
             if (err) {
                 response = {"status": 500, "message": "Error returning all users"};
             } else {
                 response = {"status": 200, "message": data};
             }
 
-            console.log("INFO LISTA: " + response.message);
             res.status(response.status).json(response.message);
         })
 
+    });
+
+    router.post("/sendMail/:email", function (req, res) {
+        console.log("Sending mail from admin to " + req.params.email);
+        var text = "This is a warning from the Admin";
+        var email = req.params.email;
+
+        var mailOptions = {
+            from: 'vignemaleSTW@gmail.com', // sender address
+            to: email, // list of receivers
+            subject: 'Warning!', // Subject line
+            text: text //, // plaintext body
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+                response = {"status": 500, "message":"Error sending mail"}
+            }
+            else {
+                console.log(info);
+                response = {"status": 200, "message":"Email sent"}
+            }
+            res.status(response.status).json(response.message);
+        });
     })
 
 };

@@ -348,6 +348,22 @@ angular.module('vignemale')
                 }).error(function (data) {
                     callbackError(data);
                 });
+            },
+
+            sendMail: function (userObject, callbackSuccess, callbackError) {
+                $http({
+                    method: 'POST',
+                    url: '/sendMail/' + userObject.email,
+                    data: $httpParamSerializer(userObject.email),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
             }
         };
     })

@@ -159,7 +159,7 @@ var getFavs = function (mongo, idUser, callback) {
             console.log("Error database");
             response = {"status": 500, "message": "Error finding favs"};
         } else {
-            console.log(data)
+            console.log(data);
             response = {"status": 200, "res": {"message": data}};
         }
         callback(response);
@@ -193,8 +193,21 @@ var deleteFav = function (mongo, idUser, idPoi, callback) {
     })
 };
 
-var getName = function (mongo, idUser, callback) {
+var getNameUser = function (mongo, idUser, callback) {
     mongo.users.find({_id: idUser}, {name: 1, _id: 0}, function (err, data) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error getting name"}};
+        }
+        else {
+            response = {"status": 200, "res": {"message": data}};
+        }
+        callback(response.res);
+    });
+};
+
+var getNamePOI = function (mongo, idPOI, callback) {
+    mongo.pois.find({_id: idPOI}, {name: 1, _id: 0}, function (err, data) {
         if (err) {
             console.log("Error database");
             response = {"status": 500, "res": {"message": "Error getting name"}};
@@ -220,5 +233,6 @@ module.exports = {
     getFavs: getFavs,
     addFav: addFav,
     deleteFav: deleteFav,
-    getName: getName
+    getNameUser: getNameUser,
+    getNamePOI: getNamePOI
 };

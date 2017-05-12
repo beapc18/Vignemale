@@ -180,7 +180,7 @@ angular.module('vignemale')
         };
 
         var showFavsList  = function (data) {
-            $scope.favsList = data.message[0].favs;
+            $scope.favsList = data;
         };
 
         $scope.showFavs = function () {
@@ -390,8 +390,8 @@ angular.module('vignemale')
 
         $scope.itsFollowed  = function (id) {
             if($scope.followingList.indexOf(id) !== -1) {
-               //window.alert('id encontrado en array');
-               $scope.itsfollowed = true;
+                //window.alert('id encontrado en array');
+                $scope.itsfollowed = true;
             }
             else{
                 //window.alert("No encontrado en array");
@@ -465,10 +465,10 @@ angular.module('vignemale')
 
         function initMap(){
             /*var mapOptions = {
-                zoom: 13,
-                center: new google.maps.LatLng(41.64514, -0.8689481)
-            };
-            map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);*/
+             zoom: 13,
+             center: new google.maps.LatLng(41.64514, -0.8689481)
+             };
+             map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);*/
 
             directionsService = new google.maps.DirectionsService;
             directionsDisplay = new google.maps.DirectionsRenderer({map: map});
@@ -557,8 +557,6 @@ angular.module('vignemale')
 
             return waypts;
         }
-
-
     }]);
 
 //http://plnkr.co/edit/8YQGTn79AO4X7Tb7ann7?p=preview

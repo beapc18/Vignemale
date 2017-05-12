@@ -15,7 +15,7 @@
                 <a ng-if="logged()" class="navbar-brand" role="button" ng-click="getIdFromToken()">
                     <span class="glyphicon glyphicon-home"></span>   Home</a>
                 <li class="dropdown">
-                    <a role="button" data-toggle="dropdown" class="dropdown-toggle"><span class="glyphicon glyphicon-search"></span>  Search <span class="caret"></span></a>
+                    <a ng-if="!isAdmin" role="button" data-toggle="dropdown" class="dropdown-toggle"><span class="glyphicon glyphicon-search"></span>  Search <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="#/search/users">Users</a></li>
                         <li><a href="#/search/pois">Pois</a></li>

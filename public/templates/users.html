@@ -150,7 +150,7 @@
                 <div ng-if="follows">
                     <p ng-if="followingList.length==0"> You are following anyone</p>
                     <ul class="list-group pre-scrollable">
-                        <a type="button" class="list-group-item" ng-repeat="row in followingList" ng-href="#/users/{{row}}">{{row}}</a>
+                        <a type="button" class="list-group-item" ng-repeat="row in followingList.followingNames" ng-href="#/users/{{followingList.followingIds[$index]}}">{{row}}</a>
                     </ul>
                 </div>
 
@@ -158,7 +158,8 @@
                 <div ng-if="favs">
                     <p ng-if="favsList.length==0"> There are no favs</p>
                     <ul class="list-group pre-scrollable" >
-                        <button type="button" class="list-group-item" ng-repeat="row in favsList" ng-click="showPoi(row.lat,row.lng,row.name,row)">{{row}}</button>
+                        <button type="button" class="list-group-item" ng-repeat="row in favsList.favsNames"
+                                ng-click="showPoi(favsList.favsIds[$index].lat,favsList.favsIds[$index].lng,favsList.favsIds[$index].name,favsList.favsIds[$index])">{{row}}</button>
                     </ul>
                 </div>
             </div>

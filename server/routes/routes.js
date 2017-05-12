@@ -537,7 +537,15 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/users/:id/favs", function (req, res) {
         console.log("GET favs from user " + req.params.id);
         database.getFavs(mongo, req.params.id, function (response) {
-            res.status(response.status).json(response.res);
+            var favsNames = [];
+            console.log(response.res.message[0].favs);
+            bucleForPOIs(response.res.message[0].favs, 0, favsNames, function (arrayIds,arrayNames) {
+                console.log(arrayIds);
+                console.log(arrayNames);
+                response = {"status": 200, "message": {"favsNames" : arrayNames, "favsIds" : arrayIds}}; //devolver solo la lista de seguidores
+                res.status(response.status).json(response.message);
+
+            });
         });
     });
 
@@ -783,6 +791,37 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
+    var bucleForPOIs = function (arrayIds, i, arrayNames, callback) {
+        if(i<arrayIds.length) {
+            database.getNamePOI(mongo, arrayIds[i], function (response) {
+                var index = arrayIds.indexOf(arrayIds[0]);
+                if (index !== -1) {
+                    arrayNames[i] = response.message[0].name;
+                }
+                i++;
+                bucleForPOIs(arrayIds, i, arrayNames, callback);
+            });
+        }
+        else {
+            callback(arrayIds, arrayNames);
+        }
+    };
+
+    var bucleForUser = function (arrayIds, i, arrayNames, callback) {
+        if(i<arrayIds.length) {
+            database.getNameUser(mongo, arrayIds[i], function (response) {
+                var index = arrayIds.indexOf(arrayIds[0]);
+                if (index !== -1) {
+                    arrayNames[i] = response.message[0].name;
+                }
+                i++;
+                bucleForUser(arrayIds, i, arrayNames, callback);
+            });
+        }
+        else {
+            callback(arrayIds, arrayNames);
+        }
+    };
     //get user follows
     router.get("/users/:id/following", function (req, res) {
         var userId = req.params.id;
@@ -792,41 +831,18 @@ var appRouter = function(router, mongo, app, config, database) {
                 console.log("Error getting follows");
                 response = {"status": 500, "message": "Error getting follows"};
             } else {
+                var followingNames = [];
+                bucleForUser(data[0].following, 0, followingNames, function (arrayIds,arrayNames) {
+                    console.log(arrayIds);
+                    console.log(arrayNames);
+                    response = {"status": 200, "message": {"followingNames" : arrayNames, "followingIds" : arrayIds}}; //devolver solo la lista de seguidores
+                    res.status(response.status).json(response.message);
 
-                var map = function (array, callback) {
-                    var nuevo = array.map(function (obj) {
-                        database.getName(mongo, obj, function (response) {
-                            var index = array.indexOf(obj);
-                            console.log("INDEX " + index);
-                            if (index !== -1) {
-                                console.log(array[0] + " " + response.message[0].name)
-                                array[0] = response.message[0].name;
-                            }
-                        })
-                    });
-                    callback(); //donde poner el callback para que haya terminado lo de arriba?
-                };
-                map(data[0].following, function () {
-                    console.log("cambiado " + data);
                 });
 
-
-                /* for(var i=0; i < data[0].following.length; i++) {
-                 database.getName(mongo, data[0].following[i], function (response) {
-                 var index = data[0].following.indexOf(data[0].following[0]);
-                 console.log("INDEX " + index);
-                 if(index !== -1) {
-                 data[0].following[0] = response.message[0].name;
-                 }
-
-                 }, function () {
-                 console.log("cambiado " + data);
-                 });
-                 }*/
-                console.log("follows del usuario " + data);
-                response = {"status": 200, "message": data}; //devolver solo la lista de seguidores
+                /*console.log("follows del usuario " + data);
+                 response = {"status": 200, "message": data}; //devolver solo la lista de seguidores*/
             }
-            res.status(response.status).json(response.message);
 
         })
 

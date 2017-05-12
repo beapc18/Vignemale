@@ -24,21 +24,20 @@ angular.module('vignemale')
         $scope.verifyIsAdmin = function () {
             if($scope.logged()) {
                 auth.getIdFromToken(auth.getToken(), function (id) {
-                    users.getUser(id, function (data) {
+                    users.getUser(id.message, function (data) {
                         if (data.message[0].isAdmin) {
-                            window.alert("Es administrador");
                             $scope.isAdmin = true;
                         }
                     }, function (data) {
-                        window.alert("Error verifying admin");
+                        $scope.isAdmin = false;
                     })
                 })
             }
             else {
-                window.alert("no esta logeado");
+                $scope.isAdmin = false;
             }
         };
 
-        // $scope.verifyIsAdmin();
+         $scope.verifyIsAdmin();
 
     }]);

@@ -538,10 +538,7 @@ var appRouter = function(router, mongo, app, config, database) {
         console.log("GET favs from user " + req.params.id);
         database.getFavs(mongo, req.params.id, function (response) {
             var favsNames = [];
-            console.log(response.res.message[0].favs);
             bucleForPOIs(response.res.message[0].favs, 0, favsNames, function (arrayIds,arrayNames) {
-                console.log(arrayIds);
-                console.log(arrayNames);
                 response = {"status": 200, "message": {"favsNames" : arrayNames, "favsIds" : arrayIds}}; //devolver solo la lista de seguidores
                 res.status(response.status).json(response.message);
 
@@ -833,11 +830,8 @@ var appRouter = function(router, mongo, app, config, database) {
             } else {
                 var followingNames = [];
                 bucleForUser(data[0].following, 0, followingNames, function (arrayIds,arrayNames) {
-                    console.log(arrayIds);
-                    console.log(arrayNames);
                     response = {"status": 200, "message": {"followingNames" : arrayNames, "followingIds" : arrayIds}}; //devolver solo la lista de seguidores
                     res.status(response.status).json(response.message);
-
                 });
 
                 /*console.log("follows del usuario " + data);

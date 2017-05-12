@@ -159,7 +159,6 @@ var getFavs = function (mongo, idUser, callback) {
             console.log("Error database");
             response = {"status": 500, "message": "Error finding favs"};
         } else {
-            console.log(data);
             response = {"status": 200, "res": {"message": data}};
         }
         callback(response);

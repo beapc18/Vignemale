@@ -261,8 +261,6 @@ angular.module('vignemale')
                     method: 'GET',
                     url: '/users/'+id+'/following'
                 }).success(function (data) {
-                    window.alert(data.favsNames);
-                    window.alert(data.favsIds);
                     callbackSuccess(data);  //en data tiene q ir [following]
                 }).error(function (data) {
                     console.log("error");

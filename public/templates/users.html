@@ -126,7 +126,7 @@
                         <button type="button" class="list-group-item" ng-repeat="row in routesList" ng-click="showRoute(row)">{{row.name}}</button>
                     </ul>
 
-                    <button type="button" class="btn btn-default theme-accent" ng-click="showCreateRoute()">Create Route</button>
+                    <button ng-if="itsme" type="button" class="btn btn-default theme-accent" ng-click="showCreateRoute()">Create Route</button>
                 </div>
 
 
@@ -148,7 +148,7 @@
 
                 <!--Show ALL follows or message if there aren't follows-->
                 <div ng-if="follows">
-                    <p ng-if="followingList.length==0"> You are following anyone</p>
+                    <p ng-if="followingList.followingNames.length==0"> You are following anyone</p>
                     <ul class="list-group pre-scrollable">
                         <a type="button" class="list-group-item" ng-repeat="row in followingList.followingNames" ng-href="#/users/{{followingList.followingIds[$index]}}">{{row}}</a>
                     </ul>
@@ -156,7 +156,7 @@
 
                 <!--Show ALL favs or message if there aren't favs-->
                 <div ng-if="favs">
-                    <p ng-if="favsList.length==0"> There are no favs</p>
+                    <p ng-if="favsList.favsNames.length==0"> There are no favs</p>
                     <ul class="list-group pre-scrollable" >
                         <button type="button" class="list-group-item" ng-repeat="row in favsList.favsNames"
                                 ng-click="showPoi(favsList.favsIds[$index].lat,favsList.favsIds[$index].lng,favsList.favsIds[$index].name,favsList.favsIds[$index])">{{row}}</button>

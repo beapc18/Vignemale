@@ -13,7 +13,7 @@
         </div>
 
         <!--Show results pois in a list on right panel-->
-        <div class="col-md-4 leftPanel">
+        <div class="col-md-4 leftPanel" ng-click="hideError();hideSuccess()">
 
             <div ng-if="found">
                 <h2> Results</h2>
@@ -38,6 +38,13 @@
                     <span class="glyphicon glyphicon-heart"></span>  Add to fav</button>
             </div>
 
+            <!--Error & success messages-->
+            <div ng-if="error" class="alert alert-danger center">
+                <strong>&#10008</strong> {{errorMsg}}
+            </div>
+            <div ng-if="success" class="alert alert-success center">
+                <strong>&#10004</strong> {{successMsg}}
+            </div>
         </div>
 
     </div>

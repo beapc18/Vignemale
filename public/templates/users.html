@@ -81,9 +81,9 @@
                     <p>Image:</p>
                     <img ng-src="{{newPoi.image}}" class="img-responsive">
                     <p>Valoration: {{newPoi.valoration}}</p>
-                    <button ng-click="showEditPoi()" class="btn btn-default theme-accent">
+                    <button ng-if="itsme" ng-click="showEditPoi()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-edit"></span>  Edit</button>
-                    <button ng-click="removePoi()" class="btn btn-default btn-danger">
+                    <button ng-if="itsme" ng-click="removePoi()" class="btn btn-default btn-danger">
                         <span class="glyphicon glyphicon-trash"></span>  Remove</button>
                     <button ng-click="duplicatePoi()" class="btn btn-default btn-primary">
                         <span class="glyphicon glyphicon-duplicate"></span>  Duplicate</button>

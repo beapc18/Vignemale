@@ -762,6 +762,9 @@ var appRouter = function(router, mongo, app, config, database) {
         .delete(function (req, res) {
             console.log("DELETE pois/" + req.params.id);
 
+            //delete pois in favs of another users asynchronous
+            database.removePoisFromFavs(mongo, req.params.id);
+
             mongo.pois.find({_id: req.params.id}, function (err, data) {
                 if (err) {
                     response = {"status": 500, "message": "Error fetching data"};

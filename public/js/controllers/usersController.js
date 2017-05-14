@@ -130,6 +130,7 @@ angular.module('vignemale')
         $scope.showPoi  = function (lat, lng, name, id) {
             $scope.hidePois();
             addMarker({lat:lat, lng:lng}, name);
+            $scope.favs = false;
             $scope.onePoiSelected = true;
             $scope.idPoi = id;
             pois.getPoi(id, function (data) {

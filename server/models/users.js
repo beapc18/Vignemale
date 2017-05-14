@@ -297,6 +297,18 @@ var updateRatingPoi = function (mongo, idPoi, rating, callback) {
     });
 };
 
+//
+var removePoisFromFavs = function (mongo, idPoi) {
+    mongo.users.update({ }, { $pull: {favs: idPoi}}, {multi: true}, function (err, data) {
+        if (err){
+            console.log("Error removing fav poi "+idPoi+" from users")
+        } else{
+            console.log(data);
+            console.log("Removed fav poi "+idPoi+" from users successfully")
+        }
+    });
+};
+
 module.exports = {
     getInfoUser: getInfoUser,
     findUserByPassword: findUserByPassword,
@@ -314,5 +326,6 @@ module.exports = {
     getNamePOI: getNamePOI,
     ratePoi: ratePoi,
     updateRatingPoi: updateRatingPoi,
-    saveRating: saveRating
+    saveRating: saveRating,
+    removePoisFromFavs: removePoisFromFavs
 };

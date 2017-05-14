@@ -96,7 +96,6 @@ var isValidToken = function(mongo, id, tokenId, callback){
 };
 
 var createAdmin = function (mongo, app) {
-    console.log("");
     var db = new mongo.users;
     db.email = "vignemaleSTW@gmail.com";
     var hashPassword = require('crypto')
@@ -218,6 +217,85 @@ var getNamePOI = function (mongo, idPOI, callback) {
     });
 };
 
+var ratePoi = function (mongo, idUser, idPoi, rating, callback) {
+    var response = {};
+    mongo.ratings.find({idUser: idUser, idPoi: idPoi}, function (err, data) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error rating poi"}};
+        }
+        else {
+            //update mean in poi if the user hasn't voted yet
+            if (data.length === 0){
+                updateRatingPoi(mongo, idPoi, rating, function (response) {
+                    if (response.status === 500) {
+                        callback(response);
+                    } else{
+                        //save new rating, user poi and value
+                        saveRating(mongo, idUser, idPoi, rating, function (response) {
+                            callback(response);
+                        });
+                    }
+                })
+            }
+            else{
+                response = {"status": 200, "res": {"message": "You cannot rate twice the same POI"}};
+                callback(response);
+            }
+        }
+    });
+};
+
+//save new rating in table ratings
+var saveRating = function (mongo, idUser, idPoi, rating, callback) {
+    var db = new mongo.ratings;
+    db.idUser = idUser;
+    db.idPoi = idPoi;
+    db.rating = rating;
+    db.save(function (err) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error rating poi"}};
+        } else {
+            response = {"status": 200, "res": {"message": "POI rated successfully"}};
+        }
+        callback(response);
+    })
+};
+
+
+//update mean in poi
+var updateRatingPoi = function (mongo, idPoi, rating, callback) {
+    var response = {};
+    mongo.ratings.count({idPoi: idPoi}, function (err, votes) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error rating poi"}};
+            callback(response);
+        } else {
+            mongo.pois.find({_id: idPoi}, {rating: 1, _id: 0}, function (err, mean) {
+                if (err) {
+                    console.log("Error database");
+                    response = {"status": 500, "res": {"message": "Error rating poi"}};
+                    callback(response);
+                } else {
+                    //calculate new mean and update it
+                    var newMean = parseFloat((mean[0].rating*votes+rating)/(votes+1)).toFixed(2);
+                    mongo.pois.update({_id: idPoi}, {rating: newMean}, function (err, data) {
+                        if (err) {
+                            console.log("Error database");
+                            response = {"status": 500, "res": {"message": "Error rating poi"}};
+                        } else {
+                            console.log(data);
+                            response = {"status": 200, "res": {"message": "POI rated successfully"}};
+                        }
+                        callback(response);
+                    })
+                }
+            })
+        }
+    });
+};
 
 module.exports = {
     getInfoUser: getInfoUser,
@@ -233,5 +311,8 @@ module.exports = {
     addFav: addFav,
     deleteFav: deleteFav,
     getNameUser: getNameUser,
-    getNamePOI: getNamePOI
+    getNamePOI: getNamePOI,
+    ratePoi: ratePoi,
+    updateRatingPoi: updateRatingPoi,
+    saveRating: saveRating
 };

@@ -11,6 +11,7 @@ angular.module('vignemale')
         $scope.source = "";
         $scope.followingList = "";
         $scope.favsList = "";
+        $scope.rating = "";
 
         $scope.newPoi = {
             name: "",
@@ -20,7 +21,7 @@ angular.module('vignemale')
             lng: "",
             shortURL: "",
             images: "",
-            valoration: "",
+            rating: "",
             creator: ""
         };
 
@@ -54,6 +55,7 @@ angular.module('vignemale')
         $scope.editpoi = false;
         $scope.itsme = true;
         $scope.itsfollowed = false;
+        $scope.rate = false;
 
 
         var sort;
@@ -73,6 +75,7 @@ angular.module('vignemale')
             $scope.createpoi = false;
             $scope.createroute = false;
             $scope.onePoiSelected = false;
+            $scope.rate = false;
             resetPoiInfo();
             resetRouteInfo();
 
@@ -119,6 +122,7 @@ angular.module('vignemale')
             $scope.createpoi = false;
             $scope.createroute = false;
             $scope.onePoiSelected = false;
+            $scope.rate = false;
             resetPoiInfo();
             resetRouteInfo();
         };
@@ -150,6 +154,7 @@ angular.module('vignemale')
             $scope.createpoi = false;
             $scope.createroute = false;
             $scope.onePoiSelected = false;
+            $scope.rate = false;
             resetPoiInfo();
             resetRouteInfo();
         };
@@ -189,6 +194,7 @@ angular.module('vignemale')
             $scope.createpoi = false;
             $scope.createroute = false;
             $scope.onePoiSelected = false;
+            $scope.rate = false;
             resetPoiInfo();
             resetRouteInfo();
         };
@@ -265,6 +271,20 @@ angular.module('vignemale')
             }, showError);
         };
 
+        $scope.showRatePoi = function () {
+            $scope.onePoiSelected = false;
+            $scope.rate = true;
+        };
+
+        $scope.ratePoi = function () {
+            window.alert($scope.rating)
+            var rating = {
+                idUser:  $scope.idUser,
+                rating: $scope.rating
+            };
+            pois.ratePoi($scope.idPoi, rating, showSuccess, showError);
+        };
+
         $scope.showCreateRoute = function () {
             resetRouteInfo();
             $scope.createroute = true;
@@ -301,7 +321,7 @@ angular.module('vignemale')
                 lat : $scope.newPoi.lat,
                 lng : $scope.newPoi.lng,
                 shortURL : $scope.newPoi.shortURL,
-                valoration : $scope.newPoi.valoration
+                rating : $scope.newPoi.rating
             };
             pois.editPoi(newPoi, showSuccess, showError);
 
@@ -371,7 +391,7 @@ angular.module('vignemale')
                 lng: "",
                 shortURL: "",
                 images: "",
-                valoration: "",
+                rating: "",
                 creator: ""
             };
         }

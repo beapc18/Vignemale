@@ -1,6 +1,6 @@
 angular.module('vignemale')
 
-    .controller('shorturlCtrl', ['$scope', '$state', '$stateParams', 'pois', function ($scope, $state, $stateParams, pois) {
+    .controller('poiCtrl', ['$scope', '$state', '$stateParams', 'pois','maps', function ($scope, $state, $stateParams, pois, maps) {
 
         //user id from url
         $scope.id = $stateParams.id;
@@ -14,7 +14,6 @@ angular.module('vignemale')
         $scope.successMsg = "";
         $scope.errorMsg = "";
 
-        $scope.showPoi = false;
         $scope.poi;
 
         // show the error mensage
@@ -26,10 +25,13 @@ angular.module('vignemale')
         // show the success mensage
         var showPoi = function (data) {
             $scope.poi = data;
-            $scope.showPoi = true;
+            maps.initMap();
+            maps.addMarker({lat:$scope.poi.lat, lng:$scope.poi.lng}, $scope.poi.name);
         };
 
+        pois.getPoi($scope.id, showPoi, showError);
 
-        pois.short($scope.id, showPoi, showError);
+
+
 
     }]);

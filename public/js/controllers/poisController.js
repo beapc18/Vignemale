@@ -1,6 +1,6 @@
 angular.module('vignemale')
 
-    .controller('poiCtrl', ['$scope', '$state', '$stateParams', 'pois','maps', function ($scope, $state, $stateParams, pois, maps) {
+    .controller('poisCtrl', ['$scope', '$state', '$stateParams', 'pois','maps', function ($scope, $state, $stateParams, pois, maps) {
 
         //user id from url
         $scope.id = $stateParams.id;

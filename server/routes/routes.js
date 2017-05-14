@@ -828,6 +828,21 @@ var appRouter = function(router, mongo, app, config, database) {
             });
         });
 
+
+
+    router.route("/routes/:id").get(function (req, res) {
+            console.log("GET routes/" + req.params.id);
+            var response = {};
+            mongo.routes.find({_id: req.params.id}, function (err, data) {
+                if (err) {
+                    response = {"status": 500, "message": "Error fetching data"};
+                } else {
+                    response = {"status": 200, "message": data[0]};
+                }
+                res.status(response.status).json(response.message);
+            });
+        });
+
     router.get("/short/:id", function (req, res) {
 
         console.log("redirect");
@@ -853,6 +868,41 @@ var appRouter = function(router, mongo, app, config, database) {
                 }
                 res.status(response.status).json(response.message);
             });
+        });
+
+    router.route("/share")
+        .post(function (req, res) {
+            console.log("POST /share");
+
+            var response = {};
+            //find similar results using an index
+
+            console.log(req.body.isPoi);
+            var url;
+            if(req.body.isPoi == "true"){
+                url = 'http://localhost:8888/#/pois/' + req.body.idPoiRoute;
+            }else{
+                url = 'http://localhost:8888/#/routes/' + req.body.idPoiRoute;
+            }
+
+            var text = req.body.message + '\n' +
+                'Click the link bellow to watch your recommendation.\n'
+                + url + '\n';
+
+            var mailOptions = {
+                from: 'vignemaleSTW@gmail.com', // sender address
+                to: req.body.email, // list of receivers
+                subject: 'Recommendation', // Subject line
+                text: text //, // plaintext body
+                // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
+            };
+
+            transporter.sendMail(mailOptions);
+
+            response = {"status": 200, "message": "Message sent"};
+
+            res.status(response.status).json(response.message);
+
         });
 
 };

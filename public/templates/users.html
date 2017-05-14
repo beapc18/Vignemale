@@ -6,7 +6,6 @@
         <!--Left panel, with map-->
         <div class="col-md-8 leftPanel">
             <div id="googleMap" style="width:100%;height:480px;"></div>
-
         </div>
 
         <!--Right panel, with data user-->
@@ -18,7 +17,7 @@
                 </div>
                 <!--Right part, with button-->
                 <div class="col-md-4">
-                    <button ng-if="!editUser && itsme" ng-click="showEdit()" class="btn btn-default theme-accent">
+                    <button ng-if="show!='editUser' && itsme" ng-click="showEdit()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-edit"></span>  Edit</button>
 
                     <button ng-if="!itsme && !itsfollowed" ng-click="followFun()" class="btn btn-default theme-accent">
@@ -30,19 +29,19 @@
             </div>
 
             <!--Users profile with their info-->
-            <div ng-if="!editUser">
+            <div ng-if="show!='editUser'">
                 <div class="row">
                     <nav class="navbar navbar-default">
                         <div class="container-fluid">
                             <ul class="nav navbar-nav">
                                 <li>
-                                    <a role="button" ng-click="showPois();hideRoutes();hideFollows();hideFavs();" class="col-md-3">Pois</a>
+                                    <a role="button" ng-click="showPois();hideRoutes();hideFollows();" class="col-md-3">Pois</a>
                                 </li>
                                 <li>
-                                    <a role="button" ng-click="showRoutes();hidePois();hideFollows();hideFavs();" class="col-md-3">Routes</a>
+                                    <a role="button" ng-click="showRoutes();hidePois();hideFollows();" class="col-md-3">Routes</a>
                                 </li>
                                 <li>
-                                    <a role="button" ng-click="showFollows();hidePois();hideRoutes();hideFavs();" class="col-md-3">Following</a>
+                                    <a role="button" ng-click="showFollows();hidePois();hideRoutes();" class="col-md-3">Following</a>
                                 </li>
                                 <li>
                                     <a role="button" ng-click="showFavs();hidePois();hideFollows();hideRoutes();" class="col-md-3">Favs</a>
@@ -61,7 +60,7 @@
                 </div>
 
                 <!--Show ALL pois or message if there aren't pois-->
-                <div ng-if="pois">
+                <div ng-if="show=='pois'">
                     <p ng-if="poisList.length==0"> There are no pois</p>
                     <ul class="list-group pre-scrollable" >
                         <button type="button" class="list-group-item" ng-repeat="row in poisList" ng-click="showPoi(row.lat,row.lng,row.name,row._id)">{{row.name}}</button>
@@ -70,7 +69,7 @@
                 </div>
 
                 <!--Show ONE poi when it's selected-->
-                <div ng-if="onePoiSelected">
+                <div ng-if="show=='onePoiSelected'">
                     <h2>{{newPoi.name}}</h2>
                     <p>Description: {{newPoi.description}}</p>
                     <p>Keywords: {{newPoi.keywords}}</p>
@@ -81,16 +80,20 @@
                     <p>Image:</p>
                     <img ng-src="{{newPoi.image}}" class="img-responsive">
                     <p>Valoration: {{newPoi.valoration}}</p>
-                    <button ng-click="showEditPoi()" class="btn btn-default theme-accent">
-                        <span class="glyphicon glyphicon-edit"></span>  Edit</button>
-                    <button ng-click="removePoi()" class="btn btn-default btn-danger">
-                        <span class="glyphicon glyphicon-trash"></span>  Remove</button>
-                    <button ng-click="duplicatePoi()" class="btn btn-default btn-primary">
-                        <span class="glyphicon glyphicon-duplicate"></span>  Duplicate</button>
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button ng-click="showEditPoi()" class="btn btn-default theme-accent">
+                            <span class="glyphicon glyphicon-edit"></span>  Edit</button>
+                        <button ng-click="removePoi()" class="btn btn-default btn-danger">
+                            <span class="glyphicon glyphicon-trash"></span>  Remove</button>
+                        <button ng-click="duplicatePoi()" class="btn btn-default btn-primary">
+                            <span class="glyphicon glyphicon-duplicate"></span>  Duplicate</button>
+                        <button ng-click="showShare()" class="btn btn-default btn-success">
+                            <span class="glyphicon glyphicon-envelope"></span>  Share</button>
+                    </div>
                 </div>
 
                 <!--FORM CREATE OR EDIT POI-->
-                <form name="form" ng-if="createpoi||editpoi">
+                <form name="form" ng-if="show=='createPoi'||show=='editPoi'">
                     <input type="text" ng-model="$parent.newPoi.name" class="form-control form-group" placeholder="Name" required/>
                     <input type="text" ng-model="$parent.newPoi.description" class="form-control form-group" placeholder="Description" required/>
                     <input type="text" ng-model="$parent.newPoi.keywords" class="form-control form-group" placeholder="Keywords (separate by comma)" required/>
@@ -118,18 +121,20 @@
                 </form>
 
                 <!--Show ALL routes or message if there aren't routes-->
-                <div ng-if="routes">
+                <div ng-if="show=='routes' || show=='routeSelected'">
                     <p ng-if="routesList.length==0"> There are no routes</p>
                     <ul class="list-group pre-scrollable" >
                         <button type="button" class="list-group-item" ng-repeat="row in routesList" ng-click="showRoute(row)">{{row.name}}</button>
                     </ul>
 
                     <button type="button" class="btn btn-default theme-accent" ng-click="showCreateRoute()">Create Route</button>
+                    <button ng-if="show=='routeSelected'" ng-click="showShare()" class="btn btn-default btn-success">
+                        <span class="glyphicon glyphicon-envelope"></span>  Share</button>
                 </div>
 
 
                 <!--FORM CREATE ROUTE-->
-                <form role="form" ng-if="createroute" ng-submit="createNewRoute()">
+                <form role="form" ng-if="show=='createRoute'" ng-submit="createNewRoute()">
                     <input type="text" ng-model="$parent.newRoute.name" class="form-control form-group" placeholder="Name" required/>
 
                     <div id="drop" class="list-group pre-scrollable" ng-drop>
@@ -145,7 +150,7 @@
                 </form>
 
                 <!--Show ALL follows or message if there aren't follows-->
-                <div ng-if="follows">
+                <div ng-if="show=='follows'">
                     <p ng-if="followingList.length==0"> You are following anyone</p>
                     <ul class="list-group pre-scrollable">
                         <a type="button" class="list-group-item" ng-repeat="row in followingList" ng-href="#/users/{{row}}">{{row}}</a>
@@ -153,13 +158,13 @@
                 </div>
 
                 <!--Show ALL favs or message if there aren't favs-->
-                <div ng-if="favs">
+                <div ng-if="show=='favs'">
                     mostrando favs
                 </div>
             </div>
 
             <!--FORM to EDIT USER-->
-            <form name="form" ng-submit="modifyUser()" ng-if="editUser">
+            <form name="form" ng-submit="modifyUser()" ng-if="show=='editUser'">
 
                 <!--Error & success messages-->
                 <div ng-if="error" class="alert alert-danger center">
@@ -182,6 +187,16 @@
                 <button type="submit" class="btn btn-sm theme-accent-sm">Change password</button>
                 <a ng-click="removeUser()" class="btn btn-sm btn-danger">
                     <span class="glyphicon glyphicon-trash"></span>  Remove Account</a>
+            </form>
+
+
+
+            <!--FORM CREATE OR EDIT POI-->
+            <form name="form" ng-if="show=='share'">
+                <input type="text" ng-model="$parent.recommendation.email" class="form-control form-group" placeholder="Email" required/>
+
+                <textarea class="form-control form-group" ng-model="$parent.recommendation.message" placeholder="Message" rows="5" ></textarea>
+                <button type="submit" ng-click="share()"  class="btn btn-default theme-accent">Send</button>
             </form>
 
         </div>

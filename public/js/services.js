@@ -381,6 +381,16 @@ angular.module('vignemale')
     })
     .factory('routes', function ($state, $http, $httpParamSerializer, auth) {
         return {
+            getRoute: function (id, callbackSuccess, callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/routes/' + id
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
             createRoute: function (route, callbackSuccess, callbackError) {
                 $http({
                     method: 'POST',
@@ -397,6 +407,101 @@ angular.module('vignemale')
             }
         };
     })
+
+    .factory('recommendations', function ($state, $http, $httpParamSerializer, auth) {
+        return {
+            share: function (recommendation, callbackSuccess, callbackError) {
+                $http({
+                    method: 'POST',
+                    url: '/share',
+                    data: $httpParamSerializer(recommendation),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            }
+        };
+    })
+
+
+    .service('maps', function ($state, $http, $httpParamSerializer, auth) {
+
+        var map;
+        var markers = [];
+        var directionsService;
+        var directionsDisplay;
+
+        this.initMap = function(){
+            myLatlng = new google.maps.LatLng(41.64514, -0.8689481);
+
+            mapOptions = {
+                zoom: 13,
+                center: myLatlng
+            };
+
+            map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+
+            directionsService = new google.maps.DirectionsService;
+            directionsDisplay = new google.maps.DirectionsRenderer({map: map});
+        }
+
+
+        this.addEventListener = function(poi) {
+            google.maps.event.addListener(map, "click", function(event) {
+                poi.lat = event.latLng.lat();
+                poi.lng = event.latLng.lng();
+            });
+        }
+
+
+        // Adds a marker to the map and push to the array.
+        this.addMarker = function(location, name) {
+            var marker = new google.maps.Marker({
+                position: location,
+                map: map,
+                tittle: name
+            });
+            markers.push(marker);
+        }
+
+        // Deletes all markers in the array by removing references to them.
+        this.deleteMarkers = function() {
+            for (var i = 0; i < markers.length; i++) {
+                markers[i].setMap(null);
+            }
+            markers = [];
+        }
+
+        this.createRoute = function(waypts){
+            directionsService.route({
+                origin: waypts[0].location,
+                destination: waypts[waypts.length-1].location,
+                waypoints: waypts.slice(1, waypts.length-1),
+                optimizeWaypoints: true,
+                travelMode: 'DRIVING'
+            }, function(response, status) {
+                if (status === 'OK') {
+                    directionsDisplay.setDirections(response);
+                }
+            });
+        }
+
+
+
+        this.hideRoute = function(){
+            directionsDisplay.setMap(null);
+        }
+
+        this.showRoute = function(){
+            directionsDisplay.setMap(map);
+        }
+    })
+
+
 
     .factory('vignemale', function ($state, $http) {
 

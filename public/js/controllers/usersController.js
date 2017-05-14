@@ -1,6 +1,7 @@
 angular.module('vignemale')
 
-    .controller('usersCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'users', 'auth', 'pois','routes', function ($scope, $state, $stateParams,$httpParamSerializer, users, auth, pois, routes) {
+    .controller('usersCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'users', 'auth', 'pois',
+        'recommendations','routes','maps', function ($scope, $state, $stateParams,$httpParamSerializer, users, auth, pois, recommendations, routes, maps) {
 
         //user id from url
         $scope.idRequest = "";
@@ -8,6 +9,7 @@ angular.module('vignemale')
         $scope.poisList = "";
         $scope.routesList = "";
         $scope.idPoi = "";
+        $scope.idRoute = "";
         $scope.source = "";
         $scope.followingList = "";
 
@@ -29,6 +31,23 @@ angular.module('vignemale')
             creator: ""
         };
 
+        $scope.message = {
+            name: "",
+            pois: "",
+            creator: ""
+        };
+
+
+
+        $scope.recommendation = {
+            userNameOrigin : "",
+            userLastNameOrigin : "",
+            email: "",
+            message: "",
+            isPoi: "",
+            idPoiRoute: ""
+        }
+
         $scope.oldPassword = "";
         $scope.newPassword = "";
         $scope.newRePassword = "";
@@ -42,22 +61,16 @@ angular.module('vignemale')
         $scope.successMsg = "";
         $scope.errorMsg = "";
 
-        $scope.pois = true;
-        $scope.routes = false;
-        $scope.follows = false;
-        $scope.favs = false;
-        $scope.editUser = false;
-        $scope.createpoi = false;
-        $scope.createroute = false;
-        $scope.onePoiSelected = false;
-        $scope.editpoi = false;
+
         $scope.itsme = true;
         $scope.itsfollowed = false;
 
+        $scope.show = "pois";
+
+
+        var isPoi;
 
         var sort;
-
-        var markers= [];
 
         $scope.latitude = "";
         $scope.longitude = "";
@@ -67,18 +80,11 @@ angular.module('vignemale')
         };
 
         $scope.showFollows = function () {
+            $scope.show="follows";
             users.getUserFollows($scope.idUser,showFollowingList);
-            $scope.follows = true;
-            $scope.createpoi = false;
-            $scope.createroute = false;
-            $scope.onePoiSelected = false;
             resetPoiInfo();
             resetRouteInfo();
 
-        };
-
-        $scope.hideFollows = function () {
-            $scope.follows = false;
         };
 
         // acceder al home de otro, NO CAMBIA EN LA URL
@@ -86,56 +92,52 @@ angular.module('vignemale')
             $scope.idUser = id;
             users.getUser($scope.idUser, function (data) {
                 //save info about user
-                initMap();
+                //maps.initMap();
                 users.getUserPois($scope.idUser, showPoisList);
                 $scope.user = {
                     lastName: data.message[0].lastName,
                     name: data.message[0].name
                 };
                 $scope.itsMe();
-                $scope.hideFollows();
                 $scope.itsFollowed($scope.idUser);
             }, showError);
         };
 
         // hide/show different layers
         var showPoisList = function (data) {
-            deleteMarkers();
+            maps.deleteMarkers();
             //update pois list
-            $scope.editpoi = false;
             $scope.poisList = data.message;
             var poisLen = $scope.poisList.length;
 
             //create markers from pois list
             for (i = 0; i < poisLen; i++) {
-                addMarker({lat:data.message[i].lat,lng:data.message[i].lng},data.message[i].name);
+                maps.addMarker({lat:data.message[i].lat,lng:data.message[i].lng},data.message[i].name);
             }
         };
 
         $scope.showPois = function () {
             users.getUserPois($scope.idUser,showPoisList);
-            $scope.pois = true;
-            $scope.createpoi = false;
-            $scope.createroute = false;
-            $scope.onePoiSelected = false;
+            $scope.show="pois";
             resetPoiInfo();
             resetRouteInfo();
         };
 
         $scope.showPoi  = function (lat, lng, name, id) {
             $scope.hidePois();
-            addMarker({lat:lat, lng:lng}, name);
-            $scope.onePoiSelected = true;
+            maps.addMarker({lat:lat, lng:lng}, name);
+            $scope.show="onePoiSelected";
             $scope.idPoi = id;
             pois.getPoi(id, function (data) {
                 $scope.newPoi = data;
                 $scope.newPoi.shortURL = data.shortURL;
             }, showError);
+
+            isPoi = true;
         };
 
         $scope.hidePois = function () {
-            $scope.pois = false;
-            deleteMarkers();
+            maps.deleteMarkers();
         };
 
 
@@ -145,16 +147,13 @@ angular.module('vignemale')
 
         $scope.showRoutes = function () {
             users.getUserRoutes($scope.idUser,showRoutesList);
-            $scope.routes = true;
-            $scope.createpoi = false;
-            $scope.createroute = false;
-            $scope.onePoiSelected = false;
+            $scope.show="routes";
             resetPoiInfo();
             resetRouteInfo();
         };
 
         $scope.showRoute = function (route) {
-            directionsDisplay.setMap(map);
+            maps.showRoute();
             var pois = route.pois;
             var waypts = [];
             for(i = 0; i < pois.length; i++) {
@@ -163,40 +162,27 @@ angular.module('vignemale')
                     stopover: true
                 });
             }
-            createRoute(waypts);
-            $scope.routes = true;
+            maps.createRoute(waypts);
+            $scope.show="routeSelected";
+            $scope.idRoute=route._id;
+            console.log(route._id);
+            isPoi = false;
         };
 
 
         $scope.hideRoutes = function () {
-            $scope.routes = false;
-            directionsDisplay.setMap(null);
+            maps.hideRoute();
         };
 
-
-        $scope.hideFollows = function () {
-            $scope.follows = false;
-        };
 
         $scope.showFavs = function () {
-            $scope.favs = true;
-            $scope.createpoi = false;
-            $scope.createroute = false;
-            $scope.onePoiSelected = false;
+            $scope.show="favs";
             resetPoiInfo();
             resetRouteInfo();
         };
 
-        $scope.hideFavs = function () {
-            $scope.favs = false;
-        };
-
         $scope.showEdit = function () {
-            $scope.editUser = true;
-        };
-
-        $scope.showProfile = function () {
-            $scope.editUser = false;
+            $scope.show="editUser";
         };
 
         // hide the error mensage
@@ -213,7 +199,6 @@ angular.module('vignemale')
         // show the success mensage
         var showSuccess = function (message) {
             $scope.successMsg = message.message;
-            //$scope.successMsg = message;
             $scope.success = true;
         };
 
@@ -224,8 +209,7 @@ angular.module('vignemale')
         };
 
         $scope.showCreatepoi = function () {
-            $scope.createpoi = true;
-            $scope.pois = false;
+            $scope.show="createPoi";
         };
 
         //Create the poi with values
@@ -260,9 +244,7 @@ angular.module('vignemale')
         };
 
         $scope.showCreateRoute = function () {
-            $scope.createroute = true;
-            $scope.routes = false;
-            //users.getUserPois($scope.idUser,showPoisList);
+            $scope.show="createRoute";
         };
 
         $scope.createNewRoute = function () {
@@ -281,8 +263,7 @@ angular.module('vignemale')
 
 
         $scope.showEditPoi = function () {
-            $scope.editpoi = true;
-            $scope.onePoiSelected = false;
+            $scope.show="editPoi";
         };
 
         $scope.editPoiFun = function () {
@@ -344,7 +325,7 @@ angular.module('vignemale')
         //Get data about user
         users.getUser($scope.idUser, function (data) {
             //save info about user
-            initMap();
+            maps.initMap();
             users.getUserPois($scope.idUser, showPoisList);
             $scope.user = {
                 lastName: data.message[0].lastName,
@@ -416,6 +397,42 @@ angular.module('vignemale')
             $scope.itsfollowed = false;
         };
 
+
+        $scope.showShare = function () {
+            $scope.show="share";
+        };
+
+        $scope.share = function () {
+            $scope.recommendation.isPoi = isPoi;
+            console.log(isPoi);
+
+            if(isPoi){
+                $scope.recommendation.idPoiRoute = $scope.idPoi;
+            }else{
+                $scope.recommendation.idPoiRoute = $scope.idRoute;
+            }
+            var id;
+
+            if($scope.itsMe){
+                id = $scope.idUser;
+            }else{
+                id = $scope.idRequest;
+            }
+
+
+            users.getUser(id,function(data){
+                $scope.recommendation.userNameOrigin = data.message[0].name;
+                $scope.recommendation.userLastNameOrigin = data.message[0].lastName;
+                recommendations.share($scope.recommendation,function(data){
+                    $scope.show = 'pois';
+                    showSuccess(data);
+                },showError);
+            },showError);
+        };
+
+
+
+
         //Reset info about poi for avoiding show wrong info
         function resetRouteInfo() {
             $scope.newPoi = {
@@ -427,70 +444,10 @@ angular.module('vignemale')
 
 
         //*******************************************************************//
-        //                  GOOGLE MAPS FUNCTIONS                            //
+        /**               DRAG AND DROP FUNCTIONS                            */
         //*******************************************************************//
 
-        var myLatlng = new google.maps.LatLng(41.64514, -0.8689481);
-        var mapOptions = {
-            zoom: 13,
-            center: myLatlng
-        };
 
-        var map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
-
-        google.maps.event.addListener(map, "click", function(event) {
-            $scope.newPoi.lat = event.latLng.lat();
-            $scope.newPoi.lng = event.latLng.lng();
-        });
-
-        function initMap(){
-            /*var mapOptions = {
-                zoom: 13,
-                center: new google.maps.LatLng(41.64514, -0.8689481)
-            };
-            map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);*/
-
-            directionsService = new google.maps.DirectionsService;
-            directionsDisplay = new google.maps.DirectionsRenderer({map: map});
-
-
-        }
-
-        // Adds a marker to the map and push to the array.
-        function addMarker(location, name) {
-            var marker = new google.maps.Marker({
-                position: location,
-                map: map,
-                tittle: name
-            });
-            //marker.addListener('click', $scope.showPoi);
-            markers.push(marker);
-        }
-
-        // Deletes all markers in the array by removing references to them.
-        function deleteMarkers() {
-            for (var i = 0; i < markers.length; i++) {
-                markers[i].setMap(null);
-            }
-            markers = [];
-        }
-
-        function createRoute(waypts){
-            directionsService.route({
-                origin: waypts[0].location,
-                destination: waypts[waypts.length-1].location,
-                waypoints: waypts.slice(1, waypts.length-1),
-                optimizeWaypoints: true,
-                travelMode: 'DRIVING'
-            }, function(response, status) {
-                if (status === 'OK') {
-                    directionsDisplay.setDirections(response);
-                }
-            });
-        }
-
-
-        /** SORTABLE FUNCTIONS */
         $scope.initDrag = function(){
             Sortable.create(drag, {
                 group: "sorting",
@@ -508,8 +465,7 @@ angular.module('vignemale')
                     var waypts = getWaypts();
                     if(waypts.length > 1){
                         var e = waypts.map(function(a) {return {location:a.location};});
-                        createRoute(e);
-
+                        maps.createRoute(e);
                     }
                     // same properties as onUpdate
                 }
@@ -528,16 +484,13 @@ angular.module('vignemale')
                 while(route[i].id != pois[j]._id){
                     j++;
                 }
-
                 waypts.push({
                     poi: pois[j]._id,
                     location: {lat:pois[j].lat,lng:pois[j].lng}
                 });
             }
-
             return waypts;
         }
-
 
     }]);
 

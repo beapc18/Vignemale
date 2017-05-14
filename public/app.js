@@ -50,10 +50,15 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 templateUrl: "templates/resetPassword.html",
                 controller: "resetPasswordCtrl"
             })
-            .state('short', {
-                url: '/short/{id}',
-                templateUrl: "templates/shorturl.html",
-                controller: "shorturlCtrl"
+            .state('pois', {
+                url: '/pois/{id}',
+                templateUrl: "templates/pois.html",
+                controller: "poisCtrl"
+            })
+            .state('routes', {
+                url: '/routes/{id}',
+                templateUrl: "templates/routes.html",
+                controller: "routesCtrl"
             })
             .state('searchPois', {
                 url: '/search/pois',

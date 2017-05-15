@@ -624,7 +624,7 @@ var appRouter = function(router, mongo, app, config, database) {
             db.lat = req.body.lat;
             db.lng = req.body.lng;
             db.image = req.body.image;
-            db.valoration = req.body.valoration;
+            db.rating = req.body.rating;
             db.creator = req.body.creator;
             db.numRec = 0; //nº recomendaciones
 
@@ -641,42 +641,55 @@ var appRouter = function(router, mongo, app, config, database) {
                             res.status(response.status).json(response);
                         } else {
                             var poiId = data._id;
-
-                            var shorturls = new mongo.shorturls;
-
-                            shorturls.url = req.body.shortURL;
-
-                            shorturls.save(function (err,data) {
-                                if (err) {
+                            database.saveRating(mongo, req.body.creator, poiId, req.body.rating, function (data) {
+                                if (data.status === 500){
                                     response = {"status": 500, "message": "Error creatting POI"};
                                     res.status(response.status).json(response);
-                                }else{
-                                    //update last access when user access and jwt
-                                    mongo.pois.update({_id: poiId}, {shortURL: "http://localhost:8888/short/"+data._id}, function (err) {
+                                } else {
+                                    var shorturls = new mongo.shorturls;
+
+                                    shorturls.url = req.body.shortURL;
+
+                                    shorturls.save(function (err, data) {
                                         if (err) {
-                                            response = {"status": 500, "message": "Error creatting POI"};
+                                            response = {
+                                                "status": 500,
+                                                "message": "Error creatting POI"
+                                            };
                                             res.status(response.status).json(response);
                                         } else {
-
                                             //update last access when user access and jwt
-                                            mongo.pois.update({_id: poiId}, {shorturl: data._id}, function (err) {
+                                            mongo.pois.update({_id: poiId}, {shortURL: "http://localhost:8888/short/" + data._id}, function (err) {
                                                 if (err) {
-                                                    response = {"status": 500, "message": "Error creatting POI"};
-                                                } else {
                                                     response = {
-                                                        "status": 201,
-                                                        "message": "POI has been created successfully"
+                                                        "status": 500,
+                                                        "message": "Error creatting POI"
                                                     };
+                                                    res.status(response.status).json(response);
+                                                } else {
+                                                    //update last access when user access and jwt
+                                                    mongo.pois.update({_id: poiId}, {shorturl: data._id}, function (err) {
+                                                        if (err) {
+                                                            response = {
+                                                                "status": 500,
+                                                                "message": "Error creatting POI"
+                                                            };
+                                                        } else {
+                                                            response = {
+                                                                "status": 201,
+                                                                "message": "POI has been created successfully"
+                                                            };
+                                                        }
+                                                        res.status(response.status).json(response);
+                                                    });
                                                 }
-                                                res.status(response.status).json(response);
                                             });
                                         }
                                     });
                                 }
                             });
-
                         }
-                    });
+                    })
                 }
             });
         });
@@ -710,7 +723,6 @@ var appRouter = function(router, mongo, app, config, database) {
                         keywords: req.body.keywords,
                         lat: req.body.lat,
                         lng: req.body.lng,
-                        valoration: req.body.valoration,
                         image: req.body.image
                     };
                     var url = req.body.shortURL;
@@ -753,6 +765,9 @@ var appRouter = function(router, mongo, app, config, database) {
         .delete(function (req, res) {
             console.log("DELETE pois/" + req.params.id);
 
+            //delete pois in favs of another users asynchronous
+            database.removePoisFromFavs(mongo, req.params.id);
+
             mongo.pois.find({_id: req.params.id}, function (err, data) {
                 if (err) {
                     response = {"status": 500, "message": "Error fetching data"};
@@ -774,6 +789,17 @@ var appRouter = function(router, mongo, app, config, database) {
                 }
             });
         });
+
+    //get user routes
+    router.post("/pois/:id/rating", function (req, res) {
+        var idPoi = req.params.id;
+        console.log("post poi " + idPoi + " rating");
+        var response = {};
+        database.ratePoi(mongo, req.body.idUser, idPoi, req.body.rating, function (response) {
+            console.log(response.res);
+            res.status(response.status).json(response.res);
+        });
+    });
 
 
     //get user routes

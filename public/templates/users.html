@@ -79,7 +79,7 @@
                     <p>URL: <a ng-href="{{newPoi.shortURL}}">{{newPoi.shortURL}}</a></p>
                     <p>Image:</p>
                     <img ng-src="{{newPoi.image}}" class="img-responsive">
-                    <p>Valoration: {{newPoi.valoration}}</p>
+                    <p>Rating: {{newPoi.rating}}</p>
                     <button ng-if="itsme" ng-click="showEditPoi()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-edit"></span>  Edit</button>
                     <button ng-if="itsme" ng-click="removePoi()" class="btn btn-default btn-danger">
@@ -90,7 +90,8 @@
                         <span class="glyphicon glyphicon-heart"></span>  Add to fav</button>
                     <button ng-click="showShare()" class="btn btn-default btn-success">
                         <span class="glyphicon glyphicon-envelope"></span>  Share</button>
-
+                    <button ng-if="!itsme" ng-click="showRatePoi()" class="btn btn-default theme-accent">
+                        <span class="glyphicon glyphicon-star"></span>  Rate POI</button>
                 </div>
 
                 <!--FORM CREATE OR EDIT POI-->
@@ -104,21 +105,41 @@
                     <input type="file" id="image" ng-model="$parent.newPoi.images" placeholder="Images" multiple/>
 
                     <!--stars rating-->
-                    <fieldset class="rating form-control form-group">
-                        Valoration:
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star5" name="v1" value="5" required/><label class="full" for="star5" title="5"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star4half" name="v1" value="4.5"/><label class="half" for="star4half" title="4.5"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star4" name="v1" value="4"/><label class="full" for="star4" title="4"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star3half" name="v1" value="3.5" /><label class="half" for="star3half" title="3.5"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star3" name="v1" value="3"/><label class="full" for="star3" title="3"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star2half" name="v1" value="2.5" /><label class="half" for="star2half" title="2.5"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star2" name="v1" value="2"/><label class="full" for="star2" title="2"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star1half" name="v1" value="1.5"/><label class="half" for="star1half" title="1.5"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="star1" name="v1" value="1"/><label class="full" for="star1" title="1"></label>
-                        <input type="radio" ng-model="$parent.newPoi.valoration" id="starhalf" name="v1" value="half"/><label class="half" for="starhalf" title="0.5"></label>
+                    <fieldset ng-if="!editpoi" class="rating form-control form-group">
+                        Rating:
+                        <input type="radio" ng-model="$parent.newPoi.rating" id="star5" name="v1" value="5" required/><label class="full" for="star5" title="5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.rating" id="star4half" name="v1" value="4.5"/><label class="half" for="star4half" title="4.5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.rating" id="star4" name="v1" value="4"/><label class="full" for="star4" title="4"></label>
+                        <input type="radio" ng-model="$parent.newPoi.rating" id="star3half" name="v1" value="3.5" /><label class="half" for="star3half" title="3.5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.rating" id="star3" name="v1" value="3"/><label class="full" for="star3" title="3"></label>
+                        <input type="radio" ng-model="$parent.newPoi.rating" id="star2half" name="v1" value="2.5" /><label class="half" for="star2half" title="2.5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.rating" id="star2" name="v1" value="2"/><label class="full" for="star2" title="2"></label>
+                        <input type="radio" ng-model="$parent.newPoi.rating" id="star1half" name="v1" value="1.5"/><label class="half" for="star1half" title="1.5"></label>
+                        <input type="radio" ng-model="$parent.newPoi.rating" id="star1" name="v1" value="1"/><label class="full" for="star1" title="1"></label>
+                        <input type="radio" ng-model="$parent.newPoi.rating" id="starhalf" name="v1" value="half"/><label class="half" for="starhalf" title="0.5"></label>
                     </fieldset>
                     <button type="submit" ng-if="show=='createPoi'" ng-click="createpoiFun()"  class="btn btn-default theme-accent">Create POI</button>
                     <button type="submit" ng-if="show=='editPoi'" ng-click="editPoiFun()"  class="btn btn-default theme-accent">Edit POI</button>
+                </form>
+
+                <!--form for rating a poi-->
+                <form role="form" ng-if="show=='rate'" ng-submit="ratePoi()">
+                    <h2>{{newPoi.name}}</h2>
+                    <fieldset class="rating form-control form-group">
+                        Rating:
+                        <input type="radio" ng-model="$parent.rating" id="star5" name="v1" value="5" required/><label class="full" for="star5" title="5"></label>
+                        <input type="radio" ng-model="$parent.rating" id="star4half" name="v1" value="4.5"/><label class="half" for="star4half" title="4.5"></label>
+                        <input type="radio" ng-model="$parent.rating" id="star4" name="v1" value="4"/><label class="full" for="star4" title="4"></label>
+                        <input type="radio" ng-model="$parent.rating" id="star3half" name="v1" value="3.5" /><label class="half" for="star3half" title="3.5"></label>
+                        <input type="radio" ng-model="$parent.rating" id="star3" name="v1" value="3"/><label class="full" for="star3" title="3"></label>
+                        <input type="radio" ng-model="$parent.rating" id="star2half" name="v1" value="2.5" /><label class="half" for="star2half" title="2.5"></label>
+                        <input type="radio" ng-model="$parent.rating" id="star2" name="v1" value="2"/><label class="full" for="star2" title="2"></label>
+                        <input type="radio" ng-model="$parent.rating" id="star1half" name="v1" value="1.5"/><label class="half" for="star1half" title="1.5"></label>
+                        <input type="radio" ng-model="$parent.rating" id="star1" name="v1" value="1"/><label class="full" for="star1" title="1"></label>
+                        <input type="radio" ng-model="$parent.rating" id="starhalf" name="v1" value="half"/><label class="half" for="starhalf" title="0.5"></label>
+                    </fieldset>
+
+                    <button type="submit" class="btn btn-default theme-accent"> <span class="glyphicon glyphicon-star"></span>  Rate</button>
                 </form>
 
                 <!--Show ALL routes or message if there aren't routes-->

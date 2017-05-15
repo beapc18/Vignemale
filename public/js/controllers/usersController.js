@@ -13,6 +13,7 @@ angular.module('vignemale')
         $scope.source = "";
         $scope.followingList = "";
         $scope.favsList = "";
+        $scope.rating = "";
 
         $scope.newPoi = {
             name: "",
@@ -22,7 +23,7 @@ angular.module('vignemale')
             lng: "",
             shortURL: "",
             images: "",
-            valoration: "",
+            rating: "",
             creator: ""
         };
 
@@ -253,6 +254,19 @@ angular.module('vignemale')
             }, showError);
         };
 
+        $scope.showRatePoi = function () {
+            $scope.show = "rate";
+        };
+
+        $scope.ratePoi = function () {
+            window.alert($scope.rating)
+            var rating = {
+                idUser:  $scope.idUser,
+                rating: $scope.rating
+            };
+            pois.ratePoi($scope.idPoi, rating, showSuccess, showError);
+        };
+
         $scope.showCreateRoute = function () {
             $scope.show="createRoute";
             resetRouteInfo();
@@ -287,7 +301,7 @@ angular.module('vignemale')
                 lat : $scope.newPoi.lat,
                 lng : $scope.newPoi.lng,
                 shortURL : $scope.newPoi.shortURL,
-                valoration : $scope.newPoi.valoration
+                rating : $scope.newPoi.rating
             };
             pois.editPoi(newPoi, showSuccess, showError);
             $scope.show="pois";
@@ -366,7 +380,7 @@ angular.module('vignemale')
                 lng: "",
                 shortURL: "",
                 images: "",
-                valoration: "",
+                rating: "",
                 creator: ""
             };
         }

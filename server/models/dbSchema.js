@@ -25,12 +25,11 @@ var usersSchema = mongoose.Schema({
     google: Boolean,
     token: String,
     following: Array,
-    favs: Array
+    favs: Array,
+    nRates: Number      //number of votes
     //pois
     //rutas
 });
-
-
 
 var POIsSchema = mongoose.Schema({
     name: String,
@@ -44,7 +43,7 @@ var POIsSchema = mongoose.Schema({
     city: String,
     country: String,
     creator: objectId,
-    valoration: Number
+    rating: Number
     //Para ofrecer una imagen desde un controlador
     /*
      var img = document.createElement('img');
@@ -79,6 +78,13 @@ var shorturlsSchema = mongoose.Schema({
     url: String
 });
 
+//Schema which contains info about ratings of users
+var ratingSchema = mongoose.Schema({
+    idUser: String,
+    idPoi: String,
+    rating: Number
+});
+
 //create index for searching pois by keywords or name
 POIsSchema.index({keywords: "text", name: "text"});
 
@@ -90,10 +96,13 @@ var users = mongoose.model('users',usersSchema);
 var pois = mongoose.model('pois',POIsSchema);
 var routes = mongoose.model('routes',routesSchema);
 var shorturls = mongoose.model('shorturls',shorturlsSchema);
+var ratings = mongoose.model('ratings',ratingSchema);
+
 
 module.exports = {
     users: users,
     pois: pois,
     routes: routes,
-    shorturls: shorturls
+    shorturls: shorturls,
+    ratings: ratings
 };

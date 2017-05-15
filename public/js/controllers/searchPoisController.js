@@ -15,7 +15,7 @@ angular.module('vignemale')
             lng: "",
             shortURL: "",
             images: "",
-            valoration: "",
+            rating: "",
             creator: ""
         };
         var markers = [];

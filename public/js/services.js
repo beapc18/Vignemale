@@ -428,6 +428,22 @@ angular.module('vignemale')
                 });
             },
 
+            ratePoi: function (idPoi, rating, callbackSuccess, callbackError) {
+                $http({
+                    method: 'POST',
+                    url: '/pois/'+idPoi+'/rating',
+                    data: $httpParamSerializer(rating),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
             short: function (id, callbackSuccess, callbackError) {
                 $http({
                     method: 'GET',

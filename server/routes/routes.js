@@ -562,20 +562,22 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
     //Follow user, updating field "following"
-    router.post("/followUser/", passport.authenticate('jwt', {session: false}), function (req, res) {
-        console.log("Follow user " + req.body.idFollow + " from " + req.body.idRequest);
+    router.post("/users/:id/follow", passport.authenticate('jwt', {session: false}), function (req, res) {
+        var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
+        console.log("Follow user " + req.params.id + " from " + idUser);
         //if/verifyIds
-        database.addFollowing(mongo,req.body.idRequest, req.body.idFollow, function (response) {
+        database.addFollowing(mongo,idUser, req.params.id, function (response) {
             console.log(response);
             res.status(response.status).json(response.res);
         });
     });
 
     //Unfollow user, updating field "following"
-    router.post("/unfollowUser/", passport.authenticate('jwt', {session: false}), function (req, res) {
-        console.log("Unfollow user " + req.body.idUnfollow + " from " + req.body.idRequest);
+    router.post("/users/:id/unfollow", passport.authenticate('jwt', {session: false}), function (req, res) {
+        var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
+        console.log("Unfollow user " + req.params.id + " from " + idUser);
         //if/verifyIds
-        database.removeFollowing(mongo,req.body.idRequest, req.body.idUnfollow, function (response) {
+        database.removeFollowing(mongo,idUser, req.params.id, function (response) {
             console.log(response);
             res.status(response.status).json(response.res);
         });

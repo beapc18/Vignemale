@@ -414,26 +414,12 @@ angular.module('vignemale')
             };
 
             $scope.followFun = function () {
-                auth.getIdFromToken(auth.getToken(),function (data) {
-                    $scope.idRequest = data.message;
-                });
-                var idsUsers = {
-                    idFollow: $scope.idUser,
-                    idRequest: $scope.idRequest
-                };
-                users.followUser(idsUsers, showSuccess);
+                users.followUser($scope.idUser, showSuccess);
                 $scope.itsfollowed = true;
             };
 
             $scope.unfollowFun = function () {
-                auth.getIdFromToken(auth.getToken(),function (data) {
-                    $scope.idRequest = data.message;
-                });
-                var idsUsers = {
-                    idUnfollow: $scope.idUser,
-                    idRequest: $scope.idRequest
-                };
-                users.unfollowUser(idsUsers, showSuccess);
+                users.unfollowUser($scope.idUser, showSuccess);
                 $scope.itsfollowed = false;
             };
 

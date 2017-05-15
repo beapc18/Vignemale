@@ -311,11 +311,11 @@ angular.module('vignemale')
                 });
             },
 
-            followUser: function (idsUsers, callbackSuccess) {
+            followUser: function (idFollow, callbackSuccess) {
                 $http({
                     method: 'POST',
-                    url: '/followUser/',
-                    data: $httpParamSerializer(idsUsers),
+                    url: '/users/' + idFollow + '/follow',
+                    //data: $httpParamSerializer(idsUsers),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'Authorization': auth.getToken()
@@ -327,11 +327,11 @@ angular.module('vignemale')
                 });
             },
 
-            unfollowUser: function (idsUsers, callbackSuccess) {
+            unfollowUser: function (idUnfollow, callbackSuccess) {
                 $http({
                     method: 'POST',
-                    url: '/unfollowUser/',
-                    data: $httpParamSerializer(idsUsers),
+                    url: '/users/' + idUnfollow + '/unfollow',
+                    //data: $httpParamSerializer(idsUsers),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'Authorization': auth.getToken()

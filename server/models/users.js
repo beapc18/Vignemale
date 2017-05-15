@@ -280,8 +280,9 @@ var updateRatingPoi = function (mongo, idPoi, rating, callback) {
                     callback(response);
                 } else {
                     //calculate new mean and update it
-                    var newMean = parseFloat((mean[0].rating*votes+rating)/(votes+1)).toFixed(2);
-                    mongo.pois.update({_id: idPoi}, {rating: newMean}, function (err, data) {
+                    var mean2 = mean[0].rating;
+                    var div = (mean2*votes+Number(rating))/(votes+1);
+                    mongo.pois.update({_id: idPoi}, {rating: div}, function (err, data) {
                         if (err) {
                             console.log("Error database");
                             response = {"status": 500, "res": {"message": "Error rating poi"}};

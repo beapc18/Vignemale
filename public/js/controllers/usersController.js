@@ -258,11 +258,10 @@ angular.module('vignemale')
             $scope.show = "rate";
         };
 
-        $scope.ratePoi = function () {
-            window.alert($scope.rating)
+        $scope.ratePoi = function (ratingPoi) {
             var rating = {
                 idUser:  $scope.idUser,
-                rating: $scope.rating
+                rating: ratingPoi
             };
             pois.ratePoi($scope.idPoi, rating, showSuccess, showError);
         };

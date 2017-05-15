@@ -704,7 +704,6 @@ var appRouter = function(router, mongo, app, config, database) {
                     response = {"status": 500, "message": "Error fetching data"};
                 } else {
                     response = {"status": 200, "message": data[0]};
-                    response = {"status": 200, "message": data[0]};
                 }
                 res.status(response.status).json(response.message);
             });
@@ -794,8 +793,8 @@ var appRouter = function(router, mongo, app, config, database) {
     router.post("/pois/:id/rating", function (req, res) {
         var idPoi = req.params.id;
         console.log("post poi " + idPoi + " rating");
-        var response = {};
-        database.ratePoi(mongo, req.body.idUser, idPoi, req.body.rating, function (response) {
+        var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
+        database.ratePoi(mongo, idUser, idPoi, req.body.rating, function (response) {
             console.log(response.res);
             res.status(response.status).json(response.res);
         });

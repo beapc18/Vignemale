@@ -123,7 +123,7 @@
                 </form>
 
                 <!--form for rating a poi-->
-                <form role="form" ng-if="show=='rate'" ng-submit="ratePoi()">
+                <form role="form" ng-if="show=='rate'" ng-submit="ratePoi(rating)">
                     <h2>{{newPoi.name}}</h2>
                     <fieldset class="rating form-control form-group">
                         Rating:
@@ -138,6 +138,7 @@
                         <input type="radio" ng-model="$parent.rating" id="star1" name="v1" value="1"/><label class="full" for="star1" title="1"></label>
                         <input type="radio" ng-model="$parent.rating" id="starhalf" name="v1" value="half"/><label class="half" for="starhalf" title="0.5"></label>
                     </fieldset>
+                    {{rating}}
 
                     <button type="submit" class="btn btn-default theme-accent"> <span class="glyphicon glyphicon-star"></span>  Rate</button>
                 </form>

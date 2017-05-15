@@ -82,10 +82,12 @@ angular.module('vignemale')
                     }
                 }).success(function (data, status, headers, params) {
                     that.authenticate(headers().authorization);
-                    /*window.alert($stateParams.idRequest);
-                    window.alert(params.idRequest);*/
-
-                    $state.go('users',{id: data.message, idRequest: data.message}); //redirect user home
+                    if(data.message === "admin") {
+                        $state.go('adminList');
+                    }
+                    else {
+                        $state.go('users', {id: data.message, idRequest: data.message}); //redirect user home
+                    }
                 }).error(function (data) {
                     if(data.message === "You must change your password") {
                         var userObject = {
@@ -259,12 +261,53 @@ angular.module('vignemale')
                     method: 'GET',
                     url: '/users/'+id+'/following'
                 }).success(function (data) {
-                    callbackSuccess(data[0].following);  //en data tiene q ir [following]
+                    callbackSuccess(data);  //en data tiene q ir [following]
                 }).error(function (data) {
                     console.log("error");
                 });
             },
-            
+
+            getUserFavs: function (idUser, callbackSuccess, callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/users/'+ idUser + '/favs'
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
+            addFav:  function (idUser, idPoi, callbackSuccess, callbackError) {
+                $http({
+                    method: 'POST',
+                    url: '/users/'+ idUser + '/favs',
+                    data: $httpParamSerializer(idPoi),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
+            deleteFav:  function (idUser, idPoi, callbackSuccess, callbackError) {
+                $http({
+                    method: 'DELETE',
+                    url: '/users/'+ idUser + '/favs',
+                    data: $httpParamSerializer(idPoi),
+                    headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
             followUser: function (idsUsers, callbackSuccess) {
                 $http({
                     method: 'POST',
@@ -285,6 +328,33 @@ angular.module('vignemale')
                     method: 'POST',
                     url: '/unfollowUser/',
                     data: $httpParamSerializer(idsUsers),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
+            search: function (words, callbackSuccess, callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/search/users/'+words
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
+            sendMail: function (userObject, callbackSuccess, callbackError) {
+                $http({
+                    method: 'POST',
+                    url: '/sendMail/' + userObject.email,
+                    data: $httpParamSerializer(userObject.email),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'Authorization': auth.getToken()
@@ -357,6 +427,7 @@ angular.module('vignemale')
                     callbackError(data);
                 });
             },
+
             short: function (id, callbackSuccess, callbackError) {
                 $http({
                     method: 'GET',
@@ -367,6 +438,7 @@ angular.module('vignemale')
                     callbackError(data);
                 });
             },
+
             search: function (words, callbackSuccess, callbackError) {
                 $http({
                     method: 'GET',
@@ -377,6 +449,7 @@ angular.module('vignemale')
                     callbackError(data);
                 });
             }
+
         };
     })
     .factory('routes', function ($state, $http, $httpParamSerializer, auth) {
@@ -407,6 +480,23 @@ angular.module('vignemale')
             }
         };
     })
+    
+    .factory('adminList', function ($state, $http, $httpParamSerializer) {
+        
+        return {
+            
+            listUsers: function (callbackSuccess, callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/admin/usersList'
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError('ERROR');
+                });
+            }
+        }
+        })
 
     .factory('recommendations', function ($state, $http, $httpParamSerializer, auth) {
         return {
@@ -450,11 +540,8 @@ angular.module('vignemale')
         }
 
 
-        this.addEventListener = function(poi) {
-            google.maps.event.addListener(map, "click", function(event) {
-                poi.lat = event.latLng.lat();
-                poi.lng = event.latLng.lng();
-            });
+        this.getMap = function() {
+            return map;
         }
 
 
@@ -477,6 +564,7 @@ angular.module('vignemale')
         }
 
         this.createRoute = function(waypts){
+            directionsDisplay.setMap(map);
             directionsService.route({
                 origin: waypts[0].location,
                 destination: waypts[waypts.length-1].location,
@@ -495,10 +583,6 @@ angular.module('vignemale')
         this.hideRoute = function(){
             directionsDisplay.setMap(null);
         }
-
-        this.showRoute = function(){
-            directionsDisplay.setMap(map);
-        }
     })
 
 
@@ -506,7 +590,6 @@ angular.module('vignemale')
     .factory('vignemale', function ($state, $http) {
 
         return {
-
 
             //send the register info to the server
             starter: function (url, callbackSuccess,callbackError) {

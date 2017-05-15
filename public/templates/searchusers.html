@@ -1,0 +1,19 @@
+<div class="container" id="firstContentPanel">
+
+    <form class="form-inline" role="form" ng-submit="searchUsers()">
+        <input type="text" ng-model="userSearch"
+               class="form-control" placeholder="Search" required />
+        <button type="submit" class="btn btn-default theme-accent"><span class="glyphicon glyphicon-search"></span>  Search</button>
+    </form>
+
+
+    <!--Show results users in a list -->
+    <div ng-if="found">
+        <h2> Results</h2>
+        <p ng-if="foundUsers.length==0"> There are no users</p>
+        <ul class="list-group pre-scrollable" >
+            <a type="button" class="list-group-item" ng-repeat="row in foundUsers" href="/#/users/{{row._id}}" >{{row.name}} {{row.lastName}}</a>
+        </ul>
+    </div>
+
+</div>

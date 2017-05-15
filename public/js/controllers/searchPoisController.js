@@ -1,12 +1,23 @@
 angular.module('vignemale')
 
-    .controller('searchPoisCtrl', ['$scope', '$state', 'auth', 'pois', function ($scope, $state, auth, pois) {
+    .controller('searchPoisCtrl', ['$scope', '$state', 'auth', 'pois', 'users','recommendations','maps', function ($scope, $state, auth, pois, users,recommendations, maps) {
 
         // variables
         $scope.search = false;
         $scope.poiSearch = "";
         $scope.foundPois = "";
         $scope.idPoi = "";
+        $scope.newPoi = {
+            name: "",
+            description: "",
+            keywords: "",
+            lat: "",
+            lng: "",
+            shortURL: "",
+            images: "",
+            valoration: "",
+            creator: ""
+        };
         var markers = [];
 
         // FEEDBACK MESSAGES
@@ -19,6 +30,7 @@ angular.module('vignemale')
 
         $scope.found = false;
         $scope.onePoiSelected = false;
+        $scope.sharePoi = false;
 
         // hide the error mensage
         $scope.hideError = function () {
@@ -27,6 +39,7 @@ angular.module('vignemale')
         };
         // show the error mensage
         var showError = function (error) {
+            console.log(error);
             $scope.errorMsg = error.message;
             $scope.error = true;
         };
@@ -45,7 +58,7 @@ angular.module('vignemale')
 
         $scope.hidePois = function () {
             $scope.pois = false;
-            deleteMarkers();
+            maps.deleteMarkers();
         };
 
         $scope.searchPois = function () {
@@ -53,12 +66,12 @@ angular.module('vignemale')
                 //console.log(data);
                 $scope.found = true;
                 $scope.onePoiSelected = false;
-                deleteMarkers();
+                maps.deleteMarkers();
                 $scope.foundPois = data;
 
                 //create markers from pois list
                 for (i = 0; i < $scope.foundPois.length; i++) {
-                    addMarker({lat:data[i].lat,lng:data[i].lng},data.name);
+                    maps.addMarker({lat:data[i].lat,lng:data[i].lng},data.name);
                 }
             }, showError)
         };
@@ -66,48 +79,61 @@ angular.module('vignemale')
         $scope.showPoi = function (lat, lng, name, id) {
             $scope.found = false;
             $scope.hidePois();
-            addMarker({lat:lat, lng:lng}, name);
+            maps.addMarker({lat:lat, lng:lng}, name);
             $scope.onePoiSelected = true;
             $scope.idPoi = id;
             pois.getPoi(id, function (data) {
                 $scope.newPoi = data;
-                $scope.newPoi.shortURL = data.shortURL;
             }, showError);
         };
 
-        initMap();
-
-
- // google maps functions
-        var myLatlng = new google.maps.LatLng(41.64514, -0.8689481);
-        var mapOptions = {
-            zoom: 13,
-            center: myLatlng
+        //add poi selected to fav to this user
+        $scope.addFav = function () {
+            auth.getIdFromToken(auth.getToken(), function (idUser) {
+                var idPoi = {
+                    "idPoi": $scope.idPoi
+                };
+                users.addFav(idUser.message, idPoi, showSuccess, showError);
+            })
         };
 
-        var map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
 
-        function initMap(){
-            directionsService = new google.maps.DirectionsService;
-            directionsDisplay = new google.maps.DirectionsRenderer({map: map});
-        }
+        $scope.duplicatePoi = function () {
 
-        // Adds a marker to the map and push to the array.
-        function addMarker(location, name) {
-            var marker = new google.maps.Marker({
-                position: location,
-                map: map,
-                tittle: name
-            });
-            markers.push(marker);
-        }
+            auth.getIdFromToken(auth.getToken(), function (idUser) {
+                $scope.newPoi.creator = idUser.message;
+                pois.createPoi($scope.newPoi, showSuccess, showError);
+            })
+        };
 
-        // Deletes all markers in the array by removing references to them.
-        function deleteMarkers() {
-            for (var i = 0; i < markers.length; i++) {
-                markers[i].setMap(null);
-            }
-            markers = [];
-        }
+
+        $scope.showShare = function () {
+            $scope.sharePoi=true;
+            $scope.found = false;
+            $scope.onePoiSelected = false;
+        };
+
+        $scope.share = function () {
+            $scope.recommendation.isPoi = true;
+            $scope.recommendation.idPoiRoute = $scope.idPoi;
+
+            var id;
+
+            auth.getIdFromToken(auth.getToken(), function (idUser) {
+                users.getUser(idUser.message,function(data){
+                    $scope.recommendation.userNameOrigin = data.message[0].name;
+                    $scope.recommendation.userLastNameOrigin = data.message[0].lastName;
+                    recommendations.share($scope.recommendation,function(data){
+                        $scope.onePoiSelected = true;
+                        $scope.sharePoi = false;
+                        showSuccess(data);
+                    },showError);
+                },showError);
+            })
+        };
+
+
+        maps.initMap();
+
 
     }]);

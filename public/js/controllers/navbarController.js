@@ -1,8 +1,10 @@
 angular.module('vignemale')
 
-    .controller('navbarCtrl', ['$scope', '$state', 'auth', function ($scope, $state, auth) {
+    .controller('navbarCtrl', ['$scope', '$state', 'auth', 'users', function ($scope, $state, auth, users) {
 
         $scope.idUser = "";
+
+        $scope.isAdmin = false;
 
         $scope.logged = function () {
             return auth.isAuthenticated();
@@ -17,5 +19,25 @@ angular.module('vignemale')
             auth.getIdFromToken(auth.getToken(),function(id) {
                 $state.go('users', {id: id.message});
             });
-        }
+        };
+
+        $scope.verifyIsAdmin = function () {
+            if($scope.logged()) {
+                auth.getIdFromToken(auth.getToken(), function (id) {
+                    users.getUser(id.message, function (data) {
+                        if (data.message[0].isAdmin) {
+                            $scope.isAdmin = true;
+                        }
+                    }, function (data) {
+                        $scope.isAdmin = false;
+                    })
+                })
+            }
+            else {
+                $scope.isAdmin = false;
+            }
+        };
+
+         $scope.verifyIsAdmin();
+
     }]);

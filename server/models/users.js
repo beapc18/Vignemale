@@ -153,6 +153,72 @@ var removeFollowing = function (mongo, idUser, idUnfollow, callback) {
     })
 };
 
+var getFavs = function (mongo, idUser, callback) {
+    mongo.users.find({_id: idUser}, {favs: 1, _id: 0}, function (err, data) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "message": "Error finding favs"};
+        } else {
+            response = {"status": 200, "res": {"message": data}};
+        }
+        callback(response);
+    })
+};
+
+var addFav = function (mongo, idUser, idPoi, callback) {
+    mongo.users.update({_id: idUser}, {$addToSet: {favs: idPoi}}, function (err, user) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error adding fav to user"}};
+        }
+        else {
+            response = {"status": 200, "res": {"message": "Fav adding succesfully"}};
+        }
+        callback(response);
+    })
+};
+
+
+var deleteFav = function (mongo, idUser, idPoi, callback) {
+    mongo.users.update({_id: idUser}, {$pull: {favs: idPoi}}, function (err, user) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error deleting fav to user"}};
+        }
+        else {
+            response = {"status": 200, "res": {"message": "Fav deleting succesfully"}};
+        }
+        callback(response);
+    })
+};
+
+var getNameUser = function (mongo, idUser, callback) {
+    mongo.users.find({_id: idUser}, {name: 1, _id: 0}, function (err, data) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error getting name"}};
+        }
+        else {
+            response = {"status": 200, "res": {"message": data}};
+        }
+        callback(response.res);
+    });
+};
+
+var getNamePOI = function (mongo, idPOI, callback) {
+    mongo.pois.find({_id: idPOI}, {name: 1, _id: 0}, function (err, data) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error getting name"}};
+        }
+        else {
+            response = {"status": 200, "res": {"message": data}};
+        }
+        callback(response.res);
+    });
+};
+
+
 module.exports = {
     getInfoUser: getInfoUser,
     findUserByPassword: findUserByPassword,
@@ -162,5 +228,10 @@ module.exports = {
     getInfoUserByEmail: getInfoUserByEmail,
     createAdmin: createAdmin,
     addFollowing: addFollowing,
-    removeFollowing: removeFollowing
+    removeFollowing: removeFollowing,
+    getFavs: getFavs,
+    addFav: addFav,
+    deleteFav: deleteFav,
+    getNameUser: getNameUser,
+    getNamePOI: getNamePOI
 };

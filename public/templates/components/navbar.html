@@ -14,8 +14,10 @@
                 <a ng-if="!logged()" class="navbar-brand" href="#"><span class="glyphicon glyphicon-map-marker"></span>   POIManager</a>
                 <a ng-if="logged()" class="navbar-brand" role="button" ng-click="getIdFromToken()">
                     <span class="glyphicon glyphicon-home"></span>   Home</a>
+                <a ng-if="isAdmin" class="navbar-brand" role="button" href="#">
+                    <span class="glyphicon glyphicon-signal"></span>   Statistics</a>
                 <li class="dropdown">
-                    <a role="button" data-toggle="dropdown" class="dropdown-toggle"><span class="glyphicon glyphicon-search"></span>  Search <span class="caret"></span></a>
+                    <a ng-if="!isAdmin" role="button" data-toggle="dropdown" class="dropdown-toggle"><span class="glyphicon glyphicon-search"></span>  Search <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="#/search/users">Users</a></li>
                         <li><a href="#/search/pois">Pois</a></li>

@@ -103,10 +103,6 @@ var appRouter = function(router, mongo, app, config, database) {
                     var tokenId = Math.random().toString(36).slice(-10);
                     var payload = {id: data[0]._id, tokenId: tokenId};
                     var token = jwt.sign(payload, jwtOptions.secretOrKey);
-                    //next(null, false); //(null, {id: user.id})
-                    /*var token = jwt.sign(data[0], app.get('secret'), {
-                     expiresIn: 1440 // expires in 24 hours
-                     });*/
                     console.log("Creado tokenId de usuario " + tokenId);
 
                     //update last access when user access and jwt
@@ -115,11 +111,16 @@ var appRouter = function(router, mongo, app, config, database) {
                             response = {"message": "Error adding data"};
                             res.status(500).json(response);
                         } else {
-                            response = {"message": data[0]._id};   //send user id or link to profile??
+                            if(email === "vignemaleSTW@gmail.com") { //es admin ->indicarlo
+                                response = {"message": "admin"};
+                            }
+                            else {
+                                response = {"message": data[0]._id};
+                            }
                             res.setHeader("Authorization", token);
                             res.status(200).json(response);
                         }
-                        console.log("Respuesta enviada:" + response);
+                        //console.log("Respuesta enviada:" + response);
                     });
                 }
             });
@@ -468,32 +469,32 @@ var appRouter = function(router, mongo, app, config, database) {
         console.log("get user");
 
         //if (verifyIds(req.params.id, req.headers.authorization)) {
-            database.getInfoUser(mongo, req.params.id, function (response) {
-                res.status(response.status).json(response.res);
-            });
+        database.getInfoUser(mongo, req.params.id, function (response) {
+            res.status(response.status).json(response.res);
+        });
         /*} else {
-            res.status(403).json({"message": "Access blocked"});
-        }*/
+         res.status(403).json({"message": "Access blocked"});
+         }*/
     });
 
     //change removed attribute for removing user
     router.delete("/users/:id", passport.authenticate('jwt', {session: false}), function (req, res) {
-        console.log("delete user");
-
-        if (verifyIds(req.params.id, req.headers.authorization)) {
-            //search the user avoiding return params which are not necessary
-            mongo.users.update({_id: req.params.id}, {removed: true}, function (err, user) {
-                if (err) {
-                    response = {"message": "Error deleting user"};
-                    res.status(500).json(response);
-                } else {
-                    response = {"message": "User deleted succesfully"};
-                    res.status(200).json(response);
-                }
-            });
-        } else {
-            res.status(403).json({"message": "Access blocked"});
-        }
+        //Cuando quiere borrar el administrador, no es igual su id que el que quiere borrar!
+        //if (verifyIds(req.params.id, req.headers.authorization)) {
+        console.log("delete user " + req.params.id);
+        //search the user avoiding return params which are not necessary
+        mongo.users.update({_id: req.params.id}, {removed: true}, function (err, user) {
+            if (err) {
+                response = {"message": "Error deleting user"};
+                res.status(500).json(response);
+            } else {
+                response = {"message": "User deleted succesfully"};
+                res.status(200).json(response);
+            }
+        });
+        /*} else {
+         res.status(403).json({"message": "Access blocked"});
+         }*/
     });
 
     //change password checking old password
@@ -530,6 +531,35 @@ var appRouter = function(router, mongo, app, config, database) {
         } else {
             res.status(403).json({"message": "Access blocked"});
         }
+    });
+
+    //get fav pois from user
+    router.get("/users/:id/favs", function (req, res) {
+        console.log("GET favs from user " + req.params.id);
+        database.getFavs(mongo, req.params.id, function (response) {
+            var favsNames = [];
+            bucleForPOIs(response.res.message[0].favs, 0, favsNames, function (arrayIds,arrayNames) {
+                response = {"status": 200, "message": {"favsNames" : arrayNames, "favsIds" : arrayIds}}; //devolver solo la lista de seguidores
+                res.status(response.status).json(response.message);
+
+            });
+        });
+    });
+
+    //add poi to fav to a user
+    router.post("/users/:id/favs", function (req, res) {
+        console.log("POST "+req.body.idPoi+ " poi to "+ req.params.id +" user");
+        database.addFav(mongo, req.params.id, req.body.idPoi, function (response) {
+            res.status(response.status).json(response.res);
+        });
+    });
+
+    //add poi to fav to a user
+    router.delete("/users/:id/favs", function (req, res) {
+        console.log("DELETE "+req.body.idPoi+ " poi to "+ req.params.id +" user");
+        database.deleteFav(mongo, req.params.id, req.body.idPoi, function (response) {
+            res.status(response.status).json(response.res);
+        });
     });
 
     //Follow user, updating field "following"
@@ -583,6 +613,9 @@ var appRouter = function(router, mongo, app, config, database) {
             console.log("POST pois");
             var db = new mongo.pois;
             var response = {};
+
+
+            console.log(req.body);
 
             db.name = req.body.name;
             db.description = req.body.description;
@@ -757,7 +790,39 @@ var appRouter = function(router, mongo, app, config, database) {
             res.status(response.status).json(response.message);
         });
     });
-    
+
+    var bucleForPOIs = function (arrayIds, i, arrayNames, callback) {
+        if(i<arrayIds.length) {
+            database.getNamePOI(mongo, arrayIds[i], function (response) {
+                var index = arrayIds.indexOf(arrayIds[0]);
+                console.log(index);
+                if (index !== -1) {
+                    arrayNames[i] = response.message[0].name;
+                }
+                i++;
+                bucleForPOIs(arrayIds, i, arrayNames, callback);
+            });
+        }
+        else {
+            callback(arrayIds, arrayNames);
+        }
+    };
+
+    var bucleForUser = function (arrayIds, i, arrayNames, callback) {
+        if(i<arrayIds.length) {
+            database.getNameUser(mongo, arrayIds[i], function (response) {
+                var index = arrayIds.indexOf(arrayIds[0]);
+                if (index !== -1) {
+                    arrayNames[i] = response.message[0].name;
+                }
+                i++;
+                bucleForUser(arrayIds, i, arrayNames, callback);
+            });
+        }
+        else {
+            callback(arrayIds, arrayNames);
+        }
+    };
     //get user follows
     router.get("/users/:id/following", function (req, res) {
         var userId = req.params.id;
@@ -767,14 +832,18 @@ var appRouter = function(router, mongo, app, config, database) {
                 console.log("Error getting follows");
                 response = {"status": 500, "message": "Error getting follows"};
             } else {
-                console.log("follows del usuario " + data);
-                //while(u.hasNext()){print(u.Next().text);}
-                response = {"status": 200, "message": data}; //devolver solo la lista de seguidores
+                var followingNames = [];
+                bucleForUser(data[0].following, 0, followingNames, function (arrayIds,arrayNames) {
+                    response = {"status": 200, "message": {"followingNames" : arrayNames, "followingIds" : arrayIds}}; //devolver solo la lista de seguidores
+                    res.status(response.status).json(response.message);
+                });
+
+                /*console.log("follows del usuario " + data);
+                 response = {"status": 200, "message": data}; //devolver solo la lista de seguidores*/
             }
-            res.status(response.status).json(response.message);
-            
+
         })
-        
+
     });
 
 
@@ -824,7 +893,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 } else {
                     response = {"status": 200, "message": "Route created successfully"};
                 }
-                res.status(response.status).json(response.message);
+                res.status(response.status).json(response);
             });
         });
 
@@ -904,6 +973,61 @@ var appRouter = function(router, mongo, app, config, database) {
             res.status(response.status).json(response.message);
 
         });
+    router.route("/search/users/:words")
+        .get(function (req, res) {
+            console.log("GET /search/users/" + req.params.words);
+            var response = {};
+            //find similar results using an index
+            mongo.users.find({$text: { $search: req.params.words}}, function (err, data) {
+                if (err) {
+                    response = {"status": 500, "message": "Error fetching users"};
+                } else {
+                    response = {"status": 200, "message": data};
+                }
+                res.status(response.status).json(response.message);
+            });
+        });
+
+
+    router.get("/admin/usersList", function (req, res) {
+        console.log("Management list...");
+
+        mongo.users.find({ $and: [{email: {$ne: "vignemaleSTW@gmail.com"}}, {removed: {$ne: "true"}}]}, function (err, data) {
+            if (err) {
+                response = {"status": 500, "message": "Error returning all users"};
+            } else {
+                response = {"status": 200, "message": data};
+            }
+
+            res.status(response.status).json(response.message);
+        })
+
+    });
+
+    router.post("/sendMail/:email", function (req, res) {
+        console.log("Sending mail from admin to " + req.params.email);
+        var text = "This is a warning from the Admin";
+        var email = req.params.email;
+
+        var mailOptions = {
+            from: 'vignemaleSTW@gmail.com', // sender address
+            to: email, // list of receivers
+            subject: 'Warning!', // Subject line
+            text: text //, // plaintext body
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+                response = {"status": 500, "message":"Error sending mail"}
+            }
+            else {
+                console.log(info);
+                response = {"status": 200, "message":"Email sent"}
+            }
+            res.status(response.status).json(response.message);
+        });
+    })
 
 };
 

@@ -25,6 +25,7 @@
                     <button ng-if="!itsme && itsfollowed" ng-click="unfollowFun()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-remove"></span>  Unfollow </button>
 
+
                 </div>
             </div>
 
@@ -63,7 +64,7 @@
                 <div ng-if="show=='pois'">
                     <p ng-if="poisList.length==0"> There are no pois</p>
                     <ul class="list-group pre-scrollable" >
-                        <button type="button" class="list-group-item" ng-repeat="row in poisList" ng-click="showPoi(row.lat,row.lng,row.name,row._id)">{{row.name}}</button>
+                        <button type="button" class="list-group-item" ng-repeat="row in poisList" ng-click="showPoi(row._id)">{{row.name}}</button>
                     </ul>
                     <button ng-if="itsme" type="button" class="btn btn-default theme-accent" ng-click="showCreatepoi()">Create POI</button>
                 </div>
@@ -75,21 +76,21 @@
                     <p>Keywords: {{newPoi.keywords}}</p>
                     <p>Latitude: {{newPoi.lat}}</p>
                     <p>Longitude: {{newPoi.lng}}</p>
-                    <!--<p>{{newPoi.images}}</p>-->
                     <p>URL: <a ng-href="{{newPoi.shortURL}}">{{newPoi.shortURL}}</a></p>
                     <p>Image:</p>
                     <img ng-src="{{newPoi.image}}" class="img-responsive">
                     <p>Valoration: {{newPoi.valoration}}</p>
-                    <div class="btn-group" role="group" aria-label="...">
-                        <button ng-click="showEditPoi()" class="btn btn-default theme-accent">
-                            <span class="glyphicon glyphicon-edit"></span>  Edit</button>
-                        <button ng-click="removePoi()" class="btn btn-default btn-danger">
-                            <span class="glyphicon glyphicon-trash"></span>  Remove</button>
-                        <button ng-click="duplicatePoi()" class="btn btn-default btn-primary">
-                            <span class="glyphicon glyphicon-duplicate"></span>  Duplicate</button>
-                        <button ng-click="showShare()" class="btn btn-default btn-success">
-                            <span class="glyphicon glyphicon-envelope"></span>  Share</button>
-                    </div>
+                    <button ng-if="itsme" ng-click="showEditPoi()" class="btn btn-default theme-accent">
+                        <span class="glyphicon glyphicon-edit"></span>  Edit</button>
+                    <button ng-if="itsme" ng-click="removePoi()" class="btn btn-default btn-danger">
+                        <span class="glyphicon glyphicon-trash"></span>  Remove</button>
+                    <button ng-click="duplicatePoi()" class="btn btn-default btn-primary">
+                        <span class="glyphicon glyphicon-duplicate"></span>  Duplicate</button>
+                    <button ng-click="addFav()" class="btn btn-default theme-accent">
+                        <span class="glyphicon glyphicon-heart"></span>  Add to fav</button>
+                    <button ng-click="showShare()" class="btn btn-default btn-success">
+                        <span class="glyphicon glyphicon-envelope"></span>  Share</button>
+
                 </div>
 
                 <!--FORM CREATE OR EDIT POI-->
@@ -116,8 +117,8 @@
                         <input type="radio" ng-model="$parent.newPoi.valoration" id="star1" name="v1" value="1"/><label class="full" for="star1" title="1"></label>
                         <input type="radio" ng-model="$parent.newPoi.valoration" id="starhalf" name="v1" value="half"/><label class="half" for="starhalf" title="0.5"></label>
                     </fieldset>
-                    <button type="submit" ng-if="createpoi" ng-click="createpoiFun()"  class="btn btn-default theme-accent">Create POI</button>
-                    <button type="submit" ng-if="editpoi" ng-click="editPoiFun()"  class="btn btn-default theme-accent">Edit POI</button>
+                    <button type="submit" ng-if="show=='createPoi'" ng-click="createpoiFun()"  class="btn btn-default theme-accent">Create POI</button>
+                    <button type="submit" ng-if="show=='editPoi'" ng-click="editPoiFun()"  class="btn btn-default theme-accent">Edit POI</button>
                 </form>
 
                 <!--Show ALL routes or message if there aren't routes-->
@@ -126,8 +127,7 @@
                     <ul class="list-group pre-scrollable" >
                         <button type="button" class="list-group-item" ng-repeat="row in routesList" ng-click="showRoute(row)">{{row.name}}</button>
                     </ul>
-
-                    <button type="button" class="btn btn-default theme-accent" ng-click="showCreateRoute()">Create Route</button>
+                    <button ng-if="itsme" type="button" class="btn btn-default theme-accent" ng-click="showCreateRoute()">Create Route</button>
                     <button ng-if="show=='routeSelected'" ng-click="showShare()" class="btn btn-default btn-success">
                         <span class="glyphicon glyphicon-envelope"></span>  Share</button>
                 </div>
@@ -151,15 +151,19 @@
 
                 <!--Show ALL follows or message if there aren't follows-->
                 <div ng-if="show=='follows'">
-                    <p ng-if="followingList.length==0"> You are following anyone</p>
+                    <p ng-if="followingList.followingNames.length==0"> You are not following anyone</p>
                     <ul class="list-group pre-scrollable">
-                        <a type="button" class="list-group-item" ng-repeat="row in followingList" ng-href="#/users/{{row}}">{{row}}</a>
+                        <a type="button" class="list-group-item" ng-repeat="row in followingList.followingNames" ng-href="#/users/{{followingList.followingIds[$index]}}">{{row}}</a>
                     </ul>
                 </div>
 
                 <!--Show ALL favs or message if there aren't favs-->
                 <div ng-if="show=='favs'">
-                    mostrando favs
+                    <p ng-if="favsList.favsNames.length==0"> There are no favs</p>
+                    <ul class="list-group pre-scrollable" >
+                        <button type="button" class="list-group-item" ng-repeat="row in favsList.favsNames"
+                                ng-click="showPoi(favsList.favsIds[$index])">{{row}}</button>
+                    </ul>
                 </div>
             </div>
 
@@ -190,8 +194,6 @@
             </form>
 
 
-
-            <!--FORM CREATE OR EDIT POI-->
             <form name="form" ng-if="show=='share'">
                 <input type="text" ng-model="$parent.recommendation.email" class="form-control form-group" placeholder="Email" required/>
 

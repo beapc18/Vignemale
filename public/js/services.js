@@ -465,6 +465,20 @@ angular.module('vignemale')
                 });
             },
 
+            isFav: function (idPoi, callbackSuccess, callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/pois/' + idPoi + '/isfav',
+                    headers: {
+                        'Authorization': auth.getToken()
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
             short: function (id, callbackSuccess, callbackError) {
                 $http({
                     method: 'GET',

@@ -66,6 +66,7 @@ angular.module('vignemale')
 
             $scope.itsme = false;
             $scope.itsfollowed = false;
+            $scope.isfav = false;
 
             $scope.show = "pois";
             $scope.itslogged = false;
@@ -137,6 +138,13 @@ angular.module('vignemale')
                 pois.getPoi(id, function (data) {
                     $scope.newPoi = data;
                     $scope.newPoi.shortURL = data.shortURL;
+
+                    //search if this poi is in favs list
+                    if ($scope.itslogged){
+                        pois.isFav(id, function (fav) {
+                            $scope.isfav = fav;
+                        }, showError);
+                    }
 
                     $scope.hidePois();
                     maps.addMarker({lat:data.lat, lng:data.lng}, data.name);
@@ -457,7 +465,23 @@ angular.module('vignemale')
                     var idPoi = {
                         "idPoi": $scope.idPoi
                     };
-                    users.addFav(idUser.message, idPoi, showSuccess, showError);
+                    users.addFav(idUser.message, idPoi, function (data) {
+                        $scope.isfav = true;
+                        showSuccess(data);
+                    },showError);
+                })
+            };
+
+            //remove fav poi selected to this user
+            $scope.removeFav = function () {
+                auth.getIdFromToken(auth.getToken(), function (idUser) {
+                    var idPoi = {
+                        "idPoi": $scope.idPoi
+                    };
+                    users.deleteFav(idUser.message, idPoi, function (data) {
+                        $scope.isfav = false;
+                        showSuccess(data);
+                    }, showError);
                 })
             };
 

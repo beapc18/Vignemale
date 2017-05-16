@@ -818,6 +818,22 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
+    //search if this poi is my fav list to this user
+    router.get("/pois/:id/isfav", passport.authenticate('jwt', {session: false}), function (req, res) {
+        var idPoi = req.params.id;
+        var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
+        console.log("GET if poi "+idPoi+" is fav from user " + idUser);
+        mongo.users.find({_id: idUser, favs: idPoi}, function (err, data) {
+            if (err) {
+                console.log("Error getting isfav");
+                response = {"status": 500, "message": "Error getting isfav"};
+            } else {
+                response = {"status": 200, "message": (data.length!==0)};
+            }
+            res.status(response.status).json(response.message);
+        })
+    });
+
 
     //get user routes
     router.get("/users/:id/routes", function (req, res) {
@@ -838,7 +854,6 @@ var appRouter = function(router, mongo, app, config, database) {
         if(i<arrayIds.length) {
             database.getNamePOI(mongo, arrayIds[i], function (response) {
                 var index = arrayIds.indexOf(arrayIds[0]);
-                console.log(index);
                 if (index !== -1) {
                     arrayNames[i] = response.message[0].name;
                 }

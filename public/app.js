@@ -80,7 +80,13 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 url: '/user/{idUser}/statistics/{id}',
                 templateUrl: "templates/userStatistics.html",
                 controller: "userStatisticsCtrl"
+            })
+
+            .state('unauthorized', {
+                url: '/unauthorized',
+                templateUrl: "templates/unauthorized.html"
             });
+
 
         //llevar mejor a una pagina de error si la url no existe
         $urlRouterProvider.otherwise('starter');

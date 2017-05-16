@@ -820,6 +820,22 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
+    //search if this poi is my fav list to this user
+    router.get("/pois/:id/isfav", passport.authenticate('jwt', {session: false}), function (req, res) {
+        var idPoi = req.params.id;
+        var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
+        console.log("GET if poi "+idPoi+" is fav from user " + idUser);
+        mongo.users.find({_id: idUser, favs: idPoi}, function (err, data) {
+            if (err) {
+                console.log("Error getting isfav");
+                response = {"status": 500, "message": "Error getting isfav"};
+            } else {
+                response = {"status": 200, "message": (data.length!==0)};
+            }
+            res.status(response.status).json(response.message);
+        })
+    });
+
 
     //get user routes
     router.get("/users/:id/routes", function (req, res) {
@@ -840,7 +856,6 @@ var appRouter = function(router, mongo, app, config, database) {
         if(i<arrayIds.length) {
             database.getNamePOI(mongo, arrayIds[i], function (response) {
                 var index = arrayIds.indexOf(arrayIds[0]);
-                console.log(index);
                 if (index !== -1) {
                     arrayNames[i] = response.message[0].name;
                 }
@@ -901,6 +916,7 @@ var appRouter = function(router, mongo, app, config, database) {
             if (err) {
                 console.log("Error getting follows");
                 response = {"status": 500, "message": "Error getting follows"};
+                res.status(response.status).json(response.message);
             } else {
                 var followingNames = [];
                 bucleForUserNames(data[0].following, 0, followingNames, function (arrayIds,arrayNames) {
@@ -908,13 +924,24 @@ var appRouter = function(router, mongo, app, config, database) {
                         , "followingIds" : arrayIds}}; //devolver solo la lista de seguidores
                     res.status(response.status).json(response.message);
                 });
-
-                /*console.log("follows del usuario " + data);
-                 response = {"status": 200, "message": data}; //devolver solo la lista de seguidores*/
             }
-
         })
+    });
 
+    //return true if the user is followed, false in other case
+    router.get("/users/:id/isfollowed", passport.authenticate('jwt', {session: false}), function (req, res) {
+        var idUserFollowed = req.params.id;
+        var idUserFollowing = jwt.decode(req.headers.authorization.split(" ")[1]).id;
+        console.log("Get user "+idUserFollowed+" is followed by"+ idUserFollowing);
+        mongo.users.find({_id: idUserFollowing, following: idUserFollowed}, function (err, data) {
+            if (err) {
+                console.log("Error getting isfollow");
+                response = {"status": 500, "message": "Error getting follows"};
+            } else {
+                response = {"status": 200, "message": (data.length!==0)};
+            }
+            res.status(response.status).json(response.message);
+        })
     });
 
 
@@ -982,6 +1009,19 @@ var appRouter = function(router, mongo, app, config, database) {
                 res.status(response.status).json(response.message);
             });
         });
+
+    router.route("/routes/:id").delete(passport.authenticate('jwt', {session: false}), function (req, res) {
+        console.log("DELETE routes/" + req.params.id);
+        var response = {};
+        mongo.routes.remove({_id: req.params.id}, function (err, data) {
+            if (err) {
+                response = {"status": 500, "message": "Error fetching data"};
+            } else {
+                response = {"status": 200, "message": "Route removed succesfully"};
+            }
+            res.status(response.status).json(response);
+        });
+    });
 
     router.get("/short/:id", function (req, res) {
 

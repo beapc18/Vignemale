@@ -66,6 +66,7 @@ angular.module('vignemale')
 
             $scope.itsme = false;
             $scope.itsfollowed = false;
+            $scope.isfav = false;
 
             $scope.show = "pois";
             $scope.itslogged = false;
@@ -78,8 +79,9 @@ angular.module('vignemale')
             $scope.latitude = "";
             $scope.longitude = "";
 
-            $scope.logged = function () {
+            $scope.logged = function (callback) {
                 $scope.itslogged = auth.isAuthenticated();
+                callback();
             };
 
             var showFollowingList = function (data) {
@@ -94,22 +96,6 @@ angular.module('vignemale')
 
             };
 
-            /*// acceder al home de otro, NO CAMBIA EN LA URL
-             $scope.showOneFollow = function (id) {
-             $scope.idUser = id;
-             users.getUser($scope.idUser, function (data) {
-             //save info about user
-             //maps.initMap();
-             users.getUserPois($scope.idUser, showPoisList);
-             $scope.user = {
-             lastName: data.message[0].lastName,
-             name: data.message[0].name
-             };
-             $scope.itsMe();
-             $scope.itsFollowed($scope.idUser);
-             }, showError);
-             };
-             */
             // hide/show different layers
             var showPoisList = function (data) {
                 maps.deleteMarkers();
@@ -136,6 +122,13 @@ angular.module('vignemale')
                 pois.getPoi(id, function (data) {
                     $scope.newPoi = data;
                     $scope.newPoi.shortURL = data.shortURL;
+
+                    //search if this poi is in favs list
+                    if ($scope.itslogged){
+                        pois.isFav(id, function (fav) {
+                            $scope.isfav = fav;
+                        }, showError);
+                    }
 
                     $scope.hidePois();
                     maps.addMarker({lat:data.lat, lng:data.lng}, data.name);
@@ -309,17 +302,24 @@ angular.module('vignemale')
                         }, showError);
                     }
                 }
-
-
             };
 
-             //al borrar un poi,si se vuelve a Pois sigue saliendo su marker hasta que se clika en alguno del resto
             $scope.removePoi = function () {
                 var deletePoi = window.confirm('Are you sure?');
                 if(deletePoi) {
                     pois.deletePoi($scope.idPoi, function (msg) {
                         showSuccess(msg);
-                        $scope.show="pois";
+                        $scope.showPois();
+                    }, showError);
+                }
+            };
+
+            $scope.removeRoute = function () {
+                var deleteRoute = window.confirm('Are you sure?');
+                if(deleteRoute) {
+                    routes.deleteRoutes($scope.idRoute, function (msg) {
+                        showSuccess(msg);
+                        $scope.showRoutes();
                     }, showError);
                 }
             };
@@ -351,7 +351,7 @@ angular.module('vignemale')
 
                     routes.createRoute($scope.newRoute, function (data) {
                         showSuccess(data);
-                        $scope.show="routes";
+                        $scope.showRoutes();
                     }, showError);
                 }
             };
@@ -402,9 +402,16 @@ angular.module('vignemale')
                     lastName: data.message[0].lastName,
                     name: data.message[0].name
                 };
-                $scope.itsMe();
-                $scope.itsFollowed($scope.idUser);
-                $scope.logged();
+
+                $scope.logged(function () {
+                    if ($scope.itslogged){
+                        $scope.itsMe(function () {
+                            if (!$scope.itsme) {
+                                $scope.itsFollowed();
+                            }
+                        });
+                    }
+                });
             }, showError);
 
             //Reset info about poi for avoiding show wrong info
@@ -422,27 +429,18 @@ angular.module('vignemale')
                 };
             }
 
-            $scope.itsMe = function () {
+            $scope.itsMe = function (callback) {
                 auth.getIdFromToken(auth.getToken(),function (data) {
                     $scope.idRequest = data.message;
-                    if($scope.idUser === $scope.idRequest) {
-                        $scope.itsme = true;
-                    }
-                    else {
-                        $scope.itsme = false;
-                    }
+                    $scope.itsme = ($scope.idUser === $scope.idRequest);
+                    callback();
                 })
             };
 
-            $scope.itsFollowed  = function (id) {
-                if($scope.followingList.indexOf(id) !== -1) {
-                    //window.alert('id encontrado en array');
-                    $scope.itsfollowed = true;
-                }
-                else{
-                    //window.alert("No encontrado en array");
-                    $scope.itsfollowed = false;
-                }
+            $scope.itsFollowed  = function () {
+                users.isFollowed($scope.idUser, function (follow) {
+                    $scope.itsfollowed = follow;
+                }, showError);
             };
 
             $scope.followFun = function () {
@@ -461,7 +459,23 @@ angular.module('vignemale')
                     var idPoi = {
                         "idPoi": $scope.idPoi
                     };
-                    users.addFav(idUser.message, idPoi, showSuccess, showError);
+                    users.addFav(idUser.message, idPoi, function (data) {
+                        $scope.isfav = true;
+                        showSuccess(data);
+                    },showError);
+                })
+            };
+
+            //remove fav poi selected to this user
+            $scope.removeFav = function () {
+                auth.getIdFromToken(auth.getToken(), function (idUser) {
+                    var idPoi = {
+                        "idPoi": $scope.idPoi
+                    };
+                    users.deleteFav(idUser.message, idPoi, function (data) {
+                        $scope.isfav = false;
+                        showSuccess(data);
+                    }, showError);
                 })
             };
 

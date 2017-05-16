@@ -30,7 +30,11 @@ angular.module('vignemale')
             },
 
             getToken: function () {
-                return 'JWT '+localStorage.sessionJWT.replace(/"/g,'');
+                if (localStorage.sessionJWT) {
+                    return 'JWT '+localStorage.sessionJWT.replace(/"/g,'');
+                } else {
+                    $state.go('unauthorized');
+                }
             },
 
             //logout function
@@ -170,7 +174,8 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             },
 
@@ -184,7 +189,8 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             },
 
@@ -220,7 +226,8 @@ angular.module('vignemale')
                     $state.go('signIn', {email: userObject.email}, {password: userObject.password});
                     callbackSuccess(userObject);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             },
 
@@ -291,7 +298,8 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             },
 
@@ -307,11 +315,12 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             },
 
-            followUser: function (idFollow, callbackSuccess) {
+            followUser: function (idFollow, callbackSuccess, callbackError) {
                 $http({
                     method: 'POST',
                     url: '/users/' + idFollow + '/follow',
@@ -323,11 +332,12 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             },
 
-            unfollowUser: function (idUnfollow, callbackSuccess) {
+            unfollowUser: function (idUnfollow, callbackSuccess, callbackError) {
                 $http({
                     method: 'POST',
                     url: '/users/' + idUnfollow + '/unfollow',
@@ -339,7 +349,24 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
+                });
+            },
+
+            isFollowed: function (idFollowed, callbackSuccess, callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/users/' + idFollowed + '/isfollowed/',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             },
 
@@ -366,7 +393,8 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             },
 
@@ -396,7 +424,8 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             },
 
@@ -424,7 +453,8 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             },
             
@@ -439,7 +469,8 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             },
 
@@ -455,7 +486,23 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
+                });
+            },
+
+            isFav: function (idPoi, callbackSuccess, callbackError) {
+                $http({
+                    method: 'GET',
+                    url: '/pois/' + idPoi + '/isfav',
+                    headers: {
+                        'Authorization': auth.getToken()
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             },
 
@@ -507,9 +554,26 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
-            }
+            },
+
+            deleteRoutes: function (idRoute, callbackSuccess, callbackError) {
+                $http({
+                    method: 'DELETE',
+                    url: '/routes/'+idRoute,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
+                });
+            },
         };
     })
     
@@ -528,7 +592,8 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError('ERROR');
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
                 });
             }
         }

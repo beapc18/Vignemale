@@ -84,8 +84,10 @@
                         <span class="glyphicon glyphicon-trash"></span>  Remove</button>
                     <button ng-if="!itsme && itslogged" ng-click="duplicatePoi()" class="btn btn-default btn-primary">
                         <span class="glyphicon glyphicon-duplicate"></span>  Duplicate</button>
-                    <button ng-if="itslogged" ng-click="addFav()" class="btn btn-default theme-accent">
-                        <span class="glyphicon glyphicon-heart"></span>  Add to fav</button>
+                    <button ng-if="itslogged && !isfav" ng-click="addFav()" class="btn btn-default theme-accent">
+                        <span class="glyphicon glyphicon-heart"></span>  Add fav</button>
+                    <button ng-if="itslogged && isfav" ng-click="removeFav()" class="btn btn-default theme-accent">
+                        <span class="glyphicon glyphicon-heart"></span>  Remove fav</button>
                     <button ng-click="showShare()" class="btn btn-default btn-success">
                         <span class="glyphicon glyphicon-envelope"></span>  Share</button>
                     <button ng-if="!itsme && itslogged" ng-click="showRatePoi()" class="btn btn-default theme-accent">
@@ -147,9 +149,13 @@
                     <ul class="list-group pre-scrollable" >
                         <button type="button" class="list-group-item" ng-repeat="row in routesList" ng-click="showRoute(row)">{{row.name}}</button>
                     </ul>
-                    <button ng-if="itsme && itslogged" type="button" class="btn btn-default theme-accent" ng-click="showCreateRoute()">Create Route</button>
+
                     <button ng-if="show=='routeSelected'" ng-click="showShare()" class="btn btn-default btn-success">
                         <span class="glyphicon glyphicon-envelope"></span>  Share</button>
+                    <button ng-if="show=='routeSelected' && itsme && itslogged" ng-click="removeRoute()" class="btn btn-default theme-accent">
+                        <span class="glyphicon glyphicon-trash"></span>  Remove</button>
+
+                    <button ng-if="itsme && itslogged" type="button" class="btn btn-default theme-accent" ng-click="showCreateRoute()">Create Route</button>
                 </div>
 
 

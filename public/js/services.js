@@ -148,9 +148,9 @@ angular.module('vignemale')
                     /*params: {
                         idRequest
                     },*/
-                    headers: {
+                    /*headers: {
                         'Authorization': auth.getToken()
-                    }
+                    }*/
                 }).success(function (data) {
                     callbackSuccess(data);
                 }).error(function (data) {
@@ -208,7 +208,8 @@ angular.module('vignemale')
                     url: '/users/'+user.id+'/password',
                     data: $httpParamSerializer(user),
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
                     }
                 }).success(function (data) {
                     console.log("Services email " + data.email);
@@ -284,7 +285,8 @@ angular.module('vignemale')
                     url: '/users/'+ idUser + '/favs',
                     data: $httpParamSerializer(idPoi),
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
                     }
                 }).success(function (data) {
                     callbackSuccess(data);
@@ -299,7 +301,8 @@ angular.module('vignemale')
                     url: '/users/'+ idUser + '/favs',
                     data: $httpParamSerializer(idPoi),
                     headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': auth.getToken()
                     }
                 }).success(function (data) {
                     callbackSuccess(data);
@@ -308,13 +311,14 @@ angular.module('vignemale')
                 });
             },
 
-            followUser: function (idsUsers, callbackSuccess) {
+            followUser: function (idFollow, callbackSuccess) {
                 $http({
                     method: 'POST',
-                    url: '/followUser/',
-                    data: $httpParamSerializer(idsUsers),
+                    url: '/users/' + idFollow + '/follow',
+                    //data: $httpParamSerializer(idsUsers),
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
                     }
                 }).success(function (data) {
                     callbackSuccess(data);
@@ -323,11 +327,11 @@ angular.module('vignemale')
                 });
             },
 
-            unfollowUser: function (idsUsers, callbackSuccess) {
+            unfollowUser: function (idUnfollow, callbackSuccess) {
                 $http({
                     method: 'POST',
-                    url: '/unfollowUser/',
-                    data: $httpParamSerializer(idsUsers),
+                    url: '/users/' + idUnfollow + '/unfollow',
+                    //data: $httpParamSerializer(idsUsers),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'Authorization': auth.getToken()
@@ -376,7 +380,9 @@ angular.module('vignemale')
                     url: '/pois',
                     data: $httpParamSerializer(poi),
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
+
                     }
                 }).success(function (data) {
                     callbackSuccess(data);
@@ -486,7 +492,8 @@ angular.module('vignemale')
                     url: '/routes',
                     data: $httpParamSerializer(route),
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
                     }
                 }).success(function (data) {
                     callbackSuccess(data);
@@ -504,6 +511,10 @@ angular.module('vignemale')
             listUsers: function (callbackSuccess, callbackError) {
                 $http({
                     method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
+                    },
                     url: '/admin/usersList'
                 }).success(function (data) {
                     callbackSuccess(data);

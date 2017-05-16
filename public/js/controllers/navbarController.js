@@ -38,6 +38,9 @@ angular.module('vignemale')
             }
         };
 
-         $scope.verifyIsAdmin();
+
+        $scope.verifyIsAdmin();
+
+
 
     }]);

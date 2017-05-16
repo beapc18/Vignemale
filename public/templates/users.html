@@ -17,15 +17,13 @@
                 </div>
                 <!--Right part, with button-->
                 <div class="col-md-4">
-                    <button ng-if="show!='editUser' && itsme" ng-click="showEdit()" class="btn btn-default theme-accent">
+                    <button ng-if="show!='editUser' && itsme && itslogged" ng-click="showEdit()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-edit"></span>  Edit</button>
 
-                    <button ng-if="!itsme && !itsfollowed" ng-click="followFun()" class="btn btn-default theme-accent">
+                    <button ng-if="!itsme && !itsfollowed && itslogged" ng-click="followFun()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-user"></span>  Follow</button>
-                    <button ng-if="!itsme && itsfollowed" ng-click="unfollowFun()" class="btn btn-default theme-accent">
+                    <button ng-if="!itsme && itsfollowed && itslogged" ng-click="unfollowFun()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-remove"></span>  Unfollow </button>
-
-
                 </div>
             </div>
 
@@ -66,7 +64,7 @@
                     <ul class="list-group pre-scrollable" >
                         <button type="button" class="list-group-item" ng-repeat="row in poisList" ng-click="showPoi(row._id)">{{row.name}}</button>
                     </ul>
-                    <button ng-if="itsme" type="button" class="btn btn-default theme-accent" ng-click="showCreatepoi()">Create POI</button>
+                    <button ng-if="itsme && itslogged" type="button" class="btn btn-default theme-accent" ng-click="showCreatepoi()">Create POI</button>
                 </div>
 
                 <!--Show ONE poi when it's selected-->
@@ -80,17 +78,17 @@
                     <p>Image:</p>
                     <img ng-src="{{newPoi.image}}" class="img-responsive">
                     <p>Rating: {{newPoi.rating}}</p>
-                    <button ng-if="itsme" ng-click="showEditPoi()" class="btn btn-default theme-accent">
+                    <button ng-if="itsme && itslogged" ng-click="showEditPoi()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-edit"></span>  Edit</button>
-                    <button ng-if="itsme" ng-click="removePoi()" class="btn btn-default btn-danger">
+                    <button ng-if="itsme && itslogged" ng-click="removePoi()" class="btn btn-default btn-danger">
                         <span class="glyphicon glyphicon-trash"></span>  Remove</button>
-                    <button ng-click="duplicatePoi()" class="btn btn-default btn-primary">
+                    <button ng-if="!itsme && itslogged" ng-click="duplicatePoi()" class="btn btn-default btn-primary">
                         <span class="glyphicon glyphicon-duplicate"></span>  Duplicate</button>
-                    <button ng-click="addFav()" class="btn btn-default theme-accent">
+                    <button ng-if="itslogged" ng-click="addFav()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-heart"></span>  Add to fav</button>
                     <button ng-click="showShare()" class="btn btn-default btn-success">
                         <span class="glyphicon glyphicon-envelope"></span>  Share</button>
-                    <button ng-if="!itsme" ng-click="showRatePoi()" class="btn btn-default theme-accent">
+                    <button ng-if="!itsme && itslogged" ng-click="showRatePoi()" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-star"></span>  Rate POI</button>
                 </div>
 
@@ -123,7 +121,7 @@
                 </form>
 
                 <!--form for rating a poi-->
-                <form role="form" ng-if="show=='rate'" ng-submit="ratePoi()">
+                <form role="form" ng-if="show=='rate'" ng-submit="ratePoi(rating)">
                     <h2>{{newPoi.name}}</h2>
                     <fieldset class="rating form-control form-group">
                         Rating:
@@ -138,6 +136,7 @@
                         <input type="radio" ng-model="$parent.rating" id="star1" name="v1" value="1"/><label class="full" for="star1" title="1"></label>
                         <input type="radio" ng-model="$parent.rating" id="starhalf" name="v1" value="half"/><label class="half" for="starhalf" title="0.5"></label>
                     </fieldset>
+                    {{rating}}
 
                     <button type="submit" class="btn btn-default theme-accent"> <span class="glyphicon glyphicon-star"></span>  Rate</button>
                 </form>
@@ -148,7 +147,7 @@
                     <ul class="list-group pre-scrollable" >
                         <button type="button" class="list-group-item" ng-repeat="row in routesList" ng-click="showRoute(row)">{{row.name}}</button>
                     </ul>
-                    <button ng-if="itsme" type="button" class="btn btn-default theme-accent" ng-click="showCreateRoute()">Create Route</button>
+                    <button ng-if="itsme && itslogged" type="button" class="btn btn-default theme-accent" ng-click="showCreateRoute()">Create Route</button>
                     <button ng-if="show=='routeSelected'" ng-click="showShare()" class="btn btn-default btn-success">
                         <span class="glyphicon glyphicon-envelope"></span>  Share</button>
                 </div>

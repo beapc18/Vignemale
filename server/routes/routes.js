@@ -50,7 +50,7 @@ var appRouter = function(router, mongo, app, config, database) {
     });
     passport.use(strategy);
 
-    //Verify if the id from user request is the same id that is in the token
+    //Verify if the id from user request is the same id that is in the token, or is ADMIN! Change it
     var verifyIds = function (id, token) {
         var idToken = jwt.decode(token.split(" ")[1]).id;
         return id === idToken;
@@ -341,7 +341,6 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     });
 
-    //no llega a hacer este metodo (sin razon)--> problema para ir al home
     router.get('/getIdFromToken', passport.authenticate('jwt', {session: false}), function (req, res) {
         var payload = jwt.decode(req.headers.authorization.split(" ")[1]);
         //console.log("ID DEL TOKEN " + payload.id)
@@ -420,8 +419,7 @@ var appRouter = function(router, mongo, app, config, database) {
                                 console.log('Message sent: ' + info.response);
                                 response = {"message": "Account has been verified, you will receive an email with your password"};
                                 res.status(200).json(response);
-                            }
-                            ;
+                            };
                         });
                     }
                 });
@@ -430,7 +428,7 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
 
-    router.put("/users/:id/password", function (req, res) {
+    router.put("/users/:id/password", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("change user password");
 
         //create the hash to save in db   --> cifrar en cliente
@@ -465,7 +463,7 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
     //Return data of user with :id
-    router.get("/users/:id", passport.authenticate('jwt', {session: false}), function (req, res) {
+    router.get("/users/:id", function (req, res) {
         console.log("get user");
 
         //if (verifyIds(req.params.id, req.headers.authorization)) {
@@ -547,15 +545,16 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
     //add poi to fav to a user
-    router.post("/users/:id/favs", function (req, res) {
+    router.post("/users/:id/favs", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("POST "+req.body.idPoi+ " poi to "+ req.params.id +" user");
+        //if(verifyIds())
         database.addFav(mongo, req.params.id, req.body.idPoi, function (response) {
             res.status(response.status).json(response.res);
         });
     });
 
     //add poi to fav to a user
-    router.delete("/users/:id/favs", function (req, res) {
+    router.delete("/users/:id/favs", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("DELETE "+req.body.idPoi+ " poi to "+ req.params.id +" user");
         database.deleteFav(mongo, req.params.id, req.body.idPoi, function (response) {
             res.status(response.status).json(response.res);
@@ -563,18 +562,22 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
     //Follow user, updating field "following"
-    router.post("/followUser/", function (req, res) {
-        console.log("Follow user " + req.body.idFollow + " from " + req.body.idRequest);
-        database.addFollowing(mongo,req.body.idRequest, req.body.idFollow, function (response) {
+    router.post("/users/:id/follow", passport.authenticate('jwt', {session: false}), function (req, res) {
+        var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
+        console.log("Follow user " + req.params.id + " from " + idUser);
+        //if/verifyIds
+        database.addFollowing(mongo,idUser, req.params.id, function (response) {
             console.log(response);
             res.status(response.status).json(response.res);
         });
     });
 
     //Unfollow user, updating field "following"
-    router.post("/unfollowUser/", function (req, res) {
-        console.log("Unfollow user " + req.body.idUnfollow + " from " + req.body.idRequest);
-        database.removeFollowing(mongo,req.body.idRequest, req.body.idUnfollow, function (response) {
+    router.post("/users/:id/unfollow", passport.authenticate('jwt', {session: false}), function (req, res) {
+        var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
+        console.log("Unfollow user " + req.params.id + " from " + idUser);
+        //if/verifyIds
+        database.removeFollowing(mongo,idUser, req.params.id, function (response) {
             console.log(response);
             res.status(response.status).json(response.res);
         });
@@ -609,7 +612,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 res.json(response);
             });
         })
-        .post(function (req, res) {
+        .post(passport.authenticate('jwt', {session: false}), function (req, res) {
             console.log("POST pois");
             var db = new mongo.pois;
             var response = {};
@@ -711,12 +714,11 @@ var appRouter = function(router, mongo, app, config, database) {
                     response = {"status": 500, "message": "Error fetching data"};
                 } else {
                     response = {"status": 200, "message": data[0]};
-                    response = {"status": 200, "message": data[0]};
                 }
                 res.status(response.status).json(response.message);
             });
         })
-        .put(function (req, res) {
+        .put(passport.authenticate('jwt', {session: false}), function (req, res) {
             console.log("PUT pois/" + req.params.id);
 
             mongo.pois.find({_id: req.params.id}, function (err, data) {
@@ -777,7 +779,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 }
             });
         })
-        .delete(function (req, res) {
+        .delete(passport.authenticate('jwt', {session: false}), function (req, res) {
             console.log("DELETE pois/" + req.params.id);
 
             //delete pois in favs of another users asynchronous
@@ -805,12 +807,12 @@ var appRouter = function(router, mongo, app, config, database) {
             });
         });
 
-    //get user routes
-    router.post("/pois/:id/rating", function (req, res) {
+    //post user rating
+    router.post("/pois/:id/rating", passport.authenticate('jwt', {session: false}), function (req, res) {
         var idPoi = req.params.id;
         console.log("post poi " + idPoi + " rating");
-        var response = {};
-        database.ratePoi(mongo, req.body.idUser, idPoi, req.body.rating, function (response) {
+        var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
+        database.ratePoi(mongo, idUser, idPoi, req.body.rating, function (response) {
             console.log(response.res);
             res.status(response.status).json(response.res);
         });
@@ -901,7 +903,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 res.status(response.status).json(response);
             });
         })
-        .post(function (req, res) {
+        .post(passport.authenticate('jwt', {session: false}), function (req, res) {
             console.log("POST routes");
             var db = new mongo.routes;
             var response = {};
@@ -1030,7 +1032,7 @@ var appRouter = function(router, mongo, app, config, database) {
         });
 
 
-    router.get("/admin/usersList", function (req, res) {
+    router.get("/admin/usersList", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("Management list...");
 
         mongo.users.find({ $and: [{email: {$ne: "vignemaleSTW@gmail.com"}}, {removed: {$ne: "true"}}]}, function (err, data) {
@@ -1045,7 +1047,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     });
 
-    router.post("/sendMail/:email", function (req, res) {
+    router.post("/sendMail/:email", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("Sending mail from admin to " + req.params.email);
         var text = "This is a warning from the Admin";
         var email = req.params.email;

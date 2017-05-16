@@ -577,7 +577,7 @@ angular.module('vignemale')
         };
     })
     
-    .factory('adminList', function ($state, $http, $httpParamSerializer) {
+    .factory('adminList', function ($state, $http, $httpParamSerializer, auth) {
         
         return {
             

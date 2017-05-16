@@ -106,6 +106,41 @@ angular.module('vignemale')
 
         }
 
+        //user's pois by country
+        else if ($scope.id == 6){
+            users.getStatistics($scope.idUser, 6, function (data) {
+                var info = {
+                    labels: data.countries,
+                    datasets: [
+                        {
+                            data: data.numPois
+                        }
+                    ]
+                };
+                $scope.image = new Chart(ctx, {
+                    type: 'pie',
+                    data: info,
+                    options: {
+                        animation:{
+                            animateScale:true
+                        }
+                    }
+                });
+            });
+        }
+
+        //following's pois by country
+        else if ($scope.id == 7){
+            users.getStatistics($scope.idUser, 7, function (data) {
+
+                $scope.image = new Chart(ctx, {
+                    type: 'pie',
+                    data: data,
+                    options: options
+                });
+            });
+        }
+
 
     }]);
 

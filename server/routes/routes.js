@@ -345,7 +345,6 @@ var appRouter = function(router, mongo, app, config, database) {
 
     router.get('/getIdFromToken', passport.authenticate('jwt', {session: false}), function (req, res) {
         var payload = jwt.decode(req.headers.authorization.split(" ")[1]);
-        //console.log("ID DEL TOKEN " + payload.id)
         res.status(200).json({"message": payload.id});
     });
 
@@ -1256,6 +1255,31 @@ var appRouter = function(router, mongo, app, config, database) {
         });
 
     })
+
+    //user's pois by country
+    router.get("/users/:id/statistics/6", function (req, res) {
+        console.log("/user/" + req.params.id + "/statistics/6");
+        database.getUserPoisByCountry(mongo, req.params.id, function (data) {
+            if (data.status != 500) {
+                var countries = [];
+                var numPois = [];
+                console.log(data)
+                for(i = 0; i<data.length; i++){
+                    countries.push(data[i]._id.country);
+                    numPois.push(data[i].total);
+                }
+                response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
+            }
+            res.status(response.status).json(response.message);
+        })
+
+    });
+
+    //following's pois by country
+    router.get("/users/:id/statistics/7", function (req, res) {
+        console.log("/user/" + req.params.id + "/statistics/7");
+
+    });
 
     var getDateString = function(date){
         return date.getDate()+'/'+(date.getMonth()+1)+'/'+date.getFullYear();

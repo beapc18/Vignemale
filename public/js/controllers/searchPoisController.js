@@ -10,6 +10,8 @@ angular.module('vignemale')
         $scope.isfav = false;
         $scope.itslogged = false;
 
+        $scope.userName = "";
+
         $scope.newPoi = {
             name: "",
             description: "",
@@ -98,6 +100,9 @@ angular.module('vignemale')
                         $scope.isfav = fav;
                     }, showError);
                 }
+                users.getUser($scope.newPoi.creator, function (data) {
+                    $scope.userName = data.message[0].name+" "+data.message[0].lastName;
+                }, showError);
             }, showError);
         };
 

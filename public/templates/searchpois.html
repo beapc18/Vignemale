@@ -36,6 +36,7 @@
             <!--Show ONE poi when it's selected-->
             <div ng-if="onePoiSelected">
                 <h2>{{newPoi.name}}</h2>
+                <p>User: <a href="/#/users/{{newPoi.creator}}">{{userName}} </a></p>
                 <p>Description: {{newPoi.description}}</p>
                 <p>Keywords: {{newPoi.keywords}}</p>
                 <p>Latitude: {{newPoi.lat}}</p>

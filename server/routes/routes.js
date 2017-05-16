@@ -866,6 +866,7 @@ var appRouter = function(router, mongo, app, config, database) {
             callback(arrayIds, arrayNames);
         }
     };
+
     //get user follows
     router.get("/users/:id/following", function (req, res) {
         var userId = req.params.id;
@@ -874,19 +875,31 @@ var appRouter = function(router, mongo, app, config, database) {
             if (err) {
                 console.log("Error getting follows");
                 response = {"status": 500, "message": "Error getting follows"};
+                res.status(response.status).json(response.message);
             } else {
                 var followingNames = [];
                 bucleForUser(data[0].following, 0, followingNames, function (arrayIds,arrayNames) {
                     response = {"status": 200, "message": {"followingNames" : arrayNames, "followingIds" : arrayIds}}; //devolver solo la lista de seguidores
                     res.status(response.status).json(response.message);
                 });
-
-                /*console.log("follows del usuario " + data);
-                 response = {"status": 200, "message": data}; //devolver solo la lista de seguidores*/
             }
-
         })
+    });
 
+    //return true if the user is followed, false in other case
+    router.get("/users/:id/isfollowed", passport.authenticate('jwt', {session: false}), function (req, res) {
+        var idUserFollowed = req.params.id;
+        var idUserFollowing = jwt.decode(req.headers.authorization.split(" ")[1]).id;
+        console.log("Get user "+idUserFollowed+" is followed by"+ idUserFollowing);
+        mongo.users.find({_id: idUserFollowing, following: idUserFollowed}, function (err, data) {
+            if (err) {
+                console.log("Error getting isfollow");
+                response = {"status": 500, "message": "Error getting follows"};
+            } else {
+                response = {"status": 200, "message": (data.length!==0)};
+            }
+            res.status(response.status).json(response.message);
+        })
     });
 
 

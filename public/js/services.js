@@ -343,6 +343,21 @@ angular.module('vignemale')
                 });
             },
 
+            isFollowed: function (idFollowed, callbackSuccess) {
+                $http({
+                    method: 'GET',
+                    url: '/users/' + idFollowed + '/isfollowed/',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    callbackError(data);
+                });
+            },
+
             search: function (words, callbackSuccess, callbackError) {
                 $http({
                     method: 'GET',

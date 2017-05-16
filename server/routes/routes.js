@@ -650,42 +650,49 @@ var appRouter = function(router, mongo, app, config, database) {
 
                                     shorturls.url = req.body.shortURL;
 
-                                    shorturls.save(function (err, data) {
-                                        if (err) {
-                                            response = {
-                                                "status": 500,
-                                                "message": "Error creatting POI"
-                                            };
-                                            res.status(response.status).json(response);
-                                        } else {
-                                            //update last access when user access and jwt
-                                            mongo.pois.update({_id: poiId}, {shortURL: "http://localhost:8888/short/" + data._id}, function (err) {
-                                                if (err) {
-                                                    response = {
-                                                        "status": 500,
-                                                        "message": "Error creatting POI"
-                                                    };
-                                                    res.status(response.status).json(response);
-                                                } else {
-                                                    //update last access when user access and jwt
-                                                    mongo.pois.update({_id: poiId}, {shorturl: data._id}, function (err) {
-                                                        if (err) {
-                                                            response = {
-                                                                "status": 500,
-                                                                "message": "Error creatting POI"
-                                                            };
-                                                        } else {
-                                                            response = {
-                                                                "status": 201,
-                                                                "message": "POI has been created successfully"
-                                                            };
-                                                        }
+                                    if(req.body.shortURL != "") {
+                                        shorturls.save(function (err, data) {
+                                            if (err) {
+                                                response = {
+                                                    "status": 500,
+                                                    "message": "Error creatting POI"
+                                                };
+                                                res.status(response.status).json(response);
+                                            } else {
+                                                mongo.pois.update({_id: poiId}, {shortURL: "http://localhost:8888/short/" + data._id}, function (err) {
+                                                    if (err) {
+                                                        response = {
+                                                            "status": 500,
+                                                            "message": "Error creatting POI"
+                                                        };
                                                         res.status(response.status).json(response);
-                                                    });
-                                                }
-                                            });
-                                        }
-                                    });
+                                                    } else {
+                                                        //update last access when user access and jwt
+                                                        mongo.pois.update({_id: poiId}, {shorturl: data._id}, function (err) {
+                                                            if (err) {
+                                                                response = {
+                                                                    "status": 500,
+                                                                    "message": "Error creatting POI"
+                                                                };
+                                                            } else {
+                                                                response = {
+                                                                    "status": 201,
+                                                                    "message": "POI has been created successfully"
+                                                                };
+                                                            }
+                                                            res.status(response.status).json(response);
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }else{
+                                        response = {
+                                            "status": 201,
+                                            "message": "POI has been created successfully"
+                                        };
+                                        res.status(response.status).json(response);
+                                    }
                                 }
                             });
                         }
@@ -725,40 +732,48 @@ var appRouter = function(router, mongo, app, config, database) {
                         lng: req.body.lng,
                         image: req.body.image
                     };
-                    var url = req.body.shortURL;
 
-                    mongo.pois.update({_id: req.params.id}, updateInfo, function (err,data) {
-                        if (err) {
-                            response = {"status": 500, "message": "Error updating data"};
-                        } else {
-                            if(url != data.shortURL){
-                                var shorturls = new mongo.shorturls;
 
-                                shorturls.url = url;
-                                shorturls.save(function (err,data) {
-                                    if (err) {
-                                        response = {"status": 500, "message": "Error updating data"};
-                                        res.status(response.status).json(response);
-                                    }else{
-                                        //update last access when user access and jwt
-                                        mongo.pois.update({_id: req.params.id}, {shortURL: "http://localhost:8888/short/"+data._id}, function (err) {
-                                            if (err) {
-                                                response = {"status": 500, "message": "Error updating data"};
-                                            } else {
-                                                response = {"status": 201, "message": "POI updated successfully"};
-                                            }
+                    if(req.body.shortURL != "") {
+
+                        var url = req.body.shortURL;
+
+                        mongo.pois.update({_id: req.params.id}, updateInfo, function (err, data) {
+                            if (err) {
+                                response = {"status": 500, "message": "Error updating data"};
+                            } else {
+                                if (url != data.shortURL) {
+                                    var shorturls = new mongo.shorturls;
+
+                                    shorturls.url = url;
+                                    shorturls.save(function (err, data) {
+                                        if (err) {
+                                            response = {"status": 500, "message": "Error updating data"};
                                             res.status(response.status).json(response);
-                                        });
-                                    }
-                                });
+                                        } else {
+                                            //update last access when user access and jwt
+                                            mongo.pois.update({_id: req.params.id}, {shortURL: "http://localhost:8888/short/" + data._id}, function (err) {
+                                                if (err) {
+                                                    response = {"status": 500, "message": "Error updating data"};
+                                                } else {
+                                                    response = {"status": 201, "message": "POI updated successfully"};
+                                                }
+                                                res.status(response.status).json(response);
+                                            });
+                                        }
+                                    });
 
-                            }else{
-                                response = {"status": 200,  "message": "POI updated successfully"};
-                                res.status(response.status).json(response);
+                                } else {
+                                    response = {"status": 200, "message": "POI updated successfully"};
+                                    res.status(response.status).json(response);
+                                }
+
                             }
-
-                        }
-                    })
+                        })
+                    }else{
+                        response = {"status": 200, "message": "POI updated successfully"};
+                        res.status(response.status).json(response);
+                    }
                 }
             });
         })

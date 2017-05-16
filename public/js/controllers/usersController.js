@@ -224,19 +224,29 @@ angular.module('vignemale')
 
             $scope.newPoi.images = document.getElementById('image').files[0],
                 r = new FileReader();
-            r.readAsBinaryString($scope.newPoi.images);
 
-            r.onloadend = function(e){
-                var data = e.target.result;
-                $scope.newPoi.image = 'data:image/png;base64,' + btoa(data);
 
-                //  'data:image/png;base64,' + btoa(data);
-                //send your binary data via $http or $resource or do anything else with it
+            if ("undefined" === typeof $scope.newPoi.images) {
                 pois.createPoi($scope.newPoi, function (data) {
                     showSuccess(data);
                     $scope.showPois();
                 }, showError);
+            }else{
+                r.readAsBinaryString($scope.newPoi.images);
+
+                r.onloadend = function(e){
+                    var data = e.target.result;
+                    $scope.newPoi.image = 'data:image/png;base64,' + btoa(data);
+
+                    //  'data:image/png;base64,' + btoa(data);
+                    //send your binary data via $http or $resource or do anything else with it
+                    pois.createPoi($scope.newPoi, function (data) {
+                        showSuccess(data);
+                        $scope.showPois();
+                    }, showError);
+                }
             }
+
         };
 
         //al borrar un poi,si se vuelve a Pois sigue saliendo su marker hasta que se clika en alguno del resto
@@ -303,8 +313,32 @@ angular.module('vignemale')
                 shortURL : $scope.newPoi.shortURL,
                 rating : $scope.newPoi.rating
             };
-            pois.editPoi(newPoi, showSuccess, showError);
-            $scope.show="pois";
+
+            newPoi.images = document.getElementById('image').files[0],
+                r = new FileReader();
+
+            if ("undefined" === typeof newPoi.images) {
+                pois.editPoi(newPoi, function(data){
+                    showSuccess(data);
+                    $scope.show="pois";
+                }, showError);
+
+            }else{
+                r.readAsBinaryString(newPoi.images);
+
+                r.onloadend = function(e){
+                    var data = e.target.result;
+                    newPoi.image = 'data:image/png;base64,' + btoa(data);
+
+                    //  'data:image/png;base64,' + btoa(data);
+                    //send your binary data via $http or $resource or do anything else with it
+                    pois.editPoi(newPoi, function(data){
+                        showSuccess(data);
+                        $scope.show="pois";
+                    }, showError);
+                }
+            }
+
 
         };
 

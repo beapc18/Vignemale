@@ -368,6 +368,15 @@ angular.module('vignemale')
                 }).error(function (data) {
                     callbackError(data);
                 });
+            },
+
+            getStatistics: function(idUser,id, callbackSuccess){
+                $http({
+                    method: 'GET',
+                    url: '/users/'+idUser+'/statistics/'+id
+                }).success(function (data) {
+                    callbackSuccess(data);
+                })
             }
         };
     })

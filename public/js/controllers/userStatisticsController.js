@@ -1,9 +1,10 @@
 angular.module('vignemale')
 
-    .controller('userStatisticsCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'users',
-        function ($scope, $state, $stateParams,$httpParamSerializer, users) {
+    .controller('userStatisticsCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'users','auth',
+        function ($scope, $state, $stateParams,$httpParamSerializer, users, auth) {
 
         $scope.id = $stateParams.id;
+        $scope.idUser = $stateParams.idUser;
 
 
         // feedback handling variables
@@ -43,34 +44,66 @@ angular.module('vignemale')
         };
 
         if($scope.id == 1){
-            $scope.image = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    datasets: [{
-                        label: 'Scatter Dataset',
-                        data: [{
-                            x: -10,
-                            y: 0
-                        }, {
-                            x: 0,
-                            y: 10
-                        }, {
-                            x: 10,
-                            y: 5
-                        }]
-                    }]
-                },
-                options: {
-                    scales: {
-                        xAxes: [{
-                            type: 'linear',
-                            position: 'bottom'
-                        }]
+            console.log($scope.idUser);
+
+            users.getStatistics($scope.idUser, 1, function (data) {
+                var info = {
+                    labels: data.names,
+                    datasets: [
+                        {
+                            data: data.creations
+                        }
+                    ]
+                };
+
+                $scope.image = new Chart(ctx, {
+                    type: 'bar',
+                    data: info,
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                stacked: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }]
+                        }
                     }
-                }
+                });
+
             });
+
+
         }else if($scope.id == 2){
-            console.log("grafico 2")
+
+
+            users.getStatistics($scope.idUser, 2, function (data) {
+                var info = {
+                    labels: data.names,
+                    datasets: [
+                        {
+                            data: data.lastAccessArray
+                        }
+                    ]
+                };
+
+                $scope.image = new Chart(ctx, {
+                    type: 'bar',
+                    data: info,
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                stacked: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }]
+                        }
+                    }
+                });
+
+            });
+
         }
 
 

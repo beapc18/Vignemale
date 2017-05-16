@@ -21,6 +21,12 @@ angular.module('vignemale')
             });
         };
 
+        $scope.showStatistics = function (num) {
+            auth.getIdFromToken(auth.getToken(),function(id) {
+                $state.go('userStatistics', {idUser: id.message,id: num});
+            });
+        };
+
         $scope.verifyIsAdmin = function () {
             if($scope.logged()) {
                 auth.getIdFromToken(auth.getToken(), function (id) {
@@ -40,6 +46,7 @@ angular.module('vignemale')
 
 
         $scope.verifyIsAdmin();
+
 
 
 

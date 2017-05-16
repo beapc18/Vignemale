@@ -163,6 +163,8 @@ var appRouter = function(router, mongo, app, config, database) {
                         //update last access when user access and jwt
                         mongo.users.update({_id: data[0]._id}, {google: true}, function (err) {
                         });
+                        mongo.users.update({_id: data[0]._id}, {lastAccess: new Date()}, function (err) {
+                        });
 
 
                         //Generate id for token
@@ -851,11 +853,13 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     };
 
-    var bucleForUser = function (arrayIds, i, arrayNames, callback) {
+    var bucleForUserNames = function (arrayIds, i, arrayNames, callback) {
         if(i<arrayIds.length) {
+
             database.getNameUser(mongo, arrayIds[i], function (response) {
                 var index = arrayIds.indexOf(arrayIds[0]);
                 if (index !== -1) {
+
                     arrayNames[i] = response.message[0].name;
                 }
                 i++;
@@ -866,6 +870,29 @@ var appRouter = function(router, mongo, app, config, database) {
             callback(arrayIds, arrayNames);
         }
     };
+
+    var bucleForUser = function (arrayIds, i, arrayUsers, callback) {
+        if(i<arrayIds.length) {
+
+
+            mongo.users.find({_id: arrayIds[i]},function (err,data) {
+                if(err) {
+                }else{
+                    var index = arrayIds.indexOf(arrayIds[0]);
+                    if (index !== -1) {
+                        arrayUsers[i] = data[0];
+                    }
+                    i++;
+                    bucleForUser(arrayIds, i, arrayUsers, callback);
+                }
+
+            });
+        }
+        else {
+            callback(arrayIds, arrayUsers);
+        }
+    };
+
     //get user follows
     router.get("/users/:id/following", function (req, res) {
         var userId = req.params.id;
@@ -876,8 +903,9 @@ var appRouter = function(router, mongo, app, config, database) {
                 response = {"status": 500, "message": "Error getting follows"};
             } else {
                 var followingNames = [];
-                bucleForUser(data[0].following, 0, followingNames, function (arrayIds,arrayNames) {
-                    response = {"status": 200, "message": {"followingNames" : arrayNames, "followingIds" : arrayIds}}; //devolver solo la lista de seguidores
+                bucleForUserNames(data[0].following, 0, followingNames, function (arrayIds,arrayNames) {
+                    response = {"status": 200, "message": {"followingNames" : arrayNames
+                        , "followingIds" : arrayIds}}; //devolver solo la lista de seguidores
                     res.status(response.status).json(response.message);
                 });
 
@@ -1071,6 +1099,128 @@ var appRouter = function(router, mongo, app, config, database) {
             res.status(response.status).json(response.message);
         });
     })
+
+
+    router.get("/users/:id/statistics/1", function (req, res) {
+        console.log("/user/"+req.params.id+"/statistics/1");
+
+        mongo.users.find({_id: req.params.id},function (err, data) {
+            if (err) {
+                console.log("Error getting follows");
+                response = {"status": 500, "message": "Error getting follows"};
+            } else {
+                var userCreationDate = data[0].creationDate;
+
+                var following =[];
+                bucleForUser(data[0].following, 0, following, function (arrayIds,arrayUsers) {
+
+                    var date = new Date();
+                    var size = 12*(date.getFullYear() - 2017) + (date.getMonth() - 1) + 1;
+                    var names = new Array(size);
+
+                    //names of the months
+                    for(i = 0; i<size;i++){
+                        var year = 2017 + parseInt((i+2)/12);
+                        var month = (i+2)%12;
+                           names[i] = month+'/'+year;
+                    }
+
+                    var creations = new Array(size).fill(0);
+                    var dateCreation;
+
+                    //number of creation per month
+                    for(i = 0; i<arrayUsers.length; i++){
+                        dateCreation = arrayUsers[i].creationDate;
+                        creations[12*(dateCreation.getFullYear() - 2017) + (dateCreation.getMonth() - 1)]++;
+                    }
+
+                    //add user to the list
+                    creations[12*(userCreationDate.getFullYear() - 2017) + (userCreationDate.getMonth() - 1)]++;
+
+                    response = {"status": 200, "message": {"names" : names
+                        , "creations" : creations}}; //devolver solo la lista de seguidores
+                    res.status(response.status).json(response.message);
+                });
+            }
+        });
+    })
+
+
+    router.get("/users/:id/statistics/2", function (req, res) {
+        console.log("/user/"+req.params.id+"/statistics/2");
+
+        mongo.users.find({_id: req.params.id},function (err, data) {
+            if (err) {
+                console.log("Error getting follows");
+                response = {"status": 500, "message": "Error getting follows"};
+            } else {
+                var userLastAccess = data[0].lastAccess;
+
+                var following =[];
+                bucleForUser(data[0].following, 0, following, function (arrayIds,arrayUsers) {
+
+                    var date = new Date();
+                    var size = 8;
+
+
+                    var names = new Array(size);
+
+
+                    names[0] = "Before";
+                    //names of the months
+                    for(i = 0; i<size-1;i++){
+
+                        var dat = new Date();
+                        dat.setDate(dat.getDate() - i);
+
+                        names[size-(i + 1)] = getDateString(dat);
+                    }
+
+
+
+                    var lastAccessArray = new Array(size).fill(0);
+                    var dateLastAccess;
+
+                    arrayUsers.push({
+                        lastAccess: userLastAccess
+                    });
+
+                    var added = false;
+                    //number of creation per month
+                    for(i = 0; i<arrayUsers.length; i++){
+                        dateLastAccess = arrayUsers[i].lastAccess;
+
+
+                        for(j = 1; j<size;j++){
+                            if(names[j] == getDateString(dateLastAccess)){
+                                lastAccessArray[j]++;
+                                added = true;
+                            }
+                        }
+
+                        if(!added){
+                            lastAccessArray[0]++;
+                        }
+                        added = false;
+                    }
+
+
+                    //add user to the list
+                    //creations[12*(userCreationDate.getFullYear() - 2017) + (userCreationDate.getMonth() - 1)]++;
+
+                    response = {"status": 200, "message": {"names" : names
+                        , "lastAccessArray" : lastAccessArray}}; //devolver solo la lista de seguidores
+                    res.status(response.status).json(response.message);
+                });
+            }
+        });
+
+    })
+
+    var getDateString = function(date){
+        return date.getDate()+'/'+(date.getMonth()+1)+'/'+date.getFullYear();
+    }
+
 
 };
 

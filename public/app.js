@@ -77,7 +77,7 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 controller: "adminListCtrl"
             })
             .state('userStatistics', {
-                url: '/user/userStatistics/{id}',
+                url: '/user/{idUser}/statistics/{id}',
                 templateUrl: "templates/userStatistics.html",
                 controller: "userStatisticsCtrl"
             });

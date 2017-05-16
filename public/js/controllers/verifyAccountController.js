@@ -5,7 +5,6 @@ angular.module('vignemale')
         //user id from url
         $scope.idUser = $stateParams.id;
 
-
         // FEEDBACK MESSAGES
 
         // feedback handling variables

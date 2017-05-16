@@ -96,22 +96,6 @@ angular.module('vignemale')
 
             };
 
-            /*// acceder al home de otro, NO CAMBIA EN LA URL
-             $scope.showOneFollow = function (id) {
-             $scope.idUser = id;
-             users.getUser($scope.idUser, function (data) {
-             //save info about user
-             //maps.initMap();
-             users.getUserPois($scope.idUser, showPoisList);
-             $scope.user = {
-             lastName: data.message[0].lastName,
-             name: data.message[0].name
-             };
-             $scope.itsMe();
-             $scope.itsFollowed($scope.idUser);
-             }, showError);
-             };
-             */
             // hide/show different layers
             var showPoisList = function (data) {
                 maps.deleteMarkers();

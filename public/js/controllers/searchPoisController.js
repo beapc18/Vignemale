@@ -7,6 +7,9 @@ angular.module('vignemale')
         $scope.poiSearch = "";
         $scope.foundPois = "";
         $scope.idPoi = "";
+        $scope.isfav = false;
+        $scope.itslogged = false;
+
         $scope.newPoi = {
             name: "",
             description: "",
@@ -61,6 +64,10 @@ angular.module('vignemale')
             maps.deleteMarkers();
         };
 
+        $scope.logged = function () {
+            $scope.itslogged = auth.isAuthenticated();
+        };
+
         $scope.searchPois = function () {
             pois.search($scope.poiSearch, function (data) {
                 //console.log(data);
@@ -68,6 +75,7 @@ angular.module('vignemale')
                 $scope.onePoiSelected = false;
                 maps.deleteMarkers();
                 $scope.foundPois = data;
+                $scope.logged();
 
                 //create markers from pois list
                 for (i = 0; i < $scope.foundPois.length; i++) {
@@ -84,6 +92,12 @@ angular.module('vignemale')
             $scope.idPoi = id;
             pois.getPoi(id, function (data) {
                 $scope.newPoi = data;
+                //search if this poi is in favs list
+                if ($scope.itslogged){
+                    pois.isFav(id, function (fav) {
+                        $scope.isfav = fav;
+                    }, showError);
+                }
             }, showError);
         };
 
@@ -93,13 +107,28 @@ angular.module('vignemale')
                 var idPoi = {
                     "idPoi": $scope.idPoi
                 };
-                users.addFav(idUser.message, idPoi, showSuccess, showError);
+                users.addFav(idUser.message, idPoi, function (data) {
+                    $scope.isfav = true;
+                    showSuccess(data);
+                },showError);
+            })
+        };
+
+        //remove fav poi selected to this user
+        $scope.removeFav = function () {
+            auth.getIdFromToken(auth.getToken(), function (idUser) {
+                var idPoi = {
+                    "idPoi": $scope.idPoi
+                };
+                users.deleteFav(idUser.message, idPoi, function (data) {
+                    $scope.isfav = false;
+                    showSuccess(data);
+                }, showError);
             })
         };
 
 
         $scope.duplicatePoi = function () {
-
             auth.getIdFromToken(auth.getToken(), function (idUser) {
                 $scope.newPoi.creator = idUser.message;
                 pois.createPoi($scope.newPoi, showSuccess, showError);

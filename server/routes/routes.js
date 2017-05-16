@@ -1262,6 +1262,78 @@ var appRouter = function(router, mongo, app, config, database) {
     }
 
 
+
+    router.get("/users/:id/statistics/8", function (req, res) {
+        console.log("/user/"+req.params.id+"/statistics/8");
+
+        mongo.users.find({_id: req.params.id},function (err, data) {
+            if (err) {
+                console.log("Error getting follows");
+                response = {"status": 500, "message": "Error getting follows"};
+            } else {
+
+                var myAge = data[0].birthDate;
+
+                var following =[];
+                bucleForUser(data[0].following, 0, following, function (arrayIds,arrayUsers) {
+
+                    var date = new Date();
+                    var size = 5;
+
+
+                    var names = new Array(size);
+
+
+                    names[0] = "Under 18";
+                    names[1] = "18-30";
+                    names[2] = "31-50";
+                    names[3] = "Over 50";
+                    names[4] = "Unknown";
+
+
+
+
+
+                    var ages = new Array(size).fill(0);
+                    var age;
+
+                    arrayUsers.push({
+                        birthDate: myAge
+                    });
+
+                    //number of creation per month
+                    for(i = 0; i<arrayUsers.length; i++){
+
+                        if ("undefined" === typeof arrayUsers[i].birthDate) {
+                            ages[4]++;
+                        }else{
+                            age = date.getFullYear() - arrayUsers[i].birthDate.getFullYear();
+                            if(age<18){
+                                ages[0]++;
+                            }else if(age>=18 && age<=30){
+                                ages[1]++;
+                            }else if(age>=31 && age<=50){
+                                ages[2]++;
+                            }else{
+                                ages[3]++;
+                            }
+                        }
+                    }
+
+
+                    //add user to the list
+                    //creations[12*(userCreationDate.getFullYear() - 2017) + (userCreationDate.getMonth() - 1)]++;
+
+                    response = {"status": 200, "message": {"names" : names
+                        , "ages" : ages}}; //devolver solo la lista de seguidores
+                    res.status(response.status).json(response.message);
+                });
+            }
+        });
+
+    })
+
+
 };
 
 module.exports = appRouter;

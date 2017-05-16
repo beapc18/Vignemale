@@ -13,7 +13,6 @@ angular.module('vignemale')
         $scope.successMsg = "";
         $scope.errorMsg = "";
 
-        $scope.image = "";
 
 
         var ctx = document.getElementById("myChart").getContext("2d");
@@ -56,7 +55,7 @@ angular.module('vignemale')
                     ]
                 };
 
-                $scope.image = new Chart(ctx, {
+                new Chart(ctx, {
                     type: 'bar',
                     data: info,
                     options: {
@@ -87,7 +86,7 @@ angular.module('vignemale')
                     ]
                 };
 
-                $scope.image = new Chart(ctx, {
+                new Chart(ctx, {
                     type: 'bar',
                     data: info,
                     options: {
@@ -103,6 +102,44 @@ angular.module('vignemale')
                 });
 
             });
+
+        }else if($scope.id == 8){
+
+            users.getStatistics($scope.idUser, 8, function (data) {
+                var info = {
+                    labels: data.names,
+                    datasets: [
+                        {
+                            data: data.ages,
+                            backgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+
+                            ],
+                            hoverBackgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+                            ]
+                        }]
+                };
+                new Chart(ctx,{
+                    type:"pie",
+                    data: info,
+                    options: {
+                        animation:{
+                            animateScale:true
+                        }
+                    }
+                });
+
+
+            })
 
         }
 

@@ -75,6 +75,11 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 url: '/admin/usersList',
                 templateUrl: "templates/adminList.html",
                 controller: "adminListCtrl"
+            })
+            .state('userStatistics', {
+                url: '/user/userStatistics/{id}',
+                templateUrl: "templates/userStatistics.html",
+                controller: "userStatisticsCtrl"
             });
 
         //llevar mejor a una pagina de error si la url no existe

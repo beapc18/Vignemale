@@ -983,6 +983,19 @@ var appRouter = function(router, mongo, app, config, database) {
             });
         });
 
+    router.route("/routes/:id").delete(passport.authenticate('jwt', {session: false}), function (req, res) {
+        console.log("DELETE routes/" + req.params.id);
+        var response = {};
+        mongo.routes.remove({_id: req.params.id}, function (err, data) {
+            if (err) {
+                response = {"status": 500, "message": "Error fetching data"};
+            } else {
+                response = {"status": 200, "message": "Route removed succesfully"};
+            }
+            res.status(response.status).json(response);
+        });
+    });
+
     router.get("/short/:id", function (req, res) {
 
         console.log("redirect");

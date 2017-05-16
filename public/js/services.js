@@ -548,7 +548,23 @@ angular.module('vignemale')
                     if (data ==="Unauthorized") $state.go('unauthorized');
                     else callbackError(data);
                 });
-            }
+            },
+
+            deleteRoutes: function (idRoute, callbackSuccess, callbackError) {
+                $http({
+                    method: 'DELETE',
+                    url: '/routes/'+idRoute,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': auth.getToken()
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                }).error(function (data) {
+                    if (data ==="Unauthorized") $state.go('unauthorized');
+                    else callbackError(data);
+                });
+            },
         };
     })
     

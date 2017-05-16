@@ -314,6 +314,16 @@ angular.module('vignemale')
                 }
             };
 
+            $scope.removeRoute = function () {
+                var deleteRoute = window.confirm('Are you sure?');
+                if(deleteRoute) {
+                    routes.deleteRoutes($scope.idRoute, function (msg) {
+                        showSuccess(msg);
+                        $scope.showRoutes();
+                    }, showError);
+                }
+            };
+
             $scope.showRatePoi = function () {
                 $scope.show = "rate";
             };
@@ -341,7 +351,7 @@ angular.module('vignemale')
 
                     routes.createRoute($scope.newRoute, function (data) {
                         showSuccess(data);
-                        $scope.show="routes";
+                        $scope.showRoutes();
                     }, showError);
                 }
             };

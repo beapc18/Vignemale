@@ -149,9 +149,13 @@
                     <ul class="list-group pre-scrollable" >
                         <button type="button" class="list-group-item" ng-repeat="row in routesList" ng-click="showRoute(row)">{{row.name}}</button>
                     </ul>
-                    <button ng-if="itsme && itslogged" type="button" class="btn btn-default theme-accent" ng-click="showCreateRoute()">Create Route</button>
+
                     <button ng-if="show=='routeSelected'" ng-click="showShare()" class="btn btn-default btn-success">
                         <span class="glyphicon glyphicon-envelope"></span>  Share</button>
+                    <button ng-if="show=='routeSelected' && itsme && itslogged" ng-click="removeRoute()" class="btn btn-default theme-accent">
+                        <span class="glyphicon glyphicon-trash"></span>  Remove</button>
+
+                    <button ng-if="itsme && itslogged" type="button" class="btn btn-default theme-accent" ng-click="showCreateRoute()">Create Route</button>
                 </div>
 
 

@@ -103,6 +103,36 @@ angular.module('vignemale')
 
             });
 
+        }else if($scope.id == 3){
+
+
+            users.getStatistics($scope.idUser, 3, function (data) {
+                var info = {
+                    labels: data.names,
+                    datasets: [
+                        {
+                            data: data.count
+                        }
+                    ]
+                };
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: info,
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                stacked: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }]
+                        }
+                    }
+                });
+
+            });
+
         }else if($scope.id == 8){
 
             users.getStatistics($scope.idUser, 8, function (data) {

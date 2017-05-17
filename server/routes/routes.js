@@ -1059,14 +1059,44 @@ var appRouter = function(router, mongo, app, config, database) {
 
             console.log(req.body.isPoi);
             var url;
+
+            var db = new mongo.shares;
+
             if(req.body.isPoi == "true"){
+
+
+                mongo.pois.find({_id: req.body.idPoiRoute},function (err, data) {
+                    if (err) {
+                        response = {"status": 500, "message": "Error fetching data"};
+                    } else {
+                        db.idPoiRoute = req.body.idPoiRoute;
+                        db.idUser = req.body.idOrigin;
+                        db.namePoiRoute = data[0].name;
+                        db.save(function (err) {});
+                    }
+                });
+
+
                 url = 'http://localhost:8888/#/pois/' + req.body.idPoiRoute;
             }else{
+
+                mongo.routes.find({_id: req.body.idPoiRoute},function (err, data) {
+                    if (err) {
+                        response = {"status": 500, "message": "Error fetching data"};
+                    } else {
+                        db.idPoiRoute = req.body.idPoiRoute;
+                        db.idUser = req.body.idOrigin;
+                        db.namePoiRoute = data[0].name;
+                        db.save(function (err) {});
+                    }
+                });
+
                 url = 'http://localhost:8888/#/routes/' + req.body.idPoiRoute;
             }
 
             var text = req.body.message + '\n' +
-                'Click the link bellow to watch your recommendation.\n'
+                'Click the link bellow to watch your recommendation from '+req.body.userNameOrigin+
+                ' '+req.body.userLastNameOrigin+'.\n'
                 + url + '\n';
 
             var mailOptions = {
@@ -1076,6 +1106,11 @@ var appRouter = function(router, mongo, app, config, database) {
                 text: text //, // plaintext body
                 // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
             };
+
+
+
+
+
 
             transporter.sendMail(mailOptions);
 
@@ -1260,6 +1295,32 @@ var appRouter = function(router, mongo, app, config, database) {
     var getDateString = function(date){
         return date.getDate()+'/'+(date.getMonth()+1)+'/'+date.getFullYear();
     }
+
+
+
+    router.get("/users/:id/statistics/3", function (req, res) {
+        console.log("/user/" + req.params.id + "/statistics/3");
+
+        var db = new mongo.shares;
+
+        mongo.shares.aggregate([{ $match: { idUser: req.params.id } },{$group : {_id: {id:"$idPoiRoute", name:"$namePoiRoute"}, count:{$sum:1}}}],function(err,data){
+            if (err) {
+                response = {"status": 500, "message": "Error fetching pois"};
+            } else {
+                response = {"status": 200, "message": data};
+                var names = data.map(function(a){return a._id.name});
+                var count = data.map(function(a){return a.count});
+
+                response = {
+                    "status": 200, "message": {
+                        "names": names
+                        , "count": count
+                    }
+                }; //devolver solo la lista de seguidores
+            }
+            res.status(response.status).json(response.message);
+        });
+    })
 
 
 

@@ -42,6 +42,7 @@ angular.module('vignemale')
 
 
             $scope.recommendation = {
+                idOrigin: "",
                 userNameOrigin : "",
                 userLastNameOrigin : "",
                 email: "",
@@ -509,6 +510,7 @@ angular.module('vignemale')
                 }
 
                 users.getUser(id,function(data){
+                    $scope.recommendation.idOrigin = id;
                     $scope.recommendation.userNameOrigin = data.message[0].name;
                     $scope.recommendation.userLastNameOrigin = data.message[0].lastName;
                     recommendations.share($scope.recommendation,function(data){

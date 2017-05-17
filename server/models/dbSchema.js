@@ -85,6 +85,14 @@ var ratingSchema = mongoose.Schema({
     rating: Number
 });
 
+
+var shareSchema = mongoose.Schema({
+    idUser: String,
+    namePoiRoute: String,
+    idPoiRoute: objectId
+});
+
+
 //create index for searching pois by keywords or name
 POIsSchema.index({keywords: "text", name: "text"});
 
@@ -97,6 +105,7 @@ var pois = mongoose.model('pois',POIsSchema);
 var routes = mongoose.model('routes',routesSchema);
 var shorturls = mongoose.model('shorturls',shorturlsSchema);
 var ratings = mongoose.model('ratings',ratingSchema);
+var shares = mongoose.model('shares',shareSchema);
 
 
 module.exports = {
@@ -104,5 +113,6 @@ module.exports = {
     pois: pois,
     routes: routes,
     shorturls: shorturls,
-    ratings: ratings
+    ratings: ratings,
+    shares:shares
 };

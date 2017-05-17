@@ -1,6 +1,6 @@
 angular.module('vignemale')
 
-    .controller('userStatisticsCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'users','auth',
+    .controller('adminStatisticsCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'users','auth',
         function ($scope, $state, $stateParams,$httpParamSerializer, users, auth) {
 
         $scope.id = $stateParams.id;
@@ -52,9 +52,32 @@ angular.module('vignemale')
 
 
 
-        }else if($scope.id == 4) {
+        }
+        // pois by user and rating average
+        else if($scope.id == 4) {
+            users.getAdminStatistics(4, function (data) {
+                console.log(data.bubbles);
 
+                var info = {
+                    datasets: [
+                        {
+                            labels: 'Pois by user and it\'s average rating',
+                            data: data.bubbles,
+                            backgroundColor:"#FF6384",
+                            hoverBackgroundColor: "#FF6384"
+                        }
+                    ]
+                };
 
+                new Chart(ctx, {
+                    type: 'bubble',
+                    data: info,
+                    /*options: {
+
+                    }*/
+                });
+
+            });
         }
 
         else if($scope.id == 5) {

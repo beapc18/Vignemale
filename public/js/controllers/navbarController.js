@@ -28,9 +28,7 @@ angular.module('vignemale')
         };
 
         $scope.showAdminStatistics = function (num) {
-            auth.getIdFromToken(auth.getToken(),function(id) {
-                $state.go('adminStatistics', {id: num});
-            });
+            $state.go('adminStatistics', {id: num});
         };
 
         $scope.verifyIsAdmin = function () {

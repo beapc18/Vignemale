@@ -377,6 +377,48 @@ var getUserInfo = function (mongo, idUser, callback) {
     });
 };
 
+// pois by user and rating average
+var getPoisRatingByUser = function (mongo, callback) {
+    var response;
+    mongo.users.find({isAdmin: {$ne: 1} }, {name: 1}, function (err, names) {
+
+        if (err){
+            console.log("Error getting user pois and rating average");
+            response = {
+                "status": 500,
+                "res": {"message": "Error getting user pois and rating average"}
+            };
+            callback(response);
+        } else {
+            console.log(names)
+            var users = [];
+            for (i = 0; i < names.length; i++) {
+                users.push(new mongoose.mongo.ObjectId(names[i]._id));
+            }
+            console.log(users)
+
+            mongo.pois.aggregate({$match: {creator: {$in: users}}}, {
+                $group: {
+                    _id: "$creator",
+                    y: {$avg: "$rating"},                //avg of rating all pois
+                    r: {$sum: 1}                       //pois
+                }
+            }, function (err, data) {
+                if (err) {
+                    console.log("Error getting user pois and rating average");
+                    response = {
+                        "status": 500,
+                        "res": {"message": "Error getting user pois and rating average"}
+                    };
+                } else {
+                    response = {"pois": data, "names": names};
+                }
+                callback(response);
+            });
+        }
+    });
+};
+
 module.exports = {
     getInfoUser: getInfoUser,
     findUserByPassword: findUserByPassword,
@@ -398,5 +440,6 @@ module.exports = {
     removePoisFromFavs: removePoisFromFavs,
     getUserPoisByCountry: getUserPoisByCountry,
     getFollowingPoisByCountry: getFollowingPoisByCountry,
-    getUserInfo: getUserInfo
+    getUserInfo: getUserInfo,
+    getPoisRatingByUser: getPoisRatingByUser
 };

@@ -1513,21 +1513,25 @@ var appRouter = function(router, mongo, app, config, database) {
 
     })
 
+    //pois by user and rating average
     router.get("/admin/statistics/4", function (req, res) {
         console.log("/admin/statistics/4");
-        /*database.getUserPoisByCountry(mongo, req.params.id, function (data) {
+        database.getPoisRatingByUser(mongo, function (data) {
             if (data.status != 500) {
-                var countries = [];
-                var numPois = [];
-                console.log(data);
-                for(i = 0; i<data.length; i++){
-                    countries.push(data[i]._id.country);
-                    numPois.push(parseFloat(data[i].total/data.length*100).toFixed(2)); //porcentaje
+                var bubbles = [];
+                for(i = 0; i<data.pois.length; i++){
+                    for(j = 0; j<data.names.length; j++) {
+                        if(String(data.pois[i]._id) == String(data.names[j]._id)){
+                            bubbles.push({"x": data.names[j].name, "y": data.pois[i].y, "r": data.pois[i].r});
+                            break;
+                        }
+                    }
                 }
-                response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
+                console.log(bubbles)
+                response = {"status": 200, "message": {"bubbles": bubbles}};
             }
             res.status(response.status).json(response.message);
-        })*/
+        })
 
     });
 

@@ -1561,6 +1561,46 @@ var appRouter = function(router, mongo, app, config, database) {
 
     });
 
+    //pois by user and rating average
+    router.get("/admin/statistics/4", function (req, res) {
+        console.log("/admin/statistics/4");
+        database.getPoisRatingByUser(mongo, function (data) {
+            if (data.status != 500) {
+                var bubbles = [];
+                for(i = 0; i<data.pois.length; i++){
+                    for(j = 0; j<data.names.length; j++) {
+                        if(String(data.pois[i]._id) == String(data.names[j]._id)){
+                            bubbles.push({"x": data.names[j].name, "y": data.pois[i].y, "r": data.pois[i].r});
+                            break;
+                        }
+                    }
+                }
+                console.log(bubbles)
+                response = {"status": 200, "message": {"bubbles": bubbles}};
+            }
+            res.status(response.status).json(response.message);
+        })
+
+    });
+
+    //users logged with googles/not
+    router.get("/admin/statistics/5", function (req, res) {
+        console.log("/admin/statistics/5");
+        database.getGoogleUsers(mongo, function (data) {
+            if (data.status != 500) {
+                var label = [];
+                var percentage = [];
+                var sum = Number(data.google)+Number(data.notGoogle);
+                label.push("% Logged with Google");
+                label.push("% Not logged with Google");
+                percentage.push(parseFloat(data.google/sum).toFixed(2)*100);
+                percentage.push(parseFloat(data.notGoogle/sum).toFixed(2)*100);
+                response = {"status": 200, "message": {"percentage": percentage, "label": label}};
+            }
+            res.status(response.status).json(response.message);
+        })
+    });
+
 
 };
 

@@ -79,10 +79,35 @@ angular.module('vignemale')
 
             });
         }
-
+        //users logged with googles/not
         else if($scope.id == 5) {
-
-
+            users.getAdminStatistics(5, function (data) {
+                var info = {
+                    labels: data.label,
+                    datasets: [
+                        {
+                            data: data.percentage,
+                            backgroundColor: [
+                                "#FF6384",
+                                "#36A2EB"
+                            ],
+                            hoverBackgroundColor: [
+                                "#FF6384",
+                                "#36A2EB"
+                            ]
+                        }
+                    ]
+                };
+                $scope.image = new Chart(ctx, {
+                    type: 'pie',
+                    data: info,
+                    options: {
+                        animation:{
+                            animateScale:true
+                        }
+                    }
+                });
+            });
         }
 
         else if($scope.id == 6) {

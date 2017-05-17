@@ -419,6 +419,29 @@ var getPoisRatingByUser = function (mongo, callback) {
     });
 };
 
+var getGoogleUsers = function (mongo, callback) {
+    var response;
+
+    mongo.users.count({google: true}, function(err, google) {
+        if (err){
+            console.log("Error getting google users");
+            response = {"status": 500, "res": {"message": "Error getting google users"}};
+            callback(response);
+        } else{
+            mongo.users.count({google: false}, function(err, notGoogle) {
+                if (err){
+                    console.log("Error getting google users");
+                    response = {"status": 500, "res": {"message": "Error getting google users"}};
+                } else{
+                    response = {"google": google, "notGoogle": notGoogle};
+                    console.log(response)
+                }
+                callback(response);
+            });
+        }
+    });
+};
+
 module.exports = {
     getInfoUser: getInfoUser,
     findUserByPassword: findUserByPassword,
@@ -441,5 +464,6 @@ module.exports = {
     getUserPoisByCountry: getUserPoisByCountry,
     getFollowingPoisByCountry: getFollowingPoisByCountry,
     getUserInfo: getUserInfo,
-    getPoisRatingByUser: getPoisRatingByUser
+    getPoisRatingByUser: getPoisRatingByUser,
+    getGoogleUsers: getGoogleUsers
 };

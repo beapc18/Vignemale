@@ -405,6 +405,15 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 })
+            },
+
+            getAdminStatistics: function(id, callbackSuccess){
+                $http({
+                    method: 'GET',
+                    url: '/admin/statistics/'+id
+                }).success(function (data) {
+                    callbackSuccess(data);
+                })
             }
         };
     })

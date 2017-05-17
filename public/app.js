@@ -70,7 +70,6 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 templateUrl: "templates/searchusers.html",
                 controller: "searchUsersCtrl"
             })
-
             .state('adminList', {
                 url: '/admin/usersList',
                 templateUrl: "templates/adminList.html",
@@ -81,7 +80,11 @@ angular.module('vignemale', ['ui.router', 'base64'])
                 templateUrl: "templates/userStatistics.html",
                 controller: "userStatisticsCtrl"
             })
-
+            .state('adminStatistics', {
+                url: '/admin/statistics/{id}',
+                templateUrl: "templates/adminStatistics.html",
+                controller: "adminStatisticsCtrl"
+            })
             .state('unauthorized', {
                 url: '/unauthorized',
                 templateUrl: "templates/unauthorized.html"

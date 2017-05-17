@@ -40,6 +40,23 @@
                         <li><a ng-click="showStatistics(10)">Number 10</a></li>
                     </ul>
                 </li>
+
+                <li class="dropdown">
+                    <a ng-if="logged() && isAdmin" role="button" data-toggle="dropdown" class="dropdown-toggle">
+                        <span class="glyphicon glyphicon-signal"></span>   Statistics</a>
+                    <ul class="dropdown-menu">
+                        <li><a ng-click="showAdminStatistics(1)">s1</a></li>
+                        <li><a ng-click="showAdminStatistics(2)">ss2</a></li>
+                        <li><a ng-click="showAdminStatistics(3)">S3</a></li>
+                        <li><a ng-click="showAdminStatistics(4)">4</a></li>
+                        <li><a ng-click="showAdminStatistics(5)">Number 5</a></li>
+                        <li><a ng-click="showAdminStatistics(6)">6</a></li>
+                        <li><a ng-click="showAdminStatistics(7)">7</a></li>
+                        <li><a ng-click="showAdminStatistics(8)">8</a></li>
+                        <li><a ng-click="showAdminStatistics(9)">9</a></li>
+                        <li><a ng-click="showAdminStatistics(10)">Number 10</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
 

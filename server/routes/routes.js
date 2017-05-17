@@ -1513,6 +1513,24 @@ var appRouter = function(router, mongo, app, config, database) {
 
     })
 
+    router.get("/admin/statistics/4", function (req, res) {
+        console.log("/admin/statistics/4");
+        /*database.getUserPoisByCountry(mongo, req.params.id, function (data) {
+            if (data.status != 500) {
+                var countries = [];
+                var numPois = [];
+                console.log(data);
+                for(i = 0; i<data.length; i++){
+                    countries.push(data[i]._id.country);
+                    numPois.push(parseFloat(data[i].total/data.length*100).toFixed(2)); //porcentaje
+                }
+                response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
+            }
+            res.status(response.status).json(response.message);
+        })*/
+
+    });
+
 
 };
 

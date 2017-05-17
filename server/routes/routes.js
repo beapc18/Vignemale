@@ -1320,11 +1320,34 @@ var appRouter = function(router, mongo, app, config, database) {
                 console.log(data);
                 for(i = 0; i<data.length; i++){
                     countries.push(data[i]._id.country);
-                    parseFloat("123.456").toFixed(2);
-
                     numPois.push(parseFloat(data[i].total/data.length*100).toFixed(2)); //porcentaje
                 }
                 response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
+            }
+            res.status(response.status).json(response.message);
+        })
+    });
+
+    //following users' activity depending on pois and age
+    router.get("/users/:id/statistics/9", function (req, res) {
+        console.log("/user/" + req.params.id + "/statistics/9");
+        database.getUserInfo(mongo, req.params.id, function (data) {
+            if (data.status != 500) {
+                var users = [];
+                var info = [];
+                console.log(data);
+
+                for(i = 0; i<data.follows.length; i++){
+                    users.push(data.follows[i].name);
+                    for(j = 0; j<data.pois.length; j++){
+                        if (String(data.follows[i]._id) == String(data.pois[j]._id.creator)){
+                            info.push(data.pois[j].total);
+                            data.pois.splice(j);
+                            break;
+                        }
+                    }
+                }
+                response = {"status": 200, "message": {"users": users, "info": info}};
             }
             res.status(response.status).json(response.message);
         })

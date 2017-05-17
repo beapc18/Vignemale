@@ -248,6 +248,47 @@ angular.module('vignemale')
             });
         }
 
+        //following users' activity depending on pois and age
+        else if ($scope.id == 9){
+            users.getStatistics($scope.idUser, 9, function (data) {
+                var info = {
+                    labels: data.users,
+                    datasets: [
+                        {
+                            data: data.info,
+                            backgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+                            ],
+                            hoverBackgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+                            ]
+                        }
+                    ]
+                };
+                $scope.image = new Chart(ctx, {
+                    type: 'bar',
+                    data: info,
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                stacked: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }]
+                        }
+                    }
+                });
+            });
+        }
 
     }]);
 

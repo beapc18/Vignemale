@@ -1298,10 +1298,10 @@ var appRouter = function(router, mongo, app, config, database) {
             if (data.status != 500) {
                 var countries = [];
                 var numPois = [];
-                console.log(data)
+                console.log(data);
                 for(i = 0; i<data.length; i++){
                     countries.push(data[i]._id.country);
-                    numPois.push(data[i].total);
+                    numPois.push(parseFloat(data[i].total/data.length*100).toFixed(2)); //porcentaje
                 }
                 response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
             }
@@ -1313,7 +1313,21 @@ var appRouter = function(router, mongo, app, config, database) {
     //following's pois by country
     router.get("/users/:id/statistics/7", function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/7");
+        database.getFollowingPoisByCountry(mongo, req.params.id, function (data) {
+            if (data.status != 500) {
+                var countries = [];
+                var numPois = [];
+                console.log(data);
+                for(i = 0; i<data.length; i++){
+                    countries.push(data[i]._id.country);
+                    parseFloat("123.456").toFixed(2);
 
+                    numPois.push(parseFloat(data[i].total/data.length*100).toFixed(2)); //porcentaje
+                }
+                response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
+            }
+            res.status(response.status).json(response.message);
+        })
     });
 
     var getDateString = function(date){

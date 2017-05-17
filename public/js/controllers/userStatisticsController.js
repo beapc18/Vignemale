@@ -180,7 +180,21 @@ angular.module('vignemale')
                     labels: data.countries,
                     datasets: [
                         {
-                            data: data.numPois
+                            data: data.numPois,
+                            backgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+                            ],
+                            hoverBackgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+                            ]
                         }
                     ]
                 };
@@ -200,10 +214,36 @@ angular.module('vignemale')
         else if ($scope.id == 7){
             users.getStatistics($scope.idUser, 7, function (data) {
 
+                var info = {
+                    labels: data.countries,
+                    datasets: [
+                        {
+                            data: data.numPois,
+                            backgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+                            ],
+                            hoverBackgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+                            ]
+                        }
+                    ]
+                };
                 $scope.image = new Chart(ctx, {
                     type: 'pie',
-                    data: data,
-                    options: options
+                    data: info,
+                    options: {
+                        animation:{
+                            animateScale:true
+                        }
+                    }
                 });
             });
         }

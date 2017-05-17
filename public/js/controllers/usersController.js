@@ -507,7 +507,7 @@ angular.module('vignemale')
                 }
                 var id;
 
-                if($scope.itsMe){
+                if($scope.itsme){
                     id = $scope.idUser;
                 }else{
                     id = $scope.idRequest;

@@ -1,6 +1,6 @@
 angular.module('vignemale')
 
-    .controller('userStatisticsCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'users','auth',
+    .controller('adminStatisticsCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'users','auth',
         function ($scope, $state, $stateParams,$httpParamSerializer, users, auth) {
 
         $scope.id = $stateParams.id;

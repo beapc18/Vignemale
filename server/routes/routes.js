@@ -1118,10 +1118,6 @@ var appRouter = function(router, mongo, app, config, database) {
             };
 
 
-
-
-
-
             transporter.sendMail(mailOptions);
 
             response = {"status": 200, "message": "Message sent"};
@@ -1421,6 +1417,9 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
+
+
+
     var bucleForShare = function (arrayIds, i, arrayCounts, callback) {
         if(i<arrayIds.length) {
             mongo.shares.find({idPoiRoute: arrayIds[i]},function (err,data) {
@@ -1440,6 +1439,33 @@ var appRouter = function(router, mongo, app, config, database) {
             callback(arrayIds, arrayCounts);
         }
     };
+
+
+
+
+    router.get("/users/:id/statistics/5", function (req, res) {
+        console.log("/user/" + req.params.id + "/statistics/5");
+
+        mongo.pois.aggregate([{ $match: { creator: req.params.id, originCreator:{$exists:true} } },{$group : {_id: {originCreator:"$originCreator"}, count:{$sum:1}}}],function(err,data){
+            if (err) {
+                response = {"status": 500, "message": "Error fetching pois"};
+                res.status(response.status).json(response.message);
+            } else {
+                var names = [];
+
+                bucleForUser(data.map(function(a){return a._id.originCreator}),0,names,function(arrayIds,arrayUsers){
+                    response = {
+                        "status": 200, "message": {
+                            "names": arrayUsers.map(function(a){return a.name;}),
+                            "count": data.map(function(a){return a.count;})
+                        }
+                    };
+                    res.status(response.status).json(response.message);
+                })
+
+            }
+        });
+    });
 
 
 

@@ -42,7 +42,7 @@ var POIsSchema = mongoose.Schema({
     value: Number,
     city: String,
     country: String,
-    creator: objectId,
+    creator: String,
     rating: Number,
     idDuplicate: String,
     originCreator: String
@@ -51,7 +51,7 @@ var POIsSchema = mongoose.Schema({
 
 var routesSchema = mongoose.Schema({
     name: String,
-    pois: [{poi: objectId, location: {lat: Number, lng:Number}}],
+    pois: [{poi: String, location: {lat: Number, lng:Number}}],
     numRecommendations: Number,
     creator: objectId
 });
@@ -71,7 +71,7 @@ var ratingSchema = mongoose.Schema({
 var shareSchema = mongoose.Schema({
     idUser: String,
     namePoiRoute: String,
-    idPoiRoute: objectId
+    idPoiRoute: String
 });
 
 

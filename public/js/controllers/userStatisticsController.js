@@ -7,6 +7,10 @@ angular.module('vignemale')
         $scope.idUser = $stateParams.idUser;
 
 
+
+        $scope.description="";
+
+
         // feedback handling variables
         $scope.error = false;
         $scope.success = false;
@@ -43,13 +47,13 @@ angular.module('vignemale')
         };
 
         if($scope.id == 1){
-            console.log($scope.idUser);
 
             users.getStatistics($scope.idUser, 1, function (data) {
                 var info = {
                     labels: data.names,
                     datasets: [
                         {
+                            label: "Number of registrations per month (You and the ones you follow)",
                             data: data.creations
                         }
                     ]
@@ -81,6 +85,7 @@ angular.module('vignemale')
                     labels: data.names,
                     datasets: [
                         {
+                            label: "Last acceses in the last week (You and the ones you follow)",
                             data: data.lastAccessArray
                         }
                     ]
@@ -93,6 +98,10 @@ angular.module('vignemale')
                         scales: {
                             yAxes: [{
                                 stacked: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'probability'
+                                },
                                 ticks: {
                                     stepSize: 1
                                 }
@@ -105,12 +114,12 @@ angular.module('vignemale')
 
         }else if($scope.id == 3){
 
-
             users.getStatistics($scope.idUser, 3, function (data) {
                 var info = {
                     labels: data.names,
                     datasets: [
                         {
+                            label: "Number of recommendation for every poi you have recommended",
                             data: data.count
                         }
                     ]
@@ -134,12 +143,42 @@ angular.module('vignemale')
             });
 
         }else if($scope.id == 4) {
-
             users.getStatistics($scope.idUser, 4, function (data) {
                 var info = {
                     labels: data.names,
                     datasets: [
                         {
+                            label: "Number of recommendation each poi you have duplicated",
+                            data: data.count
+                        }
+                    ]
+                };
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: info,
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                stacked: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }]
+                        }
+                    }
+                });
+
+            });
+            //user's pois by country
+        }else if($scope.id == 5) {
+
+            users.getStatistics($scope.idUser, 5, function (data) {
+                var info = {
+                    labels: data.names,
+                    datasets: [
+                        {
+                            label: "Number of duplications for every user you follow",
                             data: data.count
                         }
                     ]

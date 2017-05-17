@@ -43,7 +43,9 @@ var POIsSchema = mongoose.Schema({
     city: String,
     country: String,
     creator: objectId,
-    rating: Number
+    rating: Number,
+    idDuplicate: String,
+    originCreator: String
 });
 
 

@@ -249,14 +249,18 @@ angular.module('vignemale')
 
             //al borrar un poi,si se vuelve a Pois sigue saliendo su marker hasta que se clika en alguno del resto
             $scope.duplicatePoi = function () {
+                var duplicate = $scope.newPoi;
+
+                duplicate.idDuplicate = $scope.idPoi;
+                duplicate.originCreator = $stateParams.id;
 
                 if($scope.itsMe()){
-                    $scope.newPoi.creator = $stateParams.id;
+                    duplicate.creator = $stateParams.id;
                 }else{
-                    $scope.newPoi.creator = $scope.idRequest;
+                    duplicate.creator = $scope.idRequest;
                 }
 
-                pois.createPoi($scope.newPoi, function (data) {
+                pois.createPoi(duplicate, function (data) {
                     showSuccess(data);
                     $scope.show="pois";
                 }, showError);

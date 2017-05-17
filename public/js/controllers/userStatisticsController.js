@@ -133,45 +133,39 @@ angular.module('vignemale')
 
             });
 
-        }else if($scope.id == 8){
+        }else if($scope.id == 4) {
 
-            users.getStatistics($scope.idUser, 8, function (data) {
+            users.getStatistics($scope.idUser, 4, function (data) {
                 var info = {
                     labels: data.names,
                     datasets: [
                         {
-                            data: data.ages,
-                            backgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404",
-                                "#000000"
-
-                            ],
-                            hoverBackgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404",
-                                "#000000"
-                            ]
-                        }]
+                            data: data.count
+                        }
+                    ]
                 };
-                new Chart(ctx,{
-                    type:"pie",
+
+                new Chart(ctx, {
+                    type: 'bar',
                     data: info,
                     options: {
-                        animation:{
-                            animateScale:true
+                        scales: {
+                            yAxes: [{
+                                stacked: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }]
                         }
                     }
                 });
 
+            });
 
-            })
-
+            //user's pois by country
         }
+
+
 
         //user's pois by country
         else if ($scope.id == 6){
@@ -246,6 +240,46 @@ angular.module('vignemale')
                     }
                 });
             });
+        }
+
+        else if($scope.id == 8){
+
+            users.getStatistics($scope.idUser, 8, function (data) {
+                var info = {
+                    labels: data.names,
+                    datasets: [
+                        {
+                            data: data.ages,
+                            backgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+
+                            ],
+                            hoverBackgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+                            ]
+                        }]
+                };
+                new Chart(ctx,{
+                    type:"pie",
+                    data: info,
+                    options: {
+                        animation:{
+                            animateScale:true
+                        }
+                    }
+                });
+
+
+            })
+
         }
 
         //following users' activity depending on pois and age

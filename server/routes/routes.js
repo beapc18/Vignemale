@@ -632,6 +632,16 @@ var appRouter = function(router, mongo, app, config, database) {
             db.creator = req.body.creator;
             db.numRec = 0; //nº recomendaciones
 
+            if ("undefined" === typeof req.body.idDuplicate || "undefined" === typeof req.body.originCreator) {
+
+            }else{
+                db.idDuplicate = req.body.idDuplicate;
+                db.originCreator = req.body.originCreator;
+
+                console.log(req.body.idDuplicate);
+                console.log(req.body.originCreator);
+            }
+
             //Collect data to statistics of country and city
             googleMapsClient.reverseGeocode({
                 latlng: [req.body.lat, req.body.lng]
@@ -906,6 +916,7 @@ var appRouter = function(router, mongo, app, config, database) {
             callback(arrayIds, arrayUsers);
         }
     };
+
 
     //get user follows
     router.get("/users/:id/following", function (req, res) {
@@ -1362,8 +1373,6 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/users/:id/statistics/3", function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/3");
 
-        var db = new mongo.shares;
-
         mongo.shares.aggregate([{ $match: { idUser: req.params.id } },{$group : {_id: {id:"$idPoiRoute", name:"$namePoiRoute"}, count:{$sum:1}}}],function(err,data){
             if (err) {
                 response = {"status": 500, "message": "Error fetching pois"};
@@ -1382,6 +1391,55 @@ var appRouter = function(router, mongo, app, config, database) {
             res.status(response.status).json(response.message);
         });
     })
+
+
+    router.get("/users/:id/statistics/4", function (req, res) {
+        console.log("/user/" + req.params.id + "/statistics/4");
+
+        mongo.pois.find({creator: req.params.id,idDuplicate:{$exists:true}},{idDuplicate: true},function (err, data) {
+            if (err) {
+                response = {"status": 500, "message": "Error fetching pois"};
+                res.status(response.status).json(response.message);
+            } else {
+
+                var count = [];
+
+                bucleForShare(data.map(function(a){return a.idDuplicate}),0,count,function(arrayIds,arrayCounts){
+                    var names = [];
+                    bucleForPOIs(arrayIds,0,names,function(arrayIds,arrayNames){
+                        response = {
+                            "status": 200, "message": {
+                                "names": names
+                                , "count": count
+                            }
+                        }
+                        res.status(response.status).json(response.message);
+                    })
+                })
+            }
+
+        });
+    })
+
+    var bucleForShare = function (arrayIds, i, arrayCounts, callback) {
+        if(i<arrayIds.length) {
+            mongo.shares.find({idPoiRoute: arrayIds[i]},function (err,data) {
+                if(err) {
+                }else{
+                    var index = arrayIds.indexOf(arrayIds[0]);
+
+                    if (index !== -1) {
+                        arrayCounts[i] = data.length;
+                    }
+                    i++;
+                    bucleForShare(arrayIds, i, arrayCounts, callback);
+                }
+            });
+        }
+        else {
+            callback(arrayIds, arrayCounts);
+        }
+    };
 
 
 

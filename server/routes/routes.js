@@ -1412,14 +1412,14 @@ var appRouter = function(router, mongo, app, config, database) {
                                 "names": names
                                 , "count": count
                             }
-                        }
+                        };
                         res.status(response.status).json(response.message);
                     })
                 })
             }
 
         });
-    })
+    });
 
     var bucleForShare = function (arrayIds, i, arrayCounts, callback) {
         if(i<arrayIds.length) {

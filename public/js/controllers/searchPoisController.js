@@ -155,6 +155,7 @@ angular.module('vignemale')
 
             auth.getIdFromToken(auth.getToken(), function (idUser) {
                 users.getUser(idUser.message,function(data){
+                    $scope.recommendation.idOrigin = idUser.message;
                     $scope.recommendation.userNameOrigin = data.message[0].name;
                     $scope.recommendation.userLastNameOrigin = data.message[0].lastName;
                     recommendations.share($scope.recommendation,function(data){

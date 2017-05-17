@@ -133,7 +133,7 @@ angular.module('vignemale')
 
             });
 
-        }else if($scope.id == 4){
+        }else if($scope.id == 4) {
 
             users.getStatistics($scope.idUser, 4, function (data) {
                 var info = {
@@ -162,6 +162,79 @@ angular.module('vignemale')
 
             });
 
+            //user's pois by country
+        }else if ($scope.id == 6){
+            users.getStatistics($scope.idUser, 6, function (data) {
+                var info = {
+                    labels: data.countries,
+                    datasets: [
+                        {
+                            data: data.numPois,
+                            backgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+                            ],
+                            hoverBackgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+                            ]
+                        }
+                    ]
+                };
+                $scope.image = new Chart(ctx, {
+                    type: 'pie',
+                    data: info,
+                    options: {
+                        animation:{
+                            animateScale:true
+                        }
+                    }
+                });
+            });
+        }
+
+        //following's pois by country
+        else if ($scope.id == 7){
+            users.getStatistics($scope.idUser, 7, function (data) {
+
+                var info = {
+                    labels: data.countries,
+                    datasets: [
+                        {
+                            data: data.numPois,
+                            backgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+                            ],
+                            hoverBackgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404",
+                                "#000000"
+                            ]
+                        }
+                    ]
+                };
+                $scope.image = new Chart(ctx, {
+                    type: 'pie',
+                    data: info,
+                    options: {
+                        animation:{
+                            animateScale:true
+                        }
+                    }
+                });
+            });
         }else if($scope.id == 8){
 
             users.getStatistics($scope.idUser, 8, function (data) {
@@ -196,12 +269,7 @@ angular.module('vignemale')
                         }
                     }
                 });
-
-
             })
-
         }
-
-
     }]);
 

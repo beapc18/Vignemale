@@ -111,7 +111,7 @@ var appRouter = function(router, mongo, app, config, database) {
                             response = {"message": "Error adding data"};
                             res.status(500).json(response);
                         } else {
-                            if(email === "vignemaleSTW@gmail.com") { //es admin ->indicarlo
+                            if (email === "vignemaleSTW@gmail.com") { //es admin ->indicarlo
                                 response = {"message": "admin"};
                             }
                             else {
@@ -420,7 +420,8 @@ var appRouter = function(router, mongo, app, config, database) {
                                 console.log('Message sent: ' + info.response);
                                 response = {"message": "Account has been verified, you will receive an email with your password"};
                                 res.status(200).json(response);
-                            };
+                            }
+                            ;
                         });
                     }
                 });
@@ -438,7 +439,7 @@ var appRouter = function(router, mongo, app, config, database) {
             .update(req.body.password)
             .digest('base64');
 
-        mongo.users.update({_id: req.body.id}, {password: hashPassword, firstLogin: false}, function (err) {
+        mongo.users.update({_id: req.body.id}, /*{password: hashPassword, firstLogin: false},*/ function (err) {
             if (err) {
                 response = {"message": "Error updating data"};
                 res.status(500).json(response);
@@ -537,8 +538,8 @@ var appRouter = function(router, mongo, app, config, database) {
         console.log("GET favs from user " + req.params.id);
         database.getFavs(mongo, req.params.id, function (response) {
             var favsNames = [];
-            bucleForPOIs(response.res.message[0].favs, 0, favsNames, function (arrayIds,arrayNames) {
-                response = {"status": 200, "message": {"favsNames" : arrayNames, "favsIds" : arrayIds}}; //devolver solo la lista de seguidores
+            bucleForPOIs(response.res.message[0].favs, 0, favsNames, function (arrayIds, arrayNames) {
+                response = {"status": 200, "message": {"favsNames": arrayNames, "favsIds": arrayIds}}; //devolver solo la lista de seguidores
                 res.status(response.status).json(response.message);
 
             });
@@ -547,7 +548,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     //add poi to fav to a user
     router.post("/users/:id/favs", passport.authenticate('jwt', {session: false}), function (req, res) {
-        console.log("POST "+req.body.idPoi+ " poi to "+ req.params.id +" user");
+        console.log("POST " + req.body.idPoi + " poi to " + req.params.id + " user");
         //if(verifyIds())
         database.addFav(mongo, req.params.id, req.body.idPoi, function (response) {
             res.status(response.status).json(response.res);
@@ -556,7 +557,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     //add poi to fav to a user
     router.delete("/users/:id/favs", passport.authenticate('jwt', {session: false}), function (req, res) {
-        console.log("DELETE "+req.body.idPoi+ " poi to "+ req.params.id +" user");
+        console.log("DELETE " + req.body.idPoi + " poi to " + req.params.id + " user");
         database.deleteFav(mongo, req.params.id, req.body.idPoi, function (response) {
             res.status(response.status).json(response.res);
         });
@@ -567,7 +568,7 @@ var appRouter = function(router, mongo, app, config, database) {
         var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
         console.log("Follow user " + req.params.id + " from " + idUser);
         //if/verifyIds
-        database.addFollowing(mongo,idUser, req.params.id, function (response) {
+        database.addFollowing(mongo, idUser, req.params.id, function (response) {
             console.log(response);
             res.status(response.status).json(response.res);
         });
@@ -578,7 +579,7 @@ var appRouter = function(router, mongo, app, config, database) {
         var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
         console.log("Unfollow user " + req.params.id + " from " + idUser);
         //if/verifyIds
-        database.removeFollowing(mongo,idUser, req.params.id, function (response) {
+        database.removeFollowing(mongo, idUser, req.params.id, function (response) {
             console.log(response);
             res.status(response.status).json(response.res);
         });
@@ -634,7 +635,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
             if ("undefined" === typeof req.body.idDuplicate || "undefined" === typeof req.body.originCreator) {
 
-            }else{
+            } else {
                 db.idDuplicate = req.body.idDuplicate;
                 db.originCreator = req.body.originCreator;
 
@@ -645,18 +646,18 @@ var appRouter = function(router, mongo, app, config, database) {
             //Collect data to statistics of country and city
             googleMapsClient.reverseGeocode({
                 latlng: [req.body.lat, req.body.lng]
-            }, function(err, response) {
+            }, function (err, response) {
                 if (!err) {
                     db.city = response.json.results[0].address_components[3].long_name;
                     db.country = response.json.results[0].address_components[5].long_name;
-                    db.save(function (err,data) {
+                    db.save(function (err, data) {
                         if (err) {
                             response = {"status": 500, "message": "Error creatting POI"};
                             res.status(response.status).json(response);
                         } else {
                             var poiId = data._id;
                             database.saveRating(mongo, req.body.creator, poiId, req.body.rating, function (data) {
-                                if (data.status === 500){
+                                if (data.status === 500) {
                                     response = {"status": 500, "message": "Error creatting POI"};
                                     res.status(response.status).json(response);
                                 } else {
@@ -664,7 +665,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
                                     shorturls.url = req.body.shortURL;
 
-                                    if(req.body.shortURL != "") {
+                                    if (req.body.shortURL != "") {
                                         shorturls.save(function (err, data) {
                                             if (err) {
                                                 response = {
@@ -700,7 +701,7 @@ var appRouter = function(router, mongo, app, config, database) {
                                                 });
                                             }
                                         });
-                                    }else{
+                                    } else {
                                         response = {
                                             "status": 201,
                                             "message": "POI has been created successfully"
@@ -747,7 +748,7 @@ var appRouter = function(router, mongo, app, config, database) {
                     };
 
 
-                    if(req.body.shortURL != "") {
+                    if (req.body.shortURL != "") {
 
                         var url = req.body.shortURL;
 
@@ -783,7 +784,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
                             }
                         })
-                    }else{
+                    } else {
                         response = {"status": 200, "message": "POI updated successfully"};
                         res.status(response.status).json(response);
                     }
@@ -833,13 +834,13 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/pois/:id/isfav", passport.authenticate('jwt', {session: false}), function (req, res) {
         var idPoi = req.params.id;
         var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
-        console.log("GET if poi "+idPoi+" is fav from user " + idUser);
+        console.log("GET if poi " + idPoi + " is fav from user " + idUser);
         mongo.users.find({_id: idUser, favs: idPoi}, function (err, data) {
             if (err) {
                 console.log("Error getting isfav");
                 response = {"status": 500, "message": "Error getting isfav"};
             } else {
-                response = {"status": 200, "message": (data.length!==0)};
+                response = {"status": 200, "message": (data.length !== 0)};
             }
             res.status(response.status).json(response.message);
         })
@@ -862,7 +863,7 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
     var bucleForPOIs = function (arrayIds, i, arrayNames, callback) {
-        if(i<arrayIds.length) {
+        if (i < arrayIds.length) {
             database.getNamePOI(mongo, arrayIds[i], function (response) {
                 var index = arrayIds.indexOf(arrayIds[0]);
                 if (index !== -1) {
@@ -877,8 +878,40 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     };
 
+    //Juntar el poi con su creador para mas info?
+    var bucleForPOIscreator = function (idNameFollowing, i, arrayNames, ratings, callback) {
+        if (i < idNameFollowing.length) {
+            //database.getNamePOIcreator(mongo, idNameFollowing[i].id, function (response) {
+            mongo.pois.find({creator: idNameFollowing[i]._id}, {name: 1, rating: 1, _id: 0}, function (err, data) {
+                console.log("data" + data);
+                //var index = arrayIds.indexOf(arrayIds[0]);
+                for (j = 0; j < data.length; j++) {
+                    ratings.push({"x": data[j].name, "y": idNameFollowing[i].name, "r": data[j].rating});
+                }
+                /*if (index !== -1) {
+                 for (j = 0; j < response.message.length; j++) {
+                 for(k = 0; k < response.message.length; k++) {
+                 ratings.push({"x": response.message[j].name});
+                 }
+                 }*/
+
+                /*for(i = 0; i<data.pois.length; i++){
+                 for(j = 0; j<data.names.length; j++) {
+                 if(String(data.pois[i]._id) == String(data.names[j]._id)){
+                 bubbles.push({"x": data.names[j].name, "y": data.pois[i].y, "r": data.pois[i].r});*/
+                i++;
+                bucleForPOIscreator(idNameFollowing, i, arrayNames, ratings, callback);
+            });
+        }
+        else {
+            console.log(ratings);
+            callback(idNameFollowing, ratings);
+        }
+    };
+
+
     var bucleForUserNames = function (arrayIds, i, arrayNames, callback) {
-        if(i<arrayIds.length) {
+        if (i < arrayIds.length) {
 
             database.getNameUser(mongo, arrayIds[i], function (response) {
                 var index = arrayIds.indexOf(arrayIds[0]);
@@ -896,12 +929,12 @@ var appRouter = function(router, mongo, app, config, database) {
     };
 
     var bucleForUser = function (arrayIds, i, arrayUsers, callback) {
-        if(i<arrayIds.length) {
+        if (i < arrayIds.length) {
 
 
-            mongo.users.find({_id: arrayIds[i]},function (err,data) {
-                if(err) {
-                }else{
+            mongo.users.find({_id: arrayIds[i]}, function (err, data) {
+                if (err) {
+                } else {
                     var index = arrayIds.indexOf(arrayIds[0]);
                     if (index !== -1) {
                         arrayUsers[i] = data[0];
@@ -918,37 +951,41 @@ var appRouter = function(router, mongo, app, config, database) {
     };
 
 
-    //get user follows
+//get user follows
     router.get("/users/:id/following", function (req, res) {
         var userId = req.params.id;
         console.log("Get follows");
-        mongo.users.find({_id: userId},{following: 1, _id: 0}, function (err, data) {
+        mongo.users.find({_id: userId}, {following: 1, _id: 0}, function (err, data) {
             if (err) {
                 console.log("Error getting follows");
                 response = {"status": 500, "message": "Error getting follows"};
                 res.status(response.status).json(response.message);
             } else {
                 var followingNames = [];
-                bucleForUserNames(data[0].following, 0, followingNames, function (arrayIds,arrayNames) {
-                    response = {"status": 200, "message": {"followingNames" : arrayNames
-                        , "followingIds" : arrayIds}}; //devolver solo la lista de seguidores
+                bucleForUserNames(data[0].following, 0, followingNames, function (arrayIds, arrayNames) {
+                    response = {
+                        "status": 200, "message": {
+                            "followingNames": arrayNames
+                            , "followingIds": arrayIds
+                        }
+                    }; //devolver solo la lista de seguidores
                     res.status(response.status).json(response.message);
                 });
             }
         })
     });
 
-    //return true if the user is followed, false in other case
+//return true if the user is followed, false in other case
     router.get("/users/:id/isfollowed", passport.authenticate('jwt', {session: false}), function (req, res) {
         var idUserFollowed = req.params.id;
         var idUserFollowing = jwt.decode(req.headers.authorization.split(" ")[1]).id;
-        console.log("Get user "+idUserFollowed+" is followed by"+ idUserFollowing);
+        console.log("Get user " + idUserFollowed + " is followed by" + idUserFollowing);
         mongo.users.find({_id: idUserFollowing, following: idUserFollowed}, function (err, data) {
             if (err) {
                 console.log("Error getting isfollow");
                 response = {"status": 500, "message": "Error getting follows"};
             } else {
-                response = {"status": 200, "message": (data.length!==0)};
+                response = {"status": 200, "message": (data.length !== 0)};
             }
             res.status(response.status).json(response.message);
         })
@@ -979,7 +1016,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
             var array = [];
 
-            for(i = 0; i < pois.length; i++){
+            for (i = 0; i < pois.length; i++) {
                 array.push(JSON.parse(pois[i]));
             }
 
@@ -1006,19 +1043,18 @@ var appRouter = function(router, mongo, app, config, database) {
         });
 
 
-
     router.route("/routes/:id").get(function (req, res) {
-            console.log("GET routes/" + req.params.id);
-            var response = {};
-            mongo.routes.find({_id: req.params.id}, function (err, data) {
-                if (err) {
-                    response = {"status": 500, "message": "Error fetching data"};
-                } else {
-                    response = {"status": 200, "message": data[0]};
-                }
-                res.status(response.status).json(response.message);
-            });
+        console.log("GET routes/" + req.params.id);
+        var response = {};
+        mongo.routes.find({_id: req.params.id}, function (err, data) {
+            if (err) {
+                response = {"status": 500, "message": "Error fetching data"};
+            } else {
+                response = {"status": 200, "message": data[0]};
+            }
+            res.status(response.status).json(response.message);
         });
+    });
 
     router.route("/routes/:id").delete(passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("DELETE routes/" + req.params.id);
@@ -1036,7 +1072,7 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/short/:id", function (req, res) {
 
         console.log("redirect");
-        mongo.shorturls.find({_id: req.params.id},function (err, data) {
+        mongo.shorturls.find({_id: req.params.id}, function (err, data) {
             if (err) {
                 response = {"status": 500, "message": "Error fetching data"};
             } else {
@@ -1050,7 +1086,7 @@ var appRouter = function(router, mongo, app, config, database) {
             console.log("GET /search/pois/" + req.params.words);
             var response = {};
             //find similar results using an index
-            mongo.pois.find({$text: { $search: req.params.words}}, function (err, data) {
+            mongo.pois.find({$text: {$search: req.params.words}}, function (err, data) {
                 if (err) {
                     response = {"status": 500, "message": "Error fetching pois"};
                 } else {
@@ -1072,32 +1108,34 @@ var appRouter = function(router, mongo, app, config, database) {
 
             var db = new mongo.shares;
 
-            if(req.body.isPoi == "true"){
+            if (req.body.isPoi == "true") {
 
 
-                mongo.pois.find({_id: req.body.idPoiRoute},function (err, data) {
+                mongo.pois.find({_id: req.body.idPoiRoute}, function (err, data) {
                     if (err) {
                         response = {"status": 500, "message": "Error fetching data"};
                     } else {
                         db.idPoiRoute = req.body.idPoiRoute;
                         db.idUser = req.body.idOrigin;
                         db.namePoiRoute = data[0].name;
-                        db.save(function (err) {});
+                        db.save(function (err) {
+                        });
                     }
                 });
 
 
                 url = 'http://localhost:8888/#/pois/' + req.body.idPoiRoute;
-            }else{
+            } else {
 
-                mongo.routes.find({_id: req.body.idPoiRoute},function (err, data) {
+                mongo.routes.find({_id: req.body.idPoiRoute}, function (err, data) {
                     if (err) {
                         response = {"status": 500, "message": "Error fetching data"};
                     } else {
                         db.idPoiRoute = req.body.idPoiRoute;
                         db.idUser = req.body.idOrigin;
                         db.namePoiRoute = data[0].name;
-                        db.save(function (err) {});
+                        db.save(function (err) {
+                        });
                     }
                 });
 
@@ -1105,8 +1143,8 @@ var appRouter = function(router, mongo, app, config, database) {
             }
 
             var text = req.body.message + '\n' +
-                'Click the link bellow to watch your recommendation from '+req.body.userNameOrigin+
-                ' '+req.body.userLastNameOrigin+'.\n'
+                'Click the link bellow to watch your recommendation from ' + req.body.userNameOrigin +
+                ' ' + req.body.userLastNameOrigin + '.\n'
                 + url + '\n';
 
             var mailOptions = {
@@ -1130,7 +1168,7 @@ var appRouter = function(router, mongo, app, config, database) {
             console.log("GET /search/users/" + req.params.words);
             var response = {};
             //find similar results using an index
-            mongo.users.find({$text: { $search: req.params.words}}, function (err, data) {
+            mongo.users.find({$text: {$search: req.params.words}}, function (err, data) {
                 if (err) {
                     response = {"status": 500, "message": "Error fetching users"};
                 } else {
@@ -1144,7 +1182,7 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/admin/usersList", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("Management list...");
 
-        mongo.users.find({ $and: [{email: {$ne: "vignemaleSTW@gmail.com"}}, {removed: {$ne: "true"}}]}, function (err, data) {
+        mongo.users.find({$and: [{email: {$ne: "vignemaleSTW@gmail.com"}}, {removed: {$ne: "true"}}]}, function (err, data) {
             if (err) {
                 response = {"status": 500, "message": "Error returning all users"};
             } else {
@@ -1171,11 +1209,11 @@ var appRouter = function(router, mongo, app, config, database) {
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
                 console.log(error);
-                response = {"status": 500, "message":"Error sending mail"}
+                response = {"status": 500, "message": "Error sending mail"}
             }
             else {
                 console.log(info);
-                response = {"status": 200, "message":"Email sent"}
+                response = {"status": 200, "message": "Email sent"}
             }
             res.status(response.status).json(response.message);
         });
@@ -1183,43 +1221,47 @@ var appRouter = function(router, mongo, app, config, database) {
 
 
     router.get("/users/:id/statistics/1", function (req, res) {
-        console.log("/user/"+req.params.id+"/statistics/1");
+        console.log("/user/" + req.params.id + "/statistics/1");
 
-        mongo.users.find({_id: req.params.id},function (err, data) {
+        mongo.users.find({_id: req.params.id}, function (err, data) {
             if (err) {
                 console.log("Error getting follows");
                 response = {"status": 500, "message": "Error getting follows"};
             } else {
                 var userCreationDate = data[0].creationDate;
 
-                var following =[];
-                bucleForUser(data[0].following, 0, following, function (arrayIds,arrayUsers) {
+                var following = [];
+                bucleForUser(data[0].following, 0, following, function (arrayIds, arrayUsers) {
 
                     var date = new Date();
-                    var size = 12*(date.getFullYear() - 2017) + (date.getMonth() - 1) + 1;
+                    var size = 12 * (date.getFullYear() - 2017) + (date.getMonth() - 1) + 1;
                     var names = new Array(size);
 
                     //names of the months
-                    for(i = 0; i<size;i++){
-                        var year = 2017 + parseInt((i+2)/12);
-                        var month = (i+2)%12;
-                           names[i] = month+'/'+year;
+                    for (i = 0; i < size; i++) {
+                        var year = 2017 + parseInt((i + 2) / 12);
+                        var month = (i + 2) % 12;
+                        names[i] = month + '/' + year;
                     }
 
                     var creations = new Array(size).fill(0);
                     var dateCreation;
 
                     //number of creation per month
-                    for(i = 0; i<arrayUsers.length; i++){
+                    for (i = 0; i < arrayUsers.length; i++) {
                         dateCreation = arrayUsers[i].creationDate;
-                        creations[12*(dateCreation.getFullYear() - 2017) + (dateCreation.getMonth() - 1)]++;
+                        creations[12 * (dateCreation.getFullYear() - 2017) + (dateCreation.getMonth() - 1)]++;
                     }
 
                     //add user to the list
-                    creations[12*(userCreationDate.getFullYear() - 2017) + (userCreationDate.getMonth() - 1)]++;
+                    creations[12 * (userCreationDate.getFullYear() - 2017) + (userCreationDate.getMonth() - 1)]++;
 
-                    response = {"status": 200, "message": {"names" : names
-                        , "creations" : creations}}; //devolver solo la lista de seguidores
+                    response = {
+                        "status": 200, "message": {
+                            "names": names
+                            , "creations": creations
+                        }
+                    }; //devolver solo la lista de seguidores
                     res.status(response.status).json(response.message);
                 });
             }
@@ -1228,17 +1270,17 @@ var appRouter = function(router, mongo, app, config, database) {
 
 
     router.get("/users/:id/statistics/2", function (req, res) {
-        console.log("/user/"+req.params.id+"/statistics/2");
+        console.log("/user/" + req.params.id + "/statistics/2");
 
-        mongo.users.find({_id: req.params.id},function (err, data) {
+        mongo.users.find({_id: req.params.id}, function (err, data) {
             if (err) {
                 console.log("Error getting follows");
                 response = {"status": 500, "message": "Error getting follows"};
             } else {
                 var userLastAccess = data[0].lastAccess;
 
-                var following =[];
-                bucleForUser(data[0].following, 0, following, function (arrayIds,arrayUsers) {
+                var following = [];
+                bucleForUser(data[0].following, 0, following, function (arrayIds, arrayUsers) {
 
                     var date = new Date();
                     var size = 8;
@@ -1249,14 +1291,13 @@ var appRouter = function(router, mongo, app, config, database) {
 
                     names[0] = "Before";
                     //names of the months
-                    for(i = 0; i<size-1;i++){
+                    for (i = 0; i < size - 1; i++) {
 
                         var dat = new Date();
                         dat.setDate(dat.getDate() - i);
 
-                        names[size-(i + 1)] = getDateString(dat);
+                        names[size - (i + 1)] = getDateString(dat);
                     }
-
 
 
                     var lastAccessArray = new Array(size).fill(0);
@@ -1268,18 +1309,18 @@ var appRouter = function(router, mongo, app, config, database) {
 
                     var added = false;
                     //number of creation per month
-                    for(i = 0; i<arrayUsers.length; i++){
+                    for (i = 0; i < arrayUsers.length; i++) {
                         dateLastAccess = arrayUsers[i].lastAccess;
 
 
-                        for(j = 1; j<size;j++){
-                            if(names[j] == getDateString(dateLastAccess)){
+                        for (j = 1; j < size; j++) {
+                            if (names[j] == getDateString(dateLastAccess)) {
                                 lastAccessArray[j]++;
                                 added = true;
                             }
                         }
 
-                        if(!added){
+                        if (!added) {
                             lastAccessArray[0]++;
                         }
                         added = false;
@@ -1289,8 +1330,12 @@ var appRouter = function(router, mongo, app, config, database) {
                     //add user to the list
                     //creations[12*(userCreationDate.getFullYear() - 2017) + (userCreationDate.getMonth() - 1)]++;
 
-                    response = {"status": 200, "message": {"names" : names
-                        , "lastAccessArray" : lastAccessArray}}; //devolver solo la lista de seguidores
+                    response = {
+                        "status": 200, "message": {
+                            "names": names
+                            , "lastAccessArray": lastAccessArray
+                        }
+                    }; //devolver solo la lista de seguidores
                     res.status(response.status).json(response.message);
                 });
             }
@@ -1306,9 +1351,9 @@ var appRouter = function(router, mongo, app, config, database) {
                 var countries = [];
                 var numPois = [];
                 console.log(data);
-                for(i = 0; i<data.length; i++){
+                for (i = 0; i < data.length; i++) {
                     countries.push(data[i]._id.country);
-                    numPois.push(parseFloat(data[i].total/data.length*100).toFixed(2)); //porcentaje
+                    numPois.push(parseFloat(data[i].total / data.length * 100).toFixed(2)); //porcentaje
                 }
                 response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
             }
@@ -1325,9 +1370,9 @@ var appRouter = function(router, mongo, app, config, database) {
                 var countries = [];
                 var numPois = [];
                 console.log(data);
-                for(i = 0; i<data.length; i++){
+                for (i = 0; i < data.length; i++) {
                     countries.push(data[i]._id.country);
-                    numPois.push(parseFloat(data[i].total/data.length*100).toFixed(2)); //porcentaje
+                    numPois.push(parseFloat(data[i].total / data.length * 100).toFixed(2)); //porcentaje
                 }
                 response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
             }
@@ -1344,10 +1389,10 @@ var appRouter = function(router, mongo, app, config, database) {
                 var info = [];
                 console.log(data);
 
-                for(i = 0; i<data.follows.length; i++){
+                for (i = 0; i < data.follows.length; i++) {
                     users.push(data.follows[i].name);
-                    for(j = 0; j<data.pois.length; j++){
-                        if (String(data.follows[i]._id) == String(data.pois[j]._id.creator)){
+                    for (j = 0; j < data.pois.length; j++) {
+                        if (String(data.follows[i]._id) == String(data.pois[j]._id.creator)) {
                             info.push(data.pois[j].total);
                             data.pois.splice(j);
                             break;
@@ -1360,22 +1405,32 @@ var appRouter = function(router, mongo, app, config, database) {
         })
     });
 
-    var getDateString = function(date){
-        return date.getDate()+'/'+(date.getMonth()+1)+'/'+date.getFullYear();
+    var getDateString = function (date) {
+        return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
     }
-
 
 
     router.get("/users/:id/statistics/3", function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/3");
 
-        mongo.shares.aggregate([{ $match: { idUser: req.params.id } },{$group : {_id: {id:"$idPoiRoute", name:"$namePoiRoute"}, count:{$sum:1}}}],function(err,data){
+        mongo.shares.aggregate([{$match: {idUser: req.params.id}}, {
+            $group: {
+                _id: {
+                    id: "$idPoiRoute",
+                    name: "$namePoiRoute"
+                }, count: {$sum: 1}
+            }
+        }], function (err, data) {
             if (err) {
                 response = {"status": 500, "message": "Error fetching pois"};
             } else {
                 response = {"status": 200, "message": data};
-                var names = data.map(function(a){return a._id.name});
-                var count = data.map(function(a){return a.count});
+                var names = data.map(function (a) {
+                    return a._id.name
+                });
+                var count = data.map(function (a) {
+                    return a.count
+                });
 
                 response = {
                     "status": 200, "message": {
@@ -1392,7 +1447,10 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/users/:id/statistics/4", function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/4");
 
-        mongo.pois.find({creator: req.params.id,idDuplicate:{$exists:true}},{idDuplicate: true},function (err, data) {
+        mongo.pois.find({
+            creator: req.params.id,
+            idDuplicate: {$exists: true}
+        }, {idDuplicate: true}, function (err, data) {
             if (err) {
                 response = {"status": 500, "message": "Error fetching pois"};
                 res.status(response.status).json(response.message);
@@ -1400,9 +1458,11 @@ var appRouter = function(router, mongo, app, config, database) {
 
                 var count = [];
 
-                bucleForShare(data.map(function(a){return a.idDuplicate}),0,count,function(arrayIds,arrayCounts){
+                bucleForShare(data.map(function (a) {
+                    return a.idDuplicate
+                }), 0, count, function (arrayIds, arrayCounts) {
                     var names = [];
-                    bucleForPOIs(arrayIds,0,names,function(arrayIds,arrayNames){
+                    bucleForPOIs(arrayIds, 0, names, function (arrayIds, arrayNames) {
                         response = {
                             "status": 200, "message": {
                                 "names": names
@@ -1415,16 +1475,13 @@ var appRouter = function(router, mongo, app, config, database) {
             }
 
         });
-    });
-
-
-
+    })
 
     var bucleForShare = function (arrayIds, i, arrayCounts, callback) {
-        if(i<arrayIds.length) {
-            mongo.shares.find({idPoiRoute: arrayIds[i]},function (err,data) {
-                if(err) {
-                }else{
+        if (i < arrayIds.length) {
+            mongo.shares.find({idPoiRoute: arrayIds[i]}, function (err, data) {
+                if (err) {
+                } else {
                     var index = arrayIds.indexOf(arrayIds[0]);
 
                     if (index !== -1) {
@@ -1441,23 +1498,32 @@ var appRouter = function(router, mongo, app, config, database) {
     };
 
 
-
-
     router.get("/users/:id/statistics/5", function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/5");
 
-        mongo.pois.aggregate([{ $match: { creator: req.params.id, originCreator:{$exists:true} } },{$group : {_id: {originCreator:"$originCreator"}, count:{$sum:1}}}],function(err,data){
+        mongo.pois.aggregate([{
+            $match: {
+                creator: req.params.id,
+                originCreator: {$exists: true}
+            }
+        }, {$group: {_id: {originCreator: "$originCreator"}, count: {$sum: 1}}}], function (err, data) {
             if (err) {
                 response = {"status": 500, "message": "Error fetching pois"};
                 res.status(response.status).json(response.message);
             } else {
                 var names = [];
 
-                bucleForUser(data.map(function(a){return a._id.originCreator}),0,names,function(arrayIds,arrayUsers){
+                bucleForUser(data.map(function (a) {
+                    return a._id.originCreator
+                }), 0, names, function (arrayIds, arrayUsers) {
                     response = {
                         "status": 200, "message": {
-                            "names": arrayUsers.map(function(a){return a.name;}),
-                            "count": data.map(function(a){return a.count;})
+                            "names": arrayUsers.map(function (a) {
+                                return a.name;
+                            }),
+                            "count": data.map(function (a) {
+                                return a.count;
+                            })
                         }
                     };
                     res.status(response.status).json(response.message);
@@ -1468,11 +1534,10 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
 
-
     router.get("/users/:id/statistics/8", function (req, res) {
-        console.log("/user/"+req.params.id+"/statistics/8");
+        console.log("/user/" + req.params.id + "/statistics/8");
 
-        mongo.users.find({_id: req.params.id},function (err, data) {
+        mongo.users.find({_id: req.params.id}, function (err, data) {
             if (err) {
                 console.log("Error getting follows");
                 response = {"status": 500, "message": "Error getting follows"};
@@ -1480,8 +1545,8 @@ var appRouter = function(router, mongo, app, config, database) {
 
                 var myAge = data[0].birthDate;
 
-                var following =[];
-                bucleForUser(data[0].following, 0, following, function (arrayIds,arrayUsers) {
+                var following = [];
+                bucleForUser(data[0].following, 0, following, function (arrayIds, arrayUsers) {
 
                     var date = new Date();
                     var size = 5;
@@ -1497,9 +1562,6 @@ var appRouter = function(router, mongo, app, config, database) {
                     names[4] = "Unknown";
 
 
-
-
-
                     var ages = new Array(size).fill(0);
                     var age;
 
@@ -1508,19 +1570,19 @@ var appRouter = function(router, mongo, app, config, database) {
                     });
 
                     //number of creation per month
-                    for(i = 0; i<arrayUsers.length; i++){
+                    for (i = 0; i < arrayUsers.length; i++) {
 
                         if ("undefined" === typeof arrayUsers[i].birthDate) {
                             ages[4]++;
-                        }else{
+                        } else {
                             age = date.getFullYear() - arrayUsers[i].birthDate.getFullYear();
-                            if(age<18){
+                            if (age < 18) {
                                 ages[0]++;
-                            }else if(age>=18 && age<=30){
+                            } else if (age >= 18 && age <= 30) {
                                 ages[1]++;
-                            }else if(age>=31 && age<=50){
+                            } else if (age >= 31 && age <= 50) {
                                 ages[2]++;
-                            }else{
+                            } else {
                                 ages[3]++;
                             }
                         }
@@ -1530,13 +1592,45 @@ var appRouter = function(router, mongo, app, config, database) {
                     //add user to the list
                     //creations[12*(userCreationDate.getFullYear() - 2017) + (userCreationDate.getMonth() - 1)]++;
 
-                    response = {"status": 200, "message": {"names" : names
-                        , "ages" : ages}}; //devolver solo la lista de seguidores
+                    response = {
+                        "status": 200, "message": {
+                            "names": names
+                            , "ages": ages
+                        }
+                    }; //devolver solo la lista de seguidores
                     res.status(response.status).json(response.message);
                 });
             }
         });
 
+    });
+
+    router.get("/users/:id/statistics/10", function (req, res) {
+        console.log("Estadistica 10 del usuario " + req.params.id)
+        mongo.users.find({_id: req.params.id}, function (err, data) {
+            if (err) {
+                console.log("Error getting follows");
+                response = {"status": 500, "message": "Error getting follows"};
+            } else {
+                // var myAge = data[0].birthDate;
+
+                var following = [];
+                //var names = Array();
+                var ratings = [];
+                mongo.users.find({_id: data[0].following}, {name: 1}, function (err, IdNamefollowings) {
+                    console.log("Following:" + IdNamefollowings);
+
+                    //bucleForUser(data[0].following, 0, following, function (arrayIds, arrayUsers) {
+                    bucleForPOIscreator(IdNamefollowings, 0, [], ratings, function (arrayIds, arrayPOIs) {
+                        console.log("Array final de ratings: " + arrayPOIs);
+
+                        response = {"status": 200, "message": {infoPois: arrayPOIs}};
+                        res.status(response.status).json(response.message);
+                    });
+                    //});
+                });
+            }
+        });
     })
 
     //pois by user and rating average
@@ -1545,9 +1639,9 @@ var appRouter = function(router, mongo, app, config, database) {
         database.getPoisRatingByUser(mongo, function (data) {
             if (data.status != 500) {
                 var bubbles = [];
-                for(i = 0; i<data.pois.length; i++){
-                    for(j = 0; j<data.names.length; j++) {
-                        if(String(data.pois[i]._id) == String(data.names[j]._id)){
+                for (i = 0; i < data.pois.length; i++) {
+                    for (j = 0; j < data.names.length; j++) {
+                        if (String(data.pois[i]._id) == String(data.names[j]._id)) {
                             bubbles.push({"x": data.names[j].name, "y": data.pois[i].y, "r": data.pois[i].r});
                             break;
                         }
@@ -1567,9 +1661,9 @@ var appRouter = function(router, mongo, app, config, database) {
         database.getPoisRatingByUser(mongo, function (data) {
             if (data.status != 500) {
                 var bubbles = [];
-                for(i = 0; i<data.pois.length; i++){
-                    for(j = 0; j<data.names.length; j++) {
-                        if(String(data.pois[i]._id) == String(data.names[j]._id)){
+                for (i = 0; i < data.pois.length; i++) {
+                    for (j = 0; j < data.names.length; j++) {
+                        if (String(data.pois[i]._id) == String(data.names[j]._id)) {
                             bubbles.push({"x": data.names[j].name, "y": data.pois[i].y, "r": data.pois[i].r});
                             break;
                         }
@@ -1590,18 +1684,19 @@ var appRouter = function(router, mongo, app, config, database) {
             if (data.status != 500) {
                 var label = [];
                 var percentage = [];
-                var sum = Number(data.google)+Number(data.notGoogle);
+                var sum = Number(data.google) + Number(data.notGoogle);
                 label.push("% Logged with Google");
                 label.push("% Not logged with Google");
-                percentage.push(parseFloat(data.google/sum).toFixed(2)*100);
-                percentage.push(parseFloat(data.notGoogle/sum).toFixed(2)*100);
+                percentage.push(parseFloat(data.google / sum).toFixed(2) * 100);
+                percentage.push(parseFloat(data.notGoogle / sum).toFixed(2) * 100);
                 response = {"status": 200, "message": {"percentage": percentage, "label": label}};
             }
             res.status(response.status).json(response.message);
         })
     });
 
-
 };
+
+
 
 module.exports = appRouter;

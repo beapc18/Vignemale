@@ -218,34 +218,60 @@ var getNamePOI = function (mongo, idPOI, callback) {
     });
 };
 
-var ratePoi = function (mongo, idUser, idPoi, rating, callback) {
-    var response = {};
-    mongo.ratings.find({idUser: idUser, idPoi: idPoi}, function (err, data) {
-        if (err) {
-            console.log("Error database");
-            response = {"status": 500, "res": {"message": "Error rating poi"}};
-        }
-        else {
-            //update mean in poi if the user hasn't voted yet
-            if (data.length === 0){
-                updateRatingPoi(mongo, idPoi, rating, function (response) {
-                    if (response.status === 500) {
-                        callback(response);
-                    } else{
-                        //save new rating, user poi and value
-                        saveRating(mongo, idUser, idPoi, rating, function (response) {
-                            callback(response);
-                        });
-                    }
-                })
+var getNamePOIcreator = function (mongo, idCreator, callback) {
+    /*mongo.pois.distinct("rating", function (err, data) {
+     if(err) {
+     console.log("Error database");
+     response = {"status": 500, "res": {"message": "Error getting creator from the POI"}};
+     }
+     else {
+     console.log(data);
+     response = {"status": 200, "res": {"message": data}};
+     }
+     });*/
+    mongo.pois.find({creator: idCreator}, {rating: 1, _id: 0}, function (err, data) {
+        var objId = new mongoose.mongo.ObjectId(idCreator);
+        mongo.pois.aggregate([{$match: {creator: objId}}], function (err, data) {
+            if (err) {
+                console.log("Error database");
+                response = {"status": 500, "res": {"message": "Error getting creator from the POI"}};
             }
-            else{
-                response = {"status": 200, "res": {"message": "You cannot rate twice the same POI"}};
-                callback(response);
+            else {
+                response = {"status": 200, "res": {"message": data}};
             }
-        }
+            callback(response.res)
+        });
     });
 };
+
+    var ratePoi = function (mongo, idUser, idPoi, rating, callback) {
+        var response = {};
+        mongo.ratings.find({idUser: idUser, idPoi: idPoi}, function (err, data) {
+            if (err) {
+                console.log("Error database");
+                response = {"status": 500, "res": {"message": "Error rating poi"}};
+            }
+            else {
+                //update mean in poi if the user hasn't voted yet
+                if (data.length === 0){
+                    updateRatingPoi(mongo, idPoi, rating, function (response) {
+                        if (response.status === 500) {
+                            callback(response);
+                        } else{
+                            //save new rating, user poi and value
+                            saveRating(mongo, idUser, idPoi, rating, function (response) {
+                                callback(response);
+                            });
+                        }
+                    })
+                }
+                else{
+                    response = {"status": 200, "res": {"message": "You cannot rate twice the same POI"}};
+                    callback(response);
+                }
+            }
+        });
+    };
 
 //save new rating in table ratings
 var saveRating = function (mongo, idUser, idPoi, rating, callback) {
@@ -465,5 +491,6 @@ module.exports = {
     getFollowingPoisByCountry: getFollowingPoisByCountry,
     getUserInfo: getUserInfo,
     getPoisRatingByUser: getPoisRatingByUser,
-    getGoogleUsers: getGoogleUsers
+    getGoogleUsers: getGoogleUsers,
+    getNamePOIcreator: getNamePOIcreator
 };

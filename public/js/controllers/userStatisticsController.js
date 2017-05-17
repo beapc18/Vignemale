@@ -362,6 +362,61 @@ angular.module('vignemale')
                 });
             });
         }
+            else if($scope.id == 10) {
+                users.getStatistics($scope.idUser, 10, function (data) {
+                    var info = {
+                        yLabels: ["ANA", "BEA", "JORGE"],
+                        datasets: [
+                            {
+                                label: "Burbujitas",
+                                data: [{
+                                    x: "Soy Ana",
+                                    y: "Beatriz",
+                                    r: 1
+                                },
+                                {
+                                    x: "Invented", y: "Beatriz", r: 2
+                                },
+                                {
+                                    x: "Agua", y: "Beatriz", r: 4
+                                }],
+                                backgroundColor:"#FF6384",
+                                hoverBackgroundColor: "#FF6384",
+                            }]
+                    };
 
-    }]);
+                    new Chart(ctx, {
+                        type: "bubble",
+                        data: info,
+                        options: {
+                            responsive: true,
+                            title: "Correlation between rating on POIs",
+                            hAxis: {title: "POIs"},
+                            yAxis: {title: "Name user"},
+                            animation: {
+                                animateScale: true
+                            },
+                            scales: {
+                                xAxes: [{
+                                    ticks: {
+                                        callback: function (value, index, values) {
+                                            return 'POI ' + index;
+                                        }
+                                        /* min: "ANA",
+                                         max: "BEA"*/
+                                    }
+                                }]
+                            },
+                            tooltips: {
+                                callbacks: {
+                                    label: function (tooltipItem, data) {
+                                        var dataset = data.datasets[tooltipItem.datasetIndex];
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+        }]);
 

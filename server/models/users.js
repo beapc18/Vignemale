@@ -393,19 +393,13 @@ var getUsersByPlace = function (mongo, callback) {
 var getUserInfo = function (mongo, idUser, callback) {
     var response;
     mongo.users.find({_id: idUser}, {following: 1, _id: 0}, function (err, data) {
-
-        var following = [];
-        for(i = 0; i<data[0].following.length; i++){
-            following.push(new mongoose.mongo.ObjectId(data[0].following[i]));
-        }
-
         mongo.users.find({_id: data[0].following}, {name: 1}, function (err, followings) {
             if (err){
                 console.log("Error getting user info of pois");
                 response = {"status": 500, "res": {"message": "Error getting user info of pois"}};
                 callback(response);
             } else {
-                mongo.pois.aggregate({$match: {creator: {$in: following}}}, {$group: { _id: {creator: "$creator"}, total: {$sum: 1}}}, function (err, data) {
+                mongo.pois.aggregate({$match: {creator: {$in: data[0].following}}}, {$group: { _id: {creator: "$creator"}, total: {$sum: 1}}}, function (err, data) {
                     if (err){
                         console.log("Error getting user info of pois");
                         response = {"status": 500, "res": {"message": "Error getting user info of pois"}};

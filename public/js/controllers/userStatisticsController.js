@@ -333,6 +333,7 @@ angular.module('vignemale')
                     labels: data.users,
                     datasets: [
                         {
+                            label: 'Number of POIS for each people you follow',
                             data: data.info,
                             backgroundColor: [
                                 "#FF6384",

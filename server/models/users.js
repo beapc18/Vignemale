@@ -373,6 +373,21 @@ var getFollowingPoisByCountry = function (mongo, idUser, callback) {
     });
 };
 
+var getUsersByPlace = function (mongo, callback) {
+    var response;
+    //mongo.users.find({isAdmin: {$ne: 1}}, function (err, data) {
+        mongo.users.aggregate([{$group: {_id: "$place", count: {$sum:1}}}], function (err, data) {
+            if(err) {
+                console.log("Error database");
+                response = {"status": 500, "res": {"message": "Error getting users by place"}};
+            }
+            else {
+                response = {"status": 200, "res": {"message": data}};
+                callback(response);
+            }
+        })
+};
+
 //following users' activity depending on pois and age
 var getUserInfo = function (mongo, idUser, callback) {
     var response;
@@ -492,5 +507,6 @@ module.exports = {
     getUserInfo: getUserInfo,
     getPoisRatingByUser: getPoisRatingByUser,
     getGoogleUsers: getGoogleUsers,
-    getNamePOIcreator: getNamePOIcreator
+    getNamePOIcreator: getNamePOIcreator,
+    getUsersByPlace: getUsersByPlace
 };

@@ -1648,7 +1648,6 @@ var appRouter = function(router, mongo, app, config, database) {
             //var ages = [];
             var ages = new Array(5).fill(0);
             var percent = new Array(5).fill(0);
-
             //number of creation per month
             for (i = 0; i < data.length; i++) {
                 if ("undefined" === typeof data[i].birthDate) {
@@ -1666,13 +1665,9 @@ var appRouter = function(router, mongo, app, config, database) {
                     }
                 }
             }
-
-            percent[0] = ages[0] / data.length*100;
-            percent[1] = ages[1] / data.length*100;
-            percent[2] = ages[2] / data.length*100;
-            percent[3] = ages[3] / data.length*100;
-            percent[4] = ages[4] / data.length*100;
-            console.log(percent);
+            for(k = 0; k < data.length; k++) {
+                percent[k] = (ages[k] / data.length*100).toFixed(1);
+            }
 
             response = {
                 "status": 200, "message": {
@@ -1680,9 +1675,39 @@ var appRouter = function(router, mongo, app, config, database) {
                     "ages": percent
                 }
             };
-
             res.status(response.status).json(response.message);
         });
+    });
+
+    router.get("/admin/statistics/2", function (req, res) {
+        console.log("/admin/statistics/2");
+        database.getUsersByPlace(mongo, function (data) {
+
+            var places = [];
+            var counts = [];
+            var percent = [];
+            var sum = 0;
+            for(i = 0; i < data.res.message.length; i++) {
+                if(data.res.message[i]._id === null) places[i] = 'Unknown';
+                else places[i] = data.res.message[i]._id;
+            }
+            for(j = 0; j < data.res.message.length; j++) {
+                counts[j] = data.res.message[j].count;
+                sum = sum + counts[j];
+            }
+            for(k = 0; k < data.res.message.length; k++) {
+                percent[k] = (counts[k] / sum * 100).toFixed(1);
+            }
+            console.log(percent);
+
+            response = {
+                "status": 200, "message": {
+                    "places": places,
+                    "counts": percent
+                }
+            };
+            res.status(response.status).json(response.message);
+        })
     });
 
     //pois by user and rating average

@@ -15,6 +15,8 @@ angular.module('vignemale')
         $scope.errorMsg = "";
 
         var ctx = document.getElementById("myChart").getContext("2d");
+        var colours = ["#3fced2", "#e35ed0", "#eeb447", "#cc759a", "#4faaa1", "#e35ed0", "#961784", "#85263c"];
+        var coloursBG = ["#28bcd2", "#e335b4", "#eea72f", "#cc5c8b", "#3c95aa", "#e349c2", "#960679", "#850d2a"];
 
         // hide the error mensage
         $scope.hideError = function () {
@@ -50,17 +52,8 @@ angular.module('vignemale')
                     labels: data.names,
                     datasets: [ {
                         data: data.ages,
-                        backgroundColor: [
-                            "#FF6384",
-                            "#36A2EB",
-                            "#FFCE56",
-                            "#5EFF1C"
-                        ],
-                        hoverBackgroundColor: [
-                            "#ff2021",
-                            "#5255eb",
-                            "#2fff19"
-                        ]
+                        backgroundColor: colours,
+                        hoverBackgroundColor: coloursBG
                     }]
                 };
                 // And for a doughnut chart
@@ -90,19 +83,10 @@ angular.module('vignemale')
                 var info = {
                     labels: data.places,
                     datasets: [ {
-                        label: "Percentage of users by age",
+                        label: "Percentage of users by place",
                         data: data.counts,
-                        backgroundColor: [
-                            "#FF6384",
-                            "#36A2EB",
-                            "#FFCE56",
-                            "#5EFF1C"
-                        ],
-                        hoverBackgroundColor: [
-                            "#ff2021",
-                            "#5255eb",
-                            "#EB8943"
-                        ]
+                        backgroundColor: colours,
+                        hoverBackgroundColor: coloursBG
                     }]
                 };
                 // And for a doughnut chart
@@ -134,22 +118,8 @@ angular.module('vignemale')
                     datasets: [{
                         label: "Active users VS inactive users",
                         data: data.counts,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255,99,132,1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
+                        backgroundColor: colours,
+                        hoverBackgroundColor: coloursBG,
                         borderWidth: 1
                     }]
                 };
@@ -176,18 +146,16 @@ angular.module('vignemale')
         }
         // pois by user and rating average
         else if($scope.id == 4) {
-            $scope.nameStatistic = "Pois by user";
+            $scope.nameStatistic = "Rating by user";
 
             users.getAdminStatistics(4, function (data) {
-                console.log(data.bubbles);
-
                 var info = {
+                    labels: data.labels,
                     datasets: [
                         {
-                            labels: 'Pois by user and it\'s average rating',
-                            data: data.bubbles,
-                            backgroundColor:"#FF6384",
-                            hoverBackgroundColor: "#FF6384"
+                            data: data.ratings,
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }
                     ]
                 };
@@ -212,14 +180,8 @@ angular.module('vignemale')
                     datasets: [
                         {
                             data: data.percentage,
-                            backgroundColor: [
-                                "#FF6384",
-                                "#36A2EB"
-                            ],
-                            hoverBackgroundColor: [
-                                "#FF6384",
-                                "#36A2EB"
-                            ]
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }
                     ]
                 };
@@ -229,6 +191,14 @@ angular.module('vignemale')
                     options: {
                         animation:{
                             animateScale:true
+                        },
+                        tooltips: {
+                            mode: 'label',
+                            callbacks: {
+                                label: function(tooltipItem, data) {
+                                    return data['datasets'][0]['data'][tooltipItem['index']] + '%';
+                                }
+                            }
                         }
                     }
                 });
@@ -244,19 +214,8 @@ angular.module('vignemale')
                     datasets: [
                         {
                             data: data.percent,
-                            backgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404"
-
-                            ],
-                            hoverBackgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404"
-                            ]
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }]
                 };
                 new Chart(ctx,{
@@ -287,20 +246,9 @@ angular.module('vignemale')
                     labels: data.names,
                     datasets: [
                         {
-                            data: data.percentages,
-                            backgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404"
-
-                            ],
-                            hoverBackgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404"
-                            ]
+                            data: data.count,
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }]
                 };
                 new Chart(ctx,{
@@ -323,20 +271,9 @@ angular.module('vignemale')
                     labels: data.names,
                     datasets: [
                         {
-                            data: data.percentages,
-                            backgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404"
-
-                            ],
-                            hoverBackgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404"
-                            ]
+                            data: data.count,
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }]
                 };
                 new Chart(ctx,{
@@ -349,19 +286,6 @@ angular.module('vignemale')
                     }
                 });
             })
-
-
         }
-
-        else if($scope.id == 9) {
-
-
-        }
-
-        else if($scope.id == 10) {
-
-
-        }
-
     }]);
 

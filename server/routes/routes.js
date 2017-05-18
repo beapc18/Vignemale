@@ -611,7 +611,6 @@ var appRouter = function(router, mongo, app, config, database) {
             if (err) {
                 response = {"status": 500, "message": "Error fetching data"};
             } else {
-                console.log(data)
                 response = {"status": 201, "message": data};
             }
             res.json(response);
@@ -1668,8 +1667,38 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
     router.get("/users/:id/statistics/10", function (req, res) {
-        console.log("Estadistica 10 del usuario " + req.params.id)
-        mongo.users.find({_id: req.params.id}, function (err, data) {
+        console.log("/users/:id/statistics/10 " + req.params.id);
+
+        mongo.pois.find({creator: {$ne: req.params.id}}, {rating:1}, function (err, data) {
+            var percent = [];
+            var labels = [];
+            labels[0] = "1";
+            labels[1] = "2";
+            labels[2] = "3";
+            labels[3] = "4";
+            labels[4] = "5";
+
+            var ratings = new Array(5).fill(0);
+
+            for(i = 0; i < data.length; i++) {
+                ratings[Math.round(data[i].rating)-1]++;
+            }
+
+            for(k = 0; k < labels.length; k++) {
+                percent[k] = (ratings[k] / data.length * 100).toFixed(1);
+            }
+
+            response = {
+                "status": 200, "message": {
+                    "labels": labels,
+                    "ratings": percent
+                }
+            };
+            res.status(response.status).json(response.message);
+        });
+    });
+
+        /*mongo.users.find({_id: req.params.id}, function (err, data) {
             if (err) {
                 console.log("Error getting follows");
                 response = {"status": 500, "message": "Error getting follows"};
@@ -1679,6 +1708,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 var following = [];
                 //var names = Array();
                 var ratings = [];
+                mongo.pois.find({}, {creator: {$ne: })
                 mongo.users.find({_id: data[0].following}, {name: 1}, function (err, IdNamefollowings) {
                     console.log("Following:" + IdNamefollowings);
 
@@ -1692,8 +1722,7 @@ var appRouter = function(router, mongo, app, config, database) {
                     //});
                 });
             }
-        });
-    });
+        });*/
 
     router.get("/admin/statistics/1", function (req, res) {
         console.log("/admin/statistics/1");
@@ -1773,8 +1802,8 @@ var appRouter = function(router, mongo, app, config, database) {
 
     router.get("/admin/statistics/3", function (req, res) {
         console.log("/admin/statistics/3");
-        mongo.users.find({isAdmin: {$ne: 1}}, function (err, data) {
-            var totalUsers = data.length;
+        mongo.users.count({isAdmin: {$ne: 1}}, function (err, data) {
+            var totalUsers = data;
             var counts = Array(3).fill(0);
             var labels = [];
             var percent = [];
@@ -1783,8 +1812,8 @@ var appRouter = function(router, mongo, app, config, database) {
             labels[2] = "5 or more pois";
 
             mongo.pois.aggregate([{$group: {_id: "$creator", count: {$sum:1}}}], function (err, data) {
-                console.log(data);
                 counts[0] = totalUsers - data.length;
+                console.log(counts[0])
                 for(var i = 0; i < data.length; i++) {
                     if(data[i].count < 5) counts[1]++;
                     else if(data[i].count >= 5) counts[2]++;
@@ -1809,17 +1838,22 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/admin/statistics/4", function (req, res) {
         console.log("/admin/statistics/4");
         database.getPoisRatingByUser(mongo, function (data) {
+
+            var labels = [];
+            var ratings = [];
             if (data.status != 500) {
                 var bubbles = [];
                 for (i = 0; i < data.pois.length; i++) {
                     for (j = 0; j < data.names.length; j++) {
                         if (String(data.pois[i]._id) == String(data.names[j]._id)) {
-                            bubbles.push({"x": data.names[j].name, "y": data.pois[i].y, "r": data.pois[i].r});
-                            break;
+                            labels[j] = data.names[j].name;
+                            ratings[j] = data.pois[i].y;
                         }
                     }
                 }
-                response = {"status": 200, "message": {"bubbles": bubbles}};
+                console.log(labels);
+                console.log(ratings);
+                response = {"status": 200, "message": {"ratings": ratings, "labels": labels}};
             }
             res.status(response.status).json(response.message);
         })
@@ -1835,8 +1869,8 @@ var appRouter = function(router, mongo, app, config, database) {
                 var label = [];
                 var percentage = [];
                 var sum = Number(data.google) + Number(data.notGoogle);
-                label.push("% Logged with Google");
-                label.push("% Not logged with Google");
+                label.push("Logged with Google");
+                label.push("Not logged with Google");
                 percentage.push(parseFloat(data.google / sum).toFixed(2) * 100);
                 percentage.push(parseFloat(data.notGoogle / sum).toFixed(2) * 100);
                 response = {"status": 200, "message": {"percentage": percentage, "label": label}};
@@ -1858,11 +1892,8 @@ var appRouter = function(router, mongo, app, config, database) {
 
         mongo.users.find({isAdmin: {$ne: 1}}, {place: 1}, function (err, data) {
             bucleForPlaces(data, 0, 0, 0, function (found, notFound) {
-                console.log("Encontrados y no");
-                console.log(found);
-                console.log(notFound);
-                percent[0] = Number(found *100/ found + notFound).toFixed(2);
-                percent[1] = Number(notFound *100/ found + notFound).toFixed(2);
+                percent[0] = Number(found *100/ (found + notFound)).toFixed(2);
+                percent[1] = Number(notFound *100/ (found + notFound)).toFixed(2);
 
                 response = {
                     "status": 200, "message": {"percent": percent, "label": label}
@@ -1931,7 +1962,6 @@ var appRouter = function(router, mongo, app, config, database) {
                 if (err) {
                     response = {"status": 500, "message": "Error fetching pois"};
                 } else {
-
                     var names = new Array(4);
 
                     names[0] = "Under 5";

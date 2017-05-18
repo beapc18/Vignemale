@@ -373,28 +373,18 @@ angular.module('vignemale')
 
             users.getStatistics($scope.idUser, 10, function (data) {
                     var info = {
-                        yLabels: ["ANA", "BEA", "JORGE"],
+                        labels: data.labels,
                         datasets: [
                             {
-                                label: "Burbujitas",
-                                data: [{
-                                    x: "Soy Ana",
-                                    y: "Beatriz",
-                                    r: 1
-                                },
-                                {
-                                    x: "Invented", y: "Beatriz", r: 2
-                                },
-                                {
-                                    x: "Agua", y: "Beatriz", r: 4
-                                }],
-                                backgroundColor:"#FF6384",
-                                hoverBackgroundColor: "#FF6384",
+                                label: "Ratings",
+                                data: data.ratings,
+                                backgroundColor:"rgba(62,25,253,0.4)",
+                                hoverBackgroundColor: "#FF6384"
                             }]
                     };
 
                     new Chart(ctx, {
-                        type: "bubble",
+                        type: "radar",
                         data: info,
                         options: {
                             responsive: true,
@@ -404,21 +394,17 @@ angular.module('vignemale')
                             animation: {
                                 animateScale: true
                             },
-                            scales: {
-                                xAxes: [{
-                                    ticks: {
-                                        callback: function (value, index, values) {
-                                            return 'POI ' + index;
-                                        }
-                                        /* min: "ANA",
-                                         max: "BEA"*/
-                                    }
-                                }]
+                            scale: {
+                                ticks: {
+                                    beginAtZero: true,
+                                    //max: 20
+                                }
                             },
                             tooltips: {
+                                mode: 'label',
                                 callbacks: {
                                     label: function (tooltipItem, data) {
-                                        var dataset = data.datasets[tooltipItem.datasetIndex];
+                                        return data['datasets'][0]['data'][tooltipItem['index']] + '%';
                                     }
                                 }
                             }

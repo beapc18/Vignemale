@@ -382,6 +382,7 @@ var getUsersByPlace = function (mongo, callback) {
             response = {"status": 500, "res": {"message": "Error getting users by place"}};
         }
         else {
+            console.log(data);
             response = {"status": 200, "res": {"message": data}};
             callback(response);
         }
@@ -425,12 +426,10 @@ var getPoisRatingByUser = function (mongo, callback) {
             };
             callback(response);
         } else {
-            console.log(names)
             var users = [];
             for (i = 0; i < names.length; i++) {
                 users.push(new mongoose.mongo.ObjectId(names[i]._id));
             }
-            console.log(users)
 
             mongo.pois.aggregate({$match: {creator: {$in: users}}}, {
                 $group: {

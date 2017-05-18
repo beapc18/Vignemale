@@ -218,34 +218,60 @@ var getNamePOI = function (mongo, idPOI, callback) {
     });
 };
 
-var ratePoi = function (mongo, idUser, idPoi, rating, callback) {
-    var response = {};
-    mongo.ratings.find({idUser: idUser, idPoi: idPoi}, function (err, data) {
-        if (err) {
-            console.log("Error database");
-            response = {"status": 500, "res": {"message": "Error rating poi"}};
-        }
-        else {
-            //update mean in poi if the user hasn't voted yet
-            if (data.length === 0){
-                updateRatingPoi(mongo, idPoi, rating, function (response) {
-                    if (response.status === 500) {
-                        callback(response);
-                    } else{
-                        //save new rating, user poi and value
-                        saveRating(mongo, idUser, idPoi, rating, function (response) {
-                            callback(response);
-                        });
-                    }
-                })
+var getNamePOIcreator = function (mongo, idCreator, callback) {
+    /*mongo.pois.distinct("rating", function (err, data) {
+     if(err) {
+     console.log("Error database");
+     response = {"status": 500, "res": {"message": "Error getting creator from the POI"}};
+     }
+     else {
+     console.log(data);
+     response = {"status": 200, "res": {"message": data}};
+     }
+     });*/
+    mongo.pois.find({creator: idCreator}, {rating: 1, _id: 0}, function (err, data) {
+        var objId = new mongoose.mongo.ObjectId(idCreator);
+        mongo.pois.aggregate([{$match: {creator: objId}}], function (err, data) {
+            if (err) {
+                console.log("Error database");
+                response = {"status": 500, "res": {"message": "Error getting creator from the POI"}};
             }
-            else{
-                response = {"status": 200, "res": {"message": "You cannot rate twice the same POI"}};
-                callback(response);
+            else {
+                response = {"status": 200, "res": {"message": data}};
             }
-        }
+            callback(response.res)
+        });
     });
 };
+
+    var ratePoi = function (mongo, idUser, idPoi, rating, callback) {
+        var response = {};
+        mongo.ratings.find({idUser: idUser, idPoi: idPoi}, function (err, data) {
+            if (err) {
+                console.log("Error database");
+                response = {"status": 500, "res": {"message": "Error rating poi"}};
+            }
+            else {
+                //update mean in poi if the user hasn't voted yet
+                if (data.length === 0){
+                    updateRatingPoi(mongo, idPoi, rating, function (response) {
+                        if (response.status === 500) {
+                            callback(response);
+                        } else{
+                            //save new rating, user poi and value
+                            saveRating(mongo, idUser, idPoi, rating, function (response) {
+                                callback(response);
+                            });
+                        }
+                    })
+                }
+                else{
+                    response = {"status": 200, "res": {"message": "You cannot rate twice the same POI"}};
+                    callback(response);
+                }
+            }
+        });
+    };
 
 //save new rating in table ratings
 var saveRating = function (mongo, idUser, idPoi, rating, callback) {
@@ -347,6 +373,21 @@ var getFollowingPoisByCountry = function (mongo, idUser, callback) {
     });
 };
 
+var getUsersByPlace = function (mongo, callback) {
+    var response;
+    //mongo.users.find({isAdmin: {$ne: 1}}, function (err, data) {
+        mongo.users.aggregate([{$group: {_id: "$place", count: {$sum:1}}}], function (err, data) {
+            if(err) {
+                console.log("Error database");
+                response = {"status": 500, "res": {"message": "Error getting users by place"}};
+            }
+            else {
+                response = {"status": 200, "res": {"message": data}};
+                callback(response);
+            }
+        })
+};
+
 //following users' activity depending on pois and age
 var getUserInfo = function (mongo, idUser, callback) {
     var response;
@@ -377,6 +418,71 @@ var getUserInfo = function (mongo, idUser, callback) {
     });
 };
 
+// pois by user and rating average
+var getPoisRatingByUser = function (mongo, callback) {
+    var response;
+    mongo.users.find({isAdmin: {$ne: 1} }, {name: 1}, function (err, names) {
+
+        if (err){
+            console.log("Error getting user pois and rating average");
+            response = {
+                "status": 500,
+                "res": {"message": "Error getting user pois and rating average"}
+            };
+            callback(response);
+        } else {
+            console.log(names)
+            var users = [];
+            for (i = 0; i < names.length; i++) {
+                users.push(new mongoose.mongo.ObjectId(names[i]._id));
+            }
+            console.log(users)
+
+            mongo.pois.aggregate({$match: {creator: {$in: users}}}, {
+                $group: {
+                    _id: "$creator",
+                    y: {$avg: "$rating"},                //avg of rating all pois
+                    r: {$sum: 1}                       //pois
+                }
+            }, function (err, data) {
+                if (err) {
+                    console.log("Error getting user pois and rating average");
+                    response = {
+                        "status": 500,
+                        "res": {"message": "Error getting user pois and rating average"}
+                    };
+                } else {
+                    response = {"pois": data, "names": names};
+                }
+                callback(response);
+            });
+        }
+    });
+};
+
+var getGoogleUsers = function (mongo, callback) {
+    var response;
+
+    mongo.users.count({google: true}, function(err, google) {
+        if (err){
+            console.log("Error getting google users");
+            response = {"status": 500, "res": {"message": "Error getting google users"}};
+            callback(response);
+        } else{
+            mongo.users.count({google: false}, function(err, notGoogle) {
+                if (err){
+                    console.log("Error getting google users");
+                    response = {"status": 500, "res": {"message": "Error getting google users"}};
+                } else{
+                    response = {"google": google, "notGoogle": notGoogle};
+                    console.log(response)
+                }
+                callback(response);
+            });
+        }
+    });
+};
+
 module.exports = {
     getInfoUser: getInfoUser,
     findUserByPassword: findUserByPassword,
@@ -398,5 +504,9 @@ module.exports = {
     removePoisFromFavs: removePoisFromFavs,
     getUserPoisByCountry: getUserPoisByCountry,
     getFollowingPoisByCountry: getFollowingPoisByCountry,
-    getUserInfo: getUserInfo
+    getUserInfo: getUserInfo,
+    getPoisRatingByUser: getPoisRatingByUser,
+    getGoogleUsers: getGoogleUsers,
+    getNamePOIcreator: getNamePOIcreator,
+    getUsersByPlace: getUsersByPlace
 };

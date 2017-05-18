@@ -209,7 +209,7 @@ angular.module('vignemale')
                     data: $httpParamSerializer(user),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        'Authorization': auth.getToken()
+                        //'Authorization': auth.getToken()
                     }
                 }).success(function (data) {
                     console.log("Services email " + data.email);

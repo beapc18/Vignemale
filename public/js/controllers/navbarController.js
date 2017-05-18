@@ -35,13 +35,10 @@ angular.module('vignemale')
 
 
         $scope.$on('signIn', function (event, arg) {
-            setId();
-            if($scope.logged){
-                $scope.goHome();
-            }
+            setId($scope.goHome);
         });
 
-        var setId = function(){
+        var setId = function(callback){
             if(auth.isAuthenticated()){
                 auth.getIdFromToken(auth.getToken(),function(id) {
                     $scope.idUser = id.message;
@@ -50,17 +47,17 @@ angular.module('vignemale')
                         if (data.message[0].isAdmin) {
                             $scope.isAdmin = true;
                         }
+                        callback();
                     }, function (data) {
                         $scope.isAdmin = false;
                     })
                 });
             }else{
-                console.log("not logged");
                 $scope.logged = false;
             }
         }
 
 
-        setId();
+        setId(function(){});
 
     }]);

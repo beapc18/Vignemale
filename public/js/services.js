@@ -143,16 +143,16 @@ angular.module('vignemale')
                 $http({
                     method: 'GET',
                     url: '/users/'+id,
-                    /*params: {
-                        idRequest
-                    },*/
-                    /*headers: {
-                        'Authorization': auth.getToken()
-                    }*/
                 }).success(function (data) {
+                    console.log(data)
+                    if(data.message[0].removed){}
                     callbackSuccess(data);
                 }).error(function (data) {
-                    callbackError(data);
+                    if(data.message == "Removed"){
+                        $state.go('starter');
+                    } else{
+                        callbackError(data);
+                    }
                 });
             },
 

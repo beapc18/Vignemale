@@ -468,11 +468,12 @@ var appRouter = function(router, mongo, app, config, database) {
 
         //if (verifyIds(req.params.id, req.headers.authorization)) {
         database.getInfoUser(mongo, req.params.id, function (response) {
-            res.status(response.status).json(response.res);
+            if (response.res.message[0].removed){
+                res.status(500).json({"message": "Removed"});
+            } else {
+                res.status(response.status).json(response.res);
+            }
         });
-        /*} else {
-         res.status(403).json({"message": "Access blocked"});
-         }*/
     });
 
     //change removed attribute for removing user
@@ -486,13 +487,14 @@ var appRouter = function(router, mongo, app, config, database) {
                 response = {"message": "Error deleting user"};
                 res.status(500).json(response);
             } else {
+                //remove pois
+                mongo.pois.update({creator: req.params.id}, {removed: true}, {multi: true}, function (err, data) {
+                    if (err) console.log("ERROR removing pois of user")
+                });
                 response = {"message": "User deleted succesfully"};
                 res.status(200).json(response);
             }
         });
-        /*} else {
-         res.status(403).json({"message": "Access blocked"});
-         }*/
     });
 
     //change password checking old password
@@ -966,14 +968,28 @@ var appRouter = function(router, mongo, app, config, database) {
                 response = {"status": 500, "message": "Error getting follows"};
                 res.status(response.status).json(response.message);
             } else {
-                var followingNames = [];
-                bucleForUserNames(data[0].following, 0, followingNames, function (arrayIds, arrayNames) {
-                    response = {
-                        "status": 200, "message": {
-                            "followingNames": arrayNames
-                            , "followingIds": arrayIds
+                console.log(data[0].following)
+                mongo.users.find({_id: data[0].following, removed: false}, {name: 1}, function (err, data) {
+                    if (err) {
+                        console.log("Error getting follows");
+                        response = {
+                            "status": 500,
+                            "message": "Error getting follows"
+                        };
+                    }else{
+                        var arrayNames = [];
+                        var arrayIds = [];
+                        for(i=0; i<data.length; i++){
+                            arrayIds.push(data[i].id);
+                            arrayNames.push(data[i].name);
                         }
-                    }; //devolver solo la lista de seguidores
+                        response = {
+                            "status": 200,
+                            "message": {
+                                "followingNames": arrayNames
+                                , "followingIds": arrayIds
+                        }};
+                    }
                     res.status(response.status).json(response.message);
                 });
             }
@@ -1091,7 +1107,7 @@ var appRouter = function(router, mongo, app, config, database) {
             console.log("GET /search/pois/" + req.params.words);
             var response = {};
             //find similar results using an index
-            mongo.pois.find({$text: {$search: req.params.words}}, function (err, data) {
+            mongo.pois.find({$text: {$search: req.params.words}, $or: [{removed: false}, {removed : { "$exists" : false }}]}, function (err, data) {
                 if (err) {
                     response = {"status": 500, "message": "Error fetching pois"};
                 } else {
@@ -1173,7 +1189,7 @@ var appRouter = function(router, mongo, app, config, database) {
             console.log("GET /search/users/" + req.params.words);
             var response = {};
             //find similar results using an index
-            mongo.users.find({$text: {$search: req.params.words}}, function (err, data) {
+            mongo.users.find({$text: {$search: req.params.words}, removed: false}, function (err, data) {
                 if (err) {
                     response = {"status": 500, "message": "Error fetching users"};
                 } else {

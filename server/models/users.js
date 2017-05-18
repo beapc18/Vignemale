@@ -7,7 +7,7 @@ var getInfoUser = function(mongo, id, callback){
     //search the user avoiding return params which are not necessary
     mongo.users.find({_id: id}, { firstLogin: false, isVerified: false,
         lastAccess: false, creationDate: false, place: false, birthDate: false,
-        email: false, password: false, removed: false}, function (err, user) {
+        email: false, password: false}, function (err, user) {
         if (err) {
             response = {"status": 500, "res": {"message": "Error searching user"}};
         } else {

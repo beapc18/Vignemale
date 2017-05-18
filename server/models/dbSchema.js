@@ -37,6 +37,7 @@ var POIsSchema = mongoose.Schema({
     keywords: Array,
     lat: Number,
     lng: Number,
+    removed: Boolean,
     shortURL: String,
     image: String,
     value: Number,
@@ -74,9 +75,8 @@ var shareSchema = mongoose.Schema({
     idPoiRoute: String
 });
 
-
 //create index for searching pois by keywords or name
-POIsSchema.index({keywords: "text", name: "text"});
+POIsSchema.index({keywords: "text", name: "text", city: "text", country: "text"});
 
 //create index for searching pois by keywords or name
 usersSchema.index({name: "text", lastName: "text", email: "text"});

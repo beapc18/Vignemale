@@ -209,7 +209,6 @@ angular.module('vignemale')
             $scope.nameStatistic = "Pois by country";
 
             users.getStatistics($scope.idUser, 6, function (data) {
-                console.log(data)
                 var info = {
                     labels: data.countries,
                     datasets: [

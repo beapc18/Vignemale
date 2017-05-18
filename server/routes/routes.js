@@ -1372,9 +1372,9 @@ var appRouter = function(router, mongo, app, config, database) {
             if (data.status != 500) {
                 var countries = [];
                 var numPois = [];
-                for (i = 0; i < data.length; i++) {
-                    countries.push(data[i]._id.country);
-                    numPois.push(parseFloat(data[i].total / data.length * 100).toFixed(2)); //porcentaje
+                for (i = 0; i < data.array.length; i++) {
+                    countries.push("% "+data.array[i]._id.country);
+                    numPois.push(parseFloat(data.array[i].total / data.tot * 100).toFixed(2)); //porcentaje
                 }
                 response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
             }

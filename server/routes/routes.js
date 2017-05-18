@@ -917,92 +917,7 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    var bucleForPOIs = function (arrayIds, i, arrayNames, callback) {
-        if (i < arrayIds.length) {
-            database.getNamePOI(mongo, arrayIds[i], function (response) {
-                var index = arrayIds.indexOf(arrayIds[0]);
-                if (index !== -1) {
-                    arrayNames[i] = response.message[0].name;
-                }
-                i++;
-                bucleForPOIs(arrayIds, i, arrayNames, callback);
-            });
-        }
-        else {
-            callback(arrayIds, arrayNames);
-        }
-    };
 
-    //Juntar el poi con su creador para mas info?
-    var bucleForPOIscreator = function (idNameFollowing, i, arrayNames, ratings, callback) {
-        if (i < idNameFollowing.length) {
-            //database.getNamePOIcreator(mongo, idNameFollowing[i].id, function (response) {
-            mongo.pois.find({creator: idNameFollowing[i]._id}, {name: 1, rating: 1, _id: 0}, function (err, data) {
-                console.log("data" + data);
-                //var index = arrayIds.indexOf(arrayIds[0]);
-                for (j = 0; j < data.length; j++) {
-                    ratings.push({"x": data[j].name, "y": idNameFollowing[i].name, "r": data[j].rating});
-                }
-                /*if (index !== -1) {
-                 for (j = 0; j < response.message.length; j++) {
-                 for(k = 0; k < response.message.length; k++) {
-                 ratings.push({"x": response.message[j].name});
-                 }
-                 }*/
-
-                /*for(i = 0; i<data.pois.length; i++){
-                 for(j = 0; j<data.names.length; j++) {
-                 if(String(data.pois[i]._id) == String(data.names[j]._id)){
-                 bubbles.push({"x": data.names[j].name, "y": data.pois[i].y, "r": data.pois[i].r});*/
-                i++;
-                bucleForPOIscreator(idNameFollowing, i, arrayNames, ratings, callback);
-            });
-        }
-        else {
-            console.log(ratings);
-            callback(idNameFollowing, ratings);
-        }
-    };
-
-
-    var bucleForUserNames = function (arrayIds, i, arrayNames, callback) {
-        if (i < arrayIds.length) {
-
-            database.getNameUser(mongo, arrayIds[i], function (response) {
-                var index = arrayIds.indexOf(arrayIds[0]);
-                if (index !== -1) {
-                    arrayNames[i] = response.message[0].name;
-                }
-                i++;
-                bucleForUserNames(arrayIds, i, arrayNames, callback);
-            });
-        }
-        else {
-            callback(arrayIds, arrayNames);
-        }
-    };
-
-    var bucleForUser = function (arrayIds, i, arrayUsers, callback) {
-        if (i < arrayIds.length) {
-
-
-            mongo.users.find({_id: arrayIds[i]}, function (err, data) {
-                if (err) {
-                } else {
-                    var index = arrayIds.indexOf(arrayIds[0]);
-                    if (index !== -1) {
-                        arrayUsers[i] = data[0];
-                    }
-                    i++;
-                    bucleForUser(arrayIds, i, arrayUsers, callback);
-                }
-
-            });
-        }
-        else {
-            callback(arrayIds, arrayUsers);
-        }
-    };
 
 
 //get user follows
@@ -2592,6 +2507,80 @@ var appRouter = function(router, mongo, app, config, database) {
         }
         else {
             callback(found, notFound);
+        }
+    };
+
+    var bucleForPOIs = function (arrayIds, i, arrayNames, callback) {
+        if (i < arrayIds.length) {
+            database.getNamePOI(mongo, arrayIds[i], function (response) {
+                var index = arrayIds.indexOf(arrayIds[0]);
+                if (index !== -1) {
+                    arrayNames[i] = response.message[0].name;
+                }
+                i++;
+                bucleForPOIs(arrayIds, i, arrayNames, callback);
+            });
+        }
+        else {
+            callback(arrayIds, arrayNames);
+        }
+    };
+
+    //Juntar el poi con su creador para mas info?
+    var bucleForPOIscreator = function (idNameFollowing, i, arrayNames, ratings, callback) {
+        if (i < idNameFollowing.length) {
+            mongo.pois.find({creator: idNameFollowing[i]._id}, {name: 1, rating: 1, _id: 0}, function (err, data) {
+                console.log("data" + data);
+                for (j = 0; j < data.length; j++) {
+                    ratings.push({"x": data[j].name, "y": idNameFollowing[i].name, "r": data[j].rating});
+                }
+                i++;
+                bucleForPOIscreator(idNameFollowing, i, arrayNames, ratings, callback);
+            });
+        }
+        else {
+            console.log(ratings);
+            callback(idNameFollowing, ratings);
+        }
+    };
+
+
+    var bucleForUserNames = function (arrayIds, i, arrayNames, callback) {
+        if (i < arrayIds.length) {
+
+            database.getNameUser(mongo, arrayIds[i], function (response) {
+                var index = arrayIds.indexOf(arrayIds[0]);
+                if (index !== -1) {
+                    arrayNames[i] = response.message[0].name;
+                }
+                i++;
+                bucleForUserNames(arrayIds, i, arrayNames, callback);
+            });
+        }
+        else {
+            callback(arrayIds, arrayNames);
+        }
+    };
+
+    var bucleForUser = function (arrayIds, i, arrayUsers, callback) {
+        if (i < arrayIds.length) {
+
+
+            mongo.users.find({_id: arrayIds[i]}, function (err, data) {
+                if (err) {
+                } else {
+                    var index = arrayIds.indexOf(arrayIds[0]);
+                    if (index !== -1) {
+                        arrayUsers[i] = data[0];
+                    }
+                    i++;
+                    bucleForUser(arrayIds, i, arrayUsers, callback);
+                }
+
+            });
+        }
+        else {
+            callback(arrayIds, arrayUsers);
         }
     };
 

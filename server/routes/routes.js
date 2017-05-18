@@ -1891,6 +1891,8 @@ var appRouter = function(router, mongo, app, config, database) {
 
                     var counts = data.map(function(a){ return a.count});
 
+                    var total = data.length;
+
                     for(i=0;i<count.length;i++){
                         if(counts[i]<5){
                             count[0]++;
@@ -1903,10 +1905,16 @@ var appRouter = function(router, mongo, app, config, database) {
                         }
                     }
 
+                    var percentages=new Array(4);
+
+                    for(i=0;i<count.length;i++){
+                        percentages[i]=(total/count[i])*100;
+                    }
+
                     response = {
                         "status": 200, "message": {
                             "names": names
-                            , "count": count
+                            , "percentages": percentages
                         }
                     }; //devolver solo la lista de seguidores
                 }
@@ -1935,6 +1943,8 @@ var appRouter = function(router, mongo, app, config, database) {
 
                     var counts = data.map(function(a){ return a.count});
 
+                    var total = data.length;
+
                     for(i=0;i<count.length;i++){
                         if(counts[i]<5){
                             count[0]++;
@@ -1946,11 +1956,16 @@ var appRouter = function(router, mongo, app, config, database) {
                             counts[3]++;
                         }
                     }
+                    var percentages=new Array(4);
+
+                    for(i=0;i<count.length;i++){
+                        percentages[i]=(total/count[i])*100;
+                    }
 
                     response = {
                         "status": 200, "message": {
                             "names": names
-                            , "count": count
+                            , "percentages": percentages
                         }
                     }; //devolver solo la lista de seguidores
                 }

@@ -287,7 +287,7 @@ angular.module('vignemale')
                     labels: data.names,
                     datasets: [
                         {
-                            data: data.count,
+                            data: data.percentages,
                             backgroundColor: [
                                 "#FF6384",
                                 "#36A2EB",
@@ -323,7 +323,7 @@ angular.module('vignemale')
                     labels: data.names,
                     datasets: [
                         {
-                            data: data.count,
+                            data: data.percentages,
                             backgroundColor: [
                                 "#FF6384",
                                 "#36A2EB",

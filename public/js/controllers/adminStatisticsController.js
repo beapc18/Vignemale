@@ -39,7 +39,45 @@ angular.module('vignemale')
         };
 
         if($scope.id == 1){
-
+            users.getAdminStatistics(1, function (data) {
+                console.log(data);
+                var info = {
+                    labels: data.names,
+                    datasets: [ {
+                        data: data.ages,
+                        backgroundColor: [
+                            "#FF6384",
+                            "#36A2EB",
+                            "#FFCE56",
+                            "#5EFF1C"
+                        ],
+                        hoverBackgroundColor: [
+                            "#ff2021",
+                            "#5255eb",
+                            "#2fff19"
+                        ]
+                    }]
+                };
+                // And for a doughnut chart
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: info,
+                    options: {
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true
+                        },
+                        tooltips: {
+                            mode: 'label',
+                            callbacks: {
+                                label: function(tooltipItem, data) {
+                                    return data['datasets'][0]['data'][tooltipItem['index']] + '%';
+                                }
+                            }
+                        }
+                    }
+                });
+            })
 
 
         }else if($scope.id == 2){

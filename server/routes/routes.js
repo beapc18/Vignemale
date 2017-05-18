@@ -1631,28 +1631,58 @@ var appRouter = function(router, mongo, app, config, database) {
                 });
             }
         });
-    })
+    });
 
-    //pois by user and rating average
-    router.get("/admin/statistics/4", function (req, res) {
-        console.log("/admin/statistics/4");
-        database.getPoisRatingByUser(mongo, function (data) {
-            if (data.status != 500) {
-                var bubbles = [];
-                for (i = 0; i < data.pois.length; i++) {
-                    for (j = 0; j < data.names.length; j++) {
-                        if (String(data.pois[i]._id) == String(data.names[j]._id)) {
-                            bubbles.push({"x": data.names[j].name, "y": data.pois[i].y, "r": data.pois[i].r});
-                            break;
-                        }
+    router.get("/admin/statistics/1", function (req, res) {
+        console.log("/admin/statistics/1");
+        mongo.users.find({isAdmin: {$ne: 1}}, function (err, data) {
+
+            var date = new Date();
+            var names = [];
+            names[0] = "Under 18";
+            names[1] = "18-30";
+            names[2] = "31-50";
+            names[3] = "Over 50";
+            names[4] = "Unknown";
+
+            //var ages = [];
+            var ages = new Array(5).fill(0);
+            var percent = new Array(5).fill(0);
+
+            //number of creation per month
+            for (i = 0; i < data.length; i++) {
+                if ("undefined" === typeof data[i].birthDate) {
+                    ages[4]++;
+                } else {
+                    age = date.getFullYear() - data[i].birthDate.getFullYear();
+                    if (age < 18) {
+                        ages[0]++;
+                    } else if (age >= 18 && age <= 30) {
+                        ages[1]++;
+                    } else if (age >= 31 && age <= 50) {
+                        ages[2]++;
+                    } else {
+                        ages[3]++;
                     }
                 }
-                console.log(bubbles)
-                response = {"status": 200, "message": {"bubbles": bubbles}};
             }
-            res.status(response.status).json(response.message);
-        })
 
+            percent[0] = ages[0] / data.length*100;
+            percent[1] = ages[1] / data.length*100;
+            percent[2] = ages[2] / data.length*100;
+            percent[3] = ages[3] / data.length*100;
+            percent[4] = ages[4] / data.length*100;
+            console.log(percent);
+
+            response = {
+                "status": 200, "message": {
+                    "names": names,
+                    "ages": percent
+                }
+            };
+
+            res.status(response.status).json(response.message);
+        });
     });
 
     //pois by user and rating average

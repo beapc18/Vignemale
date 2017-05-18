@@ -1710,6 +1710,40 @@ var appRouter = function(router, mongo, app, config, database) {
         })
     });
 
+    router.get("/admin/statistics/3", function (req, res) {
+        console.log("/admin/statistics/3");
+        mongo.users.find({isAdmin: {$ne: 1}}, function (err, data) {
+            var totalUsers = data.length;
+            var counts = Array(3).fill(0);
+            var labels = [];
+            var percent = [];
+            labels[0] = "Inactive";
+            labels[1] = "More than 0, less than 5 pois";
+            labels[2] = "5 or more pois";
+
+            mongo.pois.aggregate([{$group: {_id: "$creator", count: {$sum:1}}}], function (err, data) {
+                /*var percentActive = (data.length / totalUsers * 100).toFixed(1);
+                var percentInactive = 100 - percentActive;*/
+                for(var i = 0; i < data.length; i++) {
+                    if(data[i].count < 5) counts[1]++;
+                    else if(data[i].count >= 5) counts[2]++;
+                }
+                for(k = 0; k < labels.length; k++) {
+                    percent[k] = (counts[k] / totalUsers * 100).toFixed(1);
+                }
+                console.log(percent);
+
+                response = {
+                    "status": 200, "message": {
+                        "labels": labels,
+                        "counts": percent
+                    }
+                };
+                res.status(response.status).json(response.message);
+            })
+        })
+    });
+
     //pois by user and rating average
     router.get("/admin/statistics/4", function (req, res) {
         console.log("/admin/statistics/4");

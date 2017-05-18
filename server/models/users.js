@@ -339,16 +339,19 @@ var removePoisFromFavs = function (mongo, idPoi) {
 
 var getUserPoisByCountry = function (mongo, idUser, callback) {
     var response;
-    var objId = new mongoose.mongo.ObjectId(idUser);
 
-    mongo.pois.aggregate([{$match: {creator: objId}}, {$group: { _id: {country: "$country"},total: {$sum: 1}}}], function(err, data) {
+    mongo.pois.aggregate([{$match: {creator: idUser}}, {$group: { _id: {country: "$country"}, total: {$sum: 1}}}], function(err, data) {
         if (err){
             console.log("Error getting user pois by country")
             response = {"status": 500, "res": {"message": "Error getting user pois by country"}};
         } else{
             response = data;
+            var tot = 0;
+            for(i=0; i<data.length; i++){
+                tot += data[i].total;
+            }
         }
-        callback(response);
+        callback({"array": response, "tot": tot});
     });
 };
 

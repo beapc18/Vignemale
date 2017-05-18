@@ -105,7 +105,7 @@
                     <input type="file" id="image" ng-model="$parent.newPoi.images" placeholder="Images" multiple/>
 
                     <!--stars rating-->
-                    <fieldset ng-if="!editpoi" class="rating form-control form-group">
+                    <fieldset ng-if="show=='createPoi'" class="rating form-control form-group">
                         Rating:
                         <input type="radio" ng-model="$parent.newPoi.rating" id="star5" name="v1" value="5" required/><label class="full" for="star5" title="5"></label>
                         <input type="radio" ng-model="$parent.newPoi.rating" id="star4half" name="v1" value="4.5"/><label class="half" for="star4half" title="4.5"></label>

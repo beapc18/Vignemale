@@ -429,7 +429,7 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
 
-    router.put("/users/:id/password", passport.authenticate('jwt', {session: false}), function (req, res) {
+    router.put("/users/:id/password", function (req, res) {
         console.log("change user password");
 
         //create the hash to save in db   --> cifrar en cliente
@@ -438,7 +438,7 @@ var appRouter = function(router, mongo, app, config, database) {
             .update(req.body.password)
             .digest('base64');
 
-        mongo.users.update({_id: req.body.id}, /*{password: hashPassword, firstLogin: false},*/ function (err) {
+        mongo.users.update({_id: req.body.id}, {password: hashPassword, firstLogin: false}, function (err) {
             if (err) {
                 response = {"message": "Error updating data"};
                 res.status(500).json(response);
@@ -459,7 +459,6 @@ var appRouter = function(router, mongo, app, config, database) {
                     }
                 })
             }
-            console.log(response);
         });
     });
 
@@ -647,8 +646,15 @@ var appRouter = function(router, mongo, app, config, database) {
                 latlng: [req.body.lat, req.body.lng]
             }, function (err, response) {
                 if (!err) {
-                    db.city = response.json.results[0].address_components[3].long_name;
-                    db.country = response.json.results[0].address_components[5].long_name;
+                    for(i=0; i<response.json.results[0].address_components.length; i++){
+                        if(response.json.results[0].address_components[i].types.includes("locality")){
+                            db.city = response.json.results[0].address_components[i].long_name;
+                        } else if(response.json.results[0].address_components[i].types.includes("country")){
+                            db.country = response.json.results[0].address_components[i].long_name;
+                            break;
+                        }
+                    }
+
                     db.save(function (err, data) {
                         if (err) {
                             response = {"status": 500, "message": "Error creatting POI"};
@@ -915,11 +921,10 @@ var appRouter = function(router, mongo, app, config, database) {
             database.getNameUser(mongo, arrayIds[i], function (response) {
                 var index = arrayIds.indexOf(arrayIds[0]);
                 if (index !== -1) {
-
                     arrayNames[i] = response.message[0].name;
                 }
                 i++;
-                bucleForUser(arrayIds, i, arrayNames, callback);
+                bucleForUserNames(arrayIds, i, arrayNames, callback);
             });
         }
         else {
@@ -1349,9 +1354,9 @@ var appRouter = function(router, mongo, app, config, database) {
             if (data.status != 500) {
                 var countries = [];
                 var numPois = [];
-                for (i = 0; i < data.length; i++) {
-                    countries.push(data[i]._id.country);
-                    numPois.push(parseFloat(data[i].total / data.length * 100).toFixed(2)); //porcentaje
+                for (i = 0; i < data.array.length; i++) {
+                    countries.push("% "+data.array[i]._id.country);
+                    numPois.push(parseFloat((data.array[i].total/data.tot)*100).toFixed(2));
                 }
                 response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
             }

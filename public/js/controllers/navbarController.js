@@ -6,36 +6,46 @@ angular.module('vignemale')
 
         $scope.isAdmin = false;
 
-        $scope.logged = function () {
-            return auth.isAuthenticated();
-        };
+        $scope.logged = false;
+
 
         $scope.logout = function () {
             auth.logout();
+            $scope.idUser = "";
+            $scope.isAdmin = false;
+            $scope.logged = false;
+
         };
 
-        $scope.getIdFromToken = function () {
-
-            auth.getIdFromToken(auth.getToken(),function(id) {
-                $state.go('users', {id: id.message});
-            });
+        $scope.goHome = function () {
+            if($scope.isAdmin){
+                $state.go('adminList');
+            }else{
+                $state.go('users', {id: $scope.idUser});
+            }
         };
 
         $scope.showStatistics = function (num) {
-            auth.getIdFromToken(auth.getToken(),function(id) {
-                $state.go('userStatistics', {idUser: id.message,id: num});
-            });
+            $state.go('userStatistics', {idUser: $scope.idUser,id: num});
         };
 
         $scope.showAdminStatistics = function (num) {
-            auth.getIdFromToken(auth.getToken(),function(id) {
-                $state.go('adminStatistics', {id: num});
-            });
+            $state.go('adminStatistics', {id: num});
         };
 
-        $scope.verifyIsAdmin = function () {
-            if($scope.logged()) {
-                auth.getIdFromToken(auth.getToken(), function (id) {
+
+        $scope.$on('signIn', function (event, arg) {
+            setId();
+            if($scope.logged){
+                $scope.goHome();
+            }
+        });
+
+        var setId = function(){
+            if(auth.isAuthenticated()){
+                auth.getIdFromToken(auth.getToken(),function(id) {
+                    $scope.idUser = id.message;
+                    $scope.logged = true;
                     users.getUser(id.message, function (data) {
                         if (data.message[0].isAdmin) {
                             $scope.isAdmin = true;
@@ -43,17 +53,14 @@ angular.module('vignemale')
                     }, function (data) {
                         $scope.isAdmin = false;
                     })
-                })
+                });
+            }else{
+                console.log("not logged");
+                $scope.logged = false;
             }
-            else {
-                $scope.isAdmin = false;
-            }
-        };
+        }
 
 
-        $scope.verifyIsAdmin();
-
-
-
+        setId();
 
     }]);

@@ -75,7 +75,7 @@ angular.module('vignemale')
             },
 
             //send the login info to the server
-            signIn: function (userObject, callbackError) {
+            signIn: function (userObject, callbackError,callbackSuccess) {
                 var that = this;
                 $http({
                     method: 'POST',
@@ -86,12 +86,7 @@ angular.module('vignemale')
                     }
                 }).success(function (data, status, headers, params) {
                     that.authenticate(headers().authorization);
-                    if(data.message === "admin") {
-                        $state.go('adminList');
-                    }
-                    else {
-                        $state.go('users', {id: data.message, idRequest: data.message}); //redirect user home
-                    }
+                    callbackSuccess(data);
                 }).error(function (data) {
                     if(data.message === "You must change your password") {
                         var userObject = {
@@ -116,7 +111,6 @@ angular.module('vignemale')
                     }
                 }).success(function (data, status, headers) {
                     that.authenticate(headers().authorization);
-                    $state.go('users',{id: data.message}); //redirect user home
                     callbackSuccess(data);
                 }).error(function (data) {
                     callbackError(data);

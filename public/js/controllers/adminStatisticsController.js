@@ -5,6 +5,8 @@ angular.module('vignemale')
 
         $scope.id = $stateParams.id;
 
+
+
         // feedback handling variables
         $scope.error = false;
         $scope.success = false;
@@ -38,6 +40,7 @@ angular.module('vignemale')
             $scope.successMsg = "";
         };
 
+
         if($scope.id == 1){
 
 
@@ -68,11 +71,74 @@ angular.module('vignemale')
         }
 
         else if($scope.id == 7) {
+            console.log("hola");
 
+            users.getAdminStatistics(7, function (data) {
+                var info = {
+                    labels: data.names,
+                    datasets: [
+                        {
+                            data: data.count,
+                            backgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404"
 
+                            ],
+                            hoverBackgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404"
+                            ]
+                        }]
+                };
+                new Chart(ctx,{
+                    type:"pie",
+                    data: info,
+                    options: {
+                        animation:{
+                            animateScale:true
+                        }
+                    }
+                });
+            })
         }
 
         else if($scope.id == 8) {
+
+            users.getAdminStatistics(8, function (data) {
+                var info = {
+                    labels: data.names,
+                    datasets: [
+                        {
+                            data: data.count,
+                            backgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404"
+
+                            ],
+                            hoverBackgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404"
+                            ]
+                        }]
+                };
+                new Chart(ctx,{
+                    type:"pie",
+                    data: info,
+                    options: {
+                        animation:{
+                            animateScale:true
+                        }
+                    }
+                });
+            })
 
 
         }

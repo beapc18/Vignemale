@@ -398,7 +398,6 @@ var appRouter = function(router, mongo, app, config, database) {
                 response = {"message": "Error updating data"};
                 res.status(500).json(response);
             } else {
-
                 mongo.users.findById(req.params.id, function (err, data) {
                     if (err) {
 
@@ -1350,7 +1349,6 @@ var appRouter = function(router, mongo, app, config, database) {
             if (data.status != 500) {
                 var countries = [];
                 var numPois = [];
-                console.log(data);
                 for (i = 0; i < data.length; i++) {
                     countries.push(data[i]._id.country);
                     numPois.push(parseFloat(data[i].total / data.length * 100).toFixed(2)); //porcentaje
@@ -1369,7 +1367,6 @@ var appRouter = function(router, mongo, app, config, database) {
             if (data.status != 500) {
                 var countries = [];
                 var numPois = [];
-                console.log(data);
                 for (i = 0; i < data.length; i++) {
                     countries.push(data[i]._id.country);
                     numPois.push(parseFloat(data[i].total / data.length * 100).toFixed(2)); //porcentaje
@@ -1387,7 +1384,6 @@ var appRouter = function(router, mongo, app, config, database) {
             if (data.status != 500) {
                 var users = [];
                 var info = [];
-                console.log(data);
 
                 for (i = 0; i < data.follows.length; i++) {
                     users.push(data.follows[i].name);
@@ -1698,7 +1694,6 @@ var appRouter = function(router, mongo, app, config, database) {
             for(k = 0; k < data.res.message.length; k++) {
                 percent[k] = (counts[k] / sum * 100).toFixed(1);
             }
-            console.log(percent);
 
             response = {
                 "status": 200, "message": {
@@ -1758,13 +1753,13 @@ var appRouter = function(router, mongo, app, config, database) {
                         }
                     }
                 }
-                console.log(bubbles)
                 response = {"status": 200, "message": {"bubbles": bubbles}};
             }
             res.status(response.status).json(response.message);
         })
 
     });
+
 
     //users logged with googles/not
     router.get("/admin/statistics/5", function (req, res) {
@@ -1782,6 +1777,91 @@ var appRouter = function(router, mongo, app, config, database) {
             }
             res.status(response.status).json(response.message);
         })
+    });
+
+
+    router.get("/admin/statistics/7", function (req, res) {
+        console.log("/admin/statistics/7");
+        mongo.shares.aggregate([{$group : {_id: {id:"$idUser"}, count:{$sum:1}}}],function(err,data){
+            if (err) {
+                response = {"status": 500, "message": "Error fetching pois"};
+            } else {
+                var names = new Array(4);
+
+                names[0] = "Under 5";
+                names[1] = "5-9";
+                names[2] = "10-15";
+                names[3] = "Over 15";
+
+                var count = new Array(4).fill(0);
+
+                var counts = data.map(function(a){ return a.count});
+
+                for(i=0;i<count.length;i++){
+                    if(counts[i]<5){
+                        count[0]++;
+                    }else if(counts[i]>=5 && counts[i]<10){
+                        counts[1]++;
+                    }else if(counts[i]>=10 && counts[i]<=15){
+                        count[2]++;
+                    }else{
+                        counts[3]++;
+                    }
+                }
+
+                response = {
+                    "status": 200, "message": {
+                        "names": names
+                        , "count": count
+                    }
+                }; //devolver solo la lista de seguidores
+            }
+            res.status(response.status).json(response.message);
+        });
+
+    });
+
+
+    router.get("/admin/statistics/8", function (req, res) {
+        console.log("/admin/statistics/8");
+
+        mongo.pois.aggregate([{ $match: { originCreator:{$exists:true} } },{$group : {_id: {id:"$originCreator"}, count:{$sum:1}}}],function(err,data){
+            if (err) {
+                response = {"status": 500, "message": "Error fetching pois"};
+            } else {
+
+                var names = new Array(4);
+
+                names[0] = "Under 5";
+                names[1] = "5-9";
+                names[2] = "10-15";
+                names[3] = "Over 15";
+
+                var count = new Array(4).fill(0);
+
+                var counts = data.map(function(a){ return a.count});
+
+                for(i=0;i<count.length;i++){
+                    if(counts[i]<5){
+                        count[0]++;
+                    }else if(counts[i]>=5 && counts[i]<10){
+                        counts[1]++;
+                    }else if(counts[i]>=10 && counts[i]<=15){
+                        count[2]++;
+                    }else{
+                        counts[3]++;
+                    }
+                }
+
+                response = {
+                    "status": 200, "message": {
+                        "names": names
+                        , "count": count
+                    }
+                }; //devolver solo la lista de seguidores
+            }
+            res.status(response.status).json(response.message);
+        });
     });
 
 };

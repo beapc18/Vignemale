@@ -1,6 +1,6 @@
 angular.module('vignemale')
 
-    .controller('signInCtrl', ['$scope', '$state', 'auth', function ($scope, $state, auth) {
+    .controller('signInCtrl', ['$scope', '$state', 'auth','$rootScope', function ($scope, $state, auth,$rootScope) {
 
         // inputs visual variables
         $scope.email = "";
@@ -44,6 +44,7 @@ angular.module('vignemale')
         var showSuccess = function (message) {
             $scope.successMsg = message.message;
             $scope.success = true;
+            $rootScope.$broadcast('signIn', 'something');
         };
 
         // hide the success mensage
@@ -58,7 +59,7 @@ angular.module('vignemale')
                 email: $scope.email,
                 password: $scope.password
             };
-            auth.signIn(userObject, showError);
+            auth.signIn(userObject, showError,showSuccess);
         }
 
 
@@ -80,6 +81,8 @@ angular.module('vignemale')
                     token: id_token
                 };
                 auth.googleSignIn(data, showSuccess, showError)
+
+
             }
         }
 

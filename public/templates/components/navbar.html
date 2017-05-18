@@ -11,12 +11,11 @@
                 <span class="icon-bar"></span>
             </button>
             <ul class="nav navbar-nav navbar-left">
-                <a ng-if="!logged()" class="navbar-brand" href="#"><span class="glyphicon glyphicon-map-marker"></span>   POIManager</a>
-                <a ng-if="logged()" class="navbar-brand" role="button" ng-click="getIdFromToken()">
+                <a ng-if="!logged" class="navbar-brand" href="#"><span class="glyphicon glyphicon-map-marker"></span>   POIManager</a>
+                <a ng-if="logged" class="navbar-brand" role="button" ng-click="goHome()">
                     <span class="glyphicon glyphicon-home"></span>   Home</a>
-
                 <li class="dropdown">
-                    <a ng-if="!isAdmin" role="button" data-toggle="dropdown" class="dropdown-toggle"><span class="glyphicon glyphicon-search"></span>  Search <span class="caret"></span></a>
+                    <a ng-if="logged && !isAdmin" role="button" data-toggle="dropdown" class="dropdown-toggle"><span class="glyphicon glyphicon-search"></span>  Search <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="#/search/users">Users</a></li>
                         <li><a href="#/search/pois">Pois</a></li>
@@ -24,7 +23,7 @@
                 </li>
 
                 <li class="dropdown">
-                    <a ng-if="logged() && !isAdmin" role="button" data-toggle="dropdown" class="dropdown-toggle">
+                    <a ng-if="logged && !isAdmin" role="button" data-toggle="dropdown" class="dropdown-toggle">
                         <span class="glyphicon glyphicon-signal"></span>   Statistics</a>
                     <ul class="dropdown-menu">
                         <li><a role="button" ng-click="showStatistics(1)">Creation Dates</a></li>
@@ -41,7 +40,7 @@
                 </li>
 
                 <li class="dropdown">
-                    <a ng-if="logged() && isAdmin" role="button" data-toggle="dropdown" class="dropdown-toggle">
+                    <a ng-if="logged && isAdmin" role="button" data-toggle="dropdown" class="dropdown-toggle">
                         <span class="glyphicon glyphicon-signal"></span>   Statistics</a>
                     <ul class="dropdown-menu">
                         <li><a role="button" ng-click="showAdminStatistics(1)">Users by ages</a></li>
@@ -50,8 +49,8 @@
                         <li><a role="button" ng-click="showAdminStatistics(4)">Pois by user</a></li>
                         <li><a role="button" ng-click="showAdminStatistics(5)">Number 5</a></li>
                         <li><a role="button" ng-click="showAdminStatistics(6)">6</a></li>
-                        <li><a role="button" ng-click="showAdminStatistics(7)">7</a></li>
-                        <li><a role="button" ng-click="showAdminStatistics(8)">8</a></li>
+                        <li><a role="button" ng-click="showAdminStatistics(7)">Recommedations per user</a></li>
+                        <li><a role="button" ng-click="showAdminStatistics(8)">Duplications per user</a></li>
                         <li><a role="button" ng-click="showAdminStatistics(9)">9</a></li>
                         <li><a role="button" ng-click="showAdminStatistics(10)">Number 10</a></li>
                     </ul>
@@ -63,9 +62,9 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav navbar-right">
                 <!--Añadir cuando se este loggeado y no-->
-                <li ng-if="!logged()"><a href="#/signUp"><span class="glyphicon glyphicon-user"></span>  Sign up</a></li>
-                <li ng-if="!logged()"><a href="#/signIn"><span class="glyphicon glyphicon-log-in"></span>   Sign in</a></li>
-                <li ng-if="logged()"><a ng-click="logout()"><span class="glyphicon glyphicon-log-out"></span>   Logout</a></li>
+                <li ng-if="!logged"><a href="#/signUp"><span class="glyphicon glyphicon-user"></span>  Sign up</a></li>
+                <li ng-if="!logged"><a href="#/signIn"><span class="glyphicon glyphicon-log-in"></span>   Sign in</a></li>
+                <li ng-if="logged"><a ng-click="logout()"><span class="glyphicon glyphicon-log-out"></span>   Logout</a></li>
             </ul>
         </div>
     </div>

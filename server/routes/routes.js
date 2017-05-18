@@ -58,7 +58,7 @@ var appRouter = function(router, mongo, app, config, database) {
      * /signIn:
      *   post:
      *     tags:
-     *       - Users
+     *       - Auth
      *     description: Allow users to sign in
      *     produces:
      *       - application/json
@@ -74,10 +74,10 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: body
      *         required: true
      *         schema:
-     *           $ref: '#/definitions/User'
+     *           $ref: '#/definitions/Auth'
      *     responses:
      *       200:
-     *         description: Successfully created
+     *         description: Sign in successfully
      *       400:
      *          description: Empty or invalid parameters
      *       403:
@@ -156,7 +156,29 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     });
 
-
+    /**
+     * @swagger
+     * /googleSignIn:
+     *   post:
+     *     tags:
+     *       - Auth
+     *     description: Allow users to sign in with Google
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: token
+     *         description: Google's token
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Auth'
+     *     responses:
+     *       200:
+     *         description: Sign in with Google successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.post("/googleSignIn", function (req, res) {
 
         console.log("googleSignIn user");
@@ -175,11 +197,9 @@ var appRouter = function(router, mongo, app, config, database) {
 
                 var payload = login.getPayload();
                 var userid = payload['sub'];
-
                 var name = payload['given_name'];
                 var lastName = payload['family_name'];
                 var email = payload['email'];
-
 
                 //save only if doesn't exist any user with the same email
                 mongo.users.find({email: email}, function (err, data) {
@@ -187,7 +207,6 @@ var appRouter = function(router, mongo, app, config, database) {
                         response = {"message": "Error fetching data"};
                         res.status(500).json(response);
                     } else if (data.length !== 0) {
-
                         response = {"message": "Email exists"};
                         console.log(response);
 
@@ -197,7 +216,6 @@ var appRouter = function(router, mongo, app, config, database) {
                         mongo.users.update({_id: data[0]._id}, {lastAccess: new Date()}, function (err) {
                         });
 
-
                         //Generate id for token
                         var tokenId = Math.random().toString(36).slice(-10);
                         var payload = {id: data[0]._id, tokenId: tokenId};
@@ -205,14 +223,12 @@ var appRouter = function(router, mongo, app, config, database) {
 
                         console.log("Creado tokenId de usuario " + tokenId);
 
-
                         response = {"message": data[0]._id};   //send user id or link to profile??
 
                         res.setHeader("Authorization", token);
                         res.status(200).json(response);
 
                     } else {
-
                         var db = new mongo.users;
 
                         db.name = name;
@@ -224,7 +240,6 @@ var appRouter = function(router, mongo, app, config, database) {
                         db.firstLogin = true;
                         db.removed = false;
                         db.google = true;
-
 
                         db.save(function (err) {
                             if (err) {
@@ -255,14 +270,12 @@ var appRouter = function(router, mongo, app, config, database) {
                                         };
 
                                         transporter.sendMail(mailOptions);
-
                                         //Generate id for token
                                         var tokenId = Math.random().toString(36).slice(-10);
                                         var payload = {id: data[0]._id, tokenId: tokenId};
                                         var token = jwt.sign(payload, jwtOptions.secretOrKey);
 
                                         console.log("Creado tokenId de usuario " + tokenId);
-
 
                                         response = {"message": data[0]._id};   //send user id or link to profile??
                                         res.setHeader("Authorization", token);
@@ -272,17 +285,71 @@ var appRouter = function(router, mongo, app, config, database) {
                             }
                             console.log(response);
                         });
-
                     }
                 });
             }
         });
     });
 
-
+    /**
+     * @swagger
+     * /signUp:
+     *   post:
+     *     tags:
+     *       - Auth
+     *     description: Allow users to sign in with Google
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: name
+     *         description: User name
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Auth'
+     *       - name: lastName
+     *         description: User last name
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Auth'
+     *       - name: lastName
+     *         description: User last name
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Auth'
+     *       - name: email
+     *         description: User email
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Auth'
+     *       - name: birthDate
+     *         description: User birth date
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Auth'
+     *       - name: place
+     *         description: User living place
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Auth'
+     *     responses:
+     *       201:
+     *         description: Sign up successfully
+     *       400:
+     *         description: Empty or invalid parameters
+     *       409:
+     *         description: User exists in  system
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.post("/signUp", function (req, res) {
         console.log("signUp user");
-
         var db = new mongo.users;
         var response = {};
         var idUser = "";
@@ -339,8 +406,6 @@ var appRouter = function(router, mongo, app, config, database) {
 
                                     idUser = data[0]._id;
                                     //enviar mail usuario
-
-
                                     var url = 'http://localhost:8888/#/users/' + idUser + '/verifyAccount';
                                     var text = 'Welcome to POIManager.' +
                                         ' please, click the link bellow to confirm yout password.\n'
@@ -351,7 +416,6 @@ var appRouter = function(router, mongo, app, config, database) {
                                         to: email, // list of receivers
                                         subject: 'Confirmation', // Subject line
                                         text: text //, // plaintext body
-                                        // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
                                     };
 
                                     transporter.sendMail(mailOptions, function (error, info) {
@@ -363,7 +427,6 @@ var appRouter = function(router, mongo, app, config, database) {
                                             res.json({yo: info.response});
                                         }
                                     });
-
                                 }
                             });
                         }
@@ -374,11 +437,48 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     });
 
+    /**
+     * @swagger
+     * /getIdFromToken:
+     *   post:
+     *     tags:
+     *       - Auth
+     *     description: Return user id who makes the request
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Id taken successfully
+     *
+     */
     router.get('/getIdFromToken', passport.authenticate('jwt', {session: false}), function (req, res) {
         var payload = jwt.decode(req.headers.authorization.split(" ")[1]);
         res.status(200).json({"message": payload.id});
     });
 
+    /**
+     * @swagger
+     * /resetPassword:
+     *   post:
+     *     tags:
+     *       - Users
+     *     description: Allow change user password if it has been forgotten
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: email
+     *         description: User's email
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Change password successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.post('/resetPassword', function (req, res) {
         database.getInfoUserByEmail(mongo, req.body.email, function (response) {
             if (response.message === "Error searching user") {
@@ -387,7 +487,6 @@ var appRouter = function(router, mongo, app, config, database) {
             }
             else if (response.message === "Found user") {
                 console.log("Found user");
-
                 var pass = Math.random().toString(36).slice(-10);
                 var hashNewPassword = require('crypto').createHash('sha1').update(pass).digest('base64');
 
@@ -416,6 +515,29 @@ var appRouter = function(router, mongo, app, config, database) {
         })
     });
 
+    /**
+     * @swagger
+     * /resetPassword:
+     *   get:
+     *     tags:
+     *       - Users
+     *     description: Allow user to verify it password
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Verify account successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get('/users/:id/verifyAccount', function (req, res) {
         console.log("verify user");
 
@@ -451,7 +573,6 @@ var appRouter = function(router, mongo, app, config, database) {
                                 response = {"message": "Account has been verified, you will receive an email with your password"};
                                 res.status(200).json(response);
                             }
-                            ;
                         });
                     }
                 });
@@ -459,11 +580,39 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-
+    /**
+     * @swagger
+     * /users/:id/password:
+     *   post:
+     *     tags:
+     *       - Users
+     *     description: Allow user to change it password
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *       - name: password
+     *         description: User's password
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Password changed successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.put("/users/:id/password", function (req, res) {
         console.log("change user password");
 
-        //create the hash to save in db   --> cifrar en cliente
+        //create the hash to save in db
         var hashPassword = require('crypto')
             .createHash('sha1')
             .update(req.body.password)
@@ -493,7 +642,29 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    //Return data of user with :id
+    /**
+     * @swagger
+     * /users/:id/:
+     *   get:
+     *     tags:
+     *       - User
+     *     description: Get info about user
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Get user info successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id", function (req, res) {
         console.log("get user");
 
@@ -507,7 +678,29 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    //change removed attribute for removing user
+    /**
+     * @swagger
+     * /users/:id/:
+     *   delete:
+     *     tags:
+     *       - User
+     *     description: Delete user in the system and its pois
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Delete user successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.delete("/users/:id", passport.authenticate('jwt', {session: false}), function (req, res) {
         //Cuando quiere borrar el administrador, no es igual su id que el que quiere borrar!
         //if (verifyIds(req.params.id, req.headers.authorization)) {
@@ -528,7 +721,41 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    //change password checking old password
+    /**
+     * @swagger
+     * /users/:id/:
+     *   put:
+     *     tags:
+     *       - User
+     *     description: Change user password verifying old password
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *       - name: newPassword
+     *         description: User's new password
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *       - name: oldPassword
+     *         description: User's old password
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Change user's password successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.put("/users/:id", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("update user");
         var response = {};
@@ -564,7 +791,29 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     });
 
-    //get fav pois from user
+    /**
+     * @swagger
+     * /users/:id/favs:
+     *   get:
+     *     tags:
+     *       - User
+     *     description: Get user favs
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Get user favs successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id/favs", function (req, res) {
         console.log("GET favs from user " + req.params.id);
         database.getFavs(mongo, req.params.id, function (response) {
@@ -594,7 +843,35 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    //add poi to fav to a user
+    /**
+     * @swagger
+     * /users/:id/favs:
+     *   post:
+     *     tags:
+     *       - User
+     *     description: Add POI to user's favs
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *       - name: idPoi
+     *         description: Id of POI for adding to fav list
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Add fav to user successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.post("/users/:id/favs", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("POST " + req.body.idPoi + " poi to " + req.params.id + " user");
         //if(verifyIds())
@@ -603,7 +880,35 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    //add poi to fav to a user
+    /**
+     * @swagger
+     * /users/:id/favs:
+     *   delete:
+     *     tags:
+     *       - User
+     *     description: Delete POI from user's favs
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *       - name: idPoi
+     *         description: Id of POI for removing of fav list
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Remove fav to user successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.delete("/users/:id/favs", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("DELETE " + req.body.idPoi + " poi to " + req.params.id + " user");
         database.deleteFav(mongo, req.params.id, req.body.idPoi, function (response) {
@@ -611,7 +916,29 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    //Follow user, updating field "following"
+    /**
+     * @swagger
+     * /users/:id/follow:
+     *   post:
+     *     tags:
+     *       - User
+     *     description: Follow user
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: Followed user's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Add user to follow list successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.post("/users/:id/follow", passport.authenticate('jwt', {session: false}), function (req, res) {
         var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
         console.log("Follow user " + req.params.id + " from " + idUser);
@@ -622,7 +949,29 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    //Unfollow user, updating field "following"
+    /**
+     * @swagger
+     * /users/:id/unfollow:
+     *   post:
+     *     tags:
+     *       - User
+     *     description: Unfollow user
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: Unfollowed user's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Remove user to follow list successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.post("/users/:id/unfollow", passport.authenticate('jwt', {session: false}), function (req, res) {
         var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
         console.log("Unfollow user " + req.params.id + " from " + idUser);
@@ -633,7 +982,29 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    //get user pois
+    /**
+     * @swagger
+     * /users/:id/pois:
+     *   get:
+     *     tags:
+     *       - User
+     *     description: Get pois of user
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Get pois of user successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id/pois", function (req, res) {
         var userId = req.params.id;
         console.log("get user " + userId + " pois");
@@ -648,7 +1019,23 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-
+    /**
+     * @swagger
+     * /pois:
+     *   get:
+     *     tags:
+     *       - Pois
+     *     description: Get all pois
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       responses:
+     *       200:
+     *         description: Get all pois successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.route("/pois")
         .get(function (req, res) {
             console.log("GET pois");
@@ -662,13 +1049,27 @@ var appRouter = function(router, mongo, app, config, database) {
                 res.json(response);
             });
         })
+
+        /**
+         * @swagger
+         * /pois:
+         *   post:
+         *     tags:
+         *       - Pois
+         *     description: Add new poi
+         *     produces:
+         *       - application/json
+         *     responses:
+         *       201:
+         *         description: Add poi successfully
+         *       500:
+         *          description: Error in server
+         *
+         */
         .post(passport.authenticate('jwt', {session: false}), function (req, res) {
             console.log("POST pois");
             var db = new mongo.pois;
             var response = {};
-
-
-            console.log(req.body);
 
             db.name = req.body.name;
             db.description = req.body.description;
@@ -682,7 +1083,6 @@ var appRouter = function(router, mongo, app, config, database) {
             db.numRec = 0; //nº recomendaciones
 
             if ("undefined" === typeof req.body.idDuplicate || "undefined" === typeof req.body.originCreator) {
-
             } else {
                 db.idDuplicate = req.body.idDuplicate;
                 db.originCreator = req.body.originCreator;
@@ -771,7 +1171,29 @@ var appRouter = function(router, mongo, app, config, database) {
             });
         });
 
-
+    /**
+     * @swagger
+     * /pois/:id:
+     *   get:
+     *     tags:
+     *       - Pois
+     *     description: Get info of poi
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: Id of poi
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Pois'
+     *     responses:
+     *       200:
+     *         description: Get info of poi successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.route("/pois/:id")
         .get(function (req, res) {
             console.log("GET pois/" + req.params.id);
@@ -785,6 +1207,30 @@ var appRouter = function(router, mongo, app, config, database) {
                 res.status(response.status).json(response.message);
             });
         })
+
+        /**
+         * @swagger
+         * /users/:id/pois:
+         *   put:
+         *     tags:
+         *       - Pois
+         *     description: Change info of poi
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: id
+         *         description: Id of poi
+         *         in: params
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Pois'
+         *     responses:
+         *       200:
+         *         description: Update info of poi successfully
+         *       500:
+         *          description: Error in server
+         *
+         */
         .put(passport.authenticate('jwt', {session: false}), function (req, res) {
             console.log("PUT pois/" + req.params.id);
 
@@ -846,6 +1292,30 @@ var appRouter = function(router, mongo, app, config, database) {
                 }
             });
         })
+
+        /**
+         * @swagger
+         * /users/:id/pois:
+         *   delete:
+         *     tags:
+         *       - Pois
+         *     description: Delete poi
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: id
+         *         description: Id of poi
+         *         in: params
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Pois'
+         *     responses:
+         *       200:
+         *         description: Delete poi successfully
+         *       500:
+         *          description: Error in server
+         *
+         */
         .delete(passport.authenticate('jwt', {session: false}), function (req, res) {
             console.log("DELETE pois/" + req.params.id);
 
@@ -874,7 +1344,29 @@ var appRouter = function(router, mongo, app, config, database) {
             });
         });
 
-    //post user rating
+    /**
+     * @swagger
+     * /pois/:id/rating:
+     *   post:
+     *     tags:
+     *       - Pois
+     *     description: Rate poi and calculate new average
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: Id of poi
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Pois'
+     *     responses:
+     *       200:
+     *         description: Rate poi successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.post("/pois/:id/rating", passport.authenticate('jwt', {session: false}), function (req, res) {
         var idPoi = req.params.id;
         console.log("post poi " + idPoi + " rating");
@@ -885,7 +1377,29 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    //search if this poi is my fav list to this user
+    /**
+     * @swagger
+     * /pois/:id/isfav:
+     *   get:
+     *     tags:
+     *       - Pois
+     *     description: Search if poi is user's fav list
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: Id of poi
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Pois'
+     *     responses:
+     *       200:
+     *         description: Get if poi is fav successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/pois/:id/isfav", passport.authenticate('jwt', {session: false}), function (req, res) {
         var idPoi = req.params.id;
         var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
@@ -902,7 +1416,29 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
 
-    //get user routes
+    /**
+     * @swagger
+     *  /users/:id/routes:
+     *   get:
+     *     tags:
+     *       - Users
+     *     description: Get routes of user
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Users'
+     *     responses:
+     *       200:
+     *         description: Get routes of user successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id/routes", function (req, res) {
         var userId = req.params.id;
         console.log("get user " + userId + " routes");
@@ -920,7 +1456,29 @@ var appRouter = function(router, mongo, app, config, database) {
 
 
 
-//get user follows
+    /**
+     * @swagger
+     *  /users/:id/following:
+     *   get:
+     *     tags:
+     *       - Users
+     *     description: Get followings of user
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Users'
+     *     responses:
+     *       200:
+     *         description: Get followings of user successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id/following", function (req, res) {
         var userId = req.params.id;
         console.log("Get follows");
@@ -957,7 +1515,29 @@ var appRouter = function(router, mongo, app, config, database) {
         })
     });
 
-//return true if the user is followed, false in other case
+    /**
+     * @swagger
+     *  /users/:id/isfollowed:
+     *   get:
+     *     tags:
+     *       - Users
+     *     description: Return true if the user is followed, false in other case
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: Followed user's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Users'
+     *     responses:
+     *       200:
+     *         description: Get if user is followed successfully
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id/isfollowed", passport.authenticate('jwt', {session: false}), function (req, res) {
         var idUserFollowed = req.params.id;
         var idUserFollowing = jwt.decode(req.headers.authorization.split(" ")[1]).id;

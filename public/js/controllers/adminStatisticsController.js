@@ -237,7 +237,7 @@ angular.module('vignemale')
         }
 
         else if($scope.id == 7) {
-            console.log("hola");
+            $scope.nameStatistic = "Recommedations per user";
 
             users.getAdminStatistics(7, function (data) {
                 var info = {
@@ -273,6 +273,7 @@ angular.module('vignemale')
         }
 
         else if($scope.id == 8) {
+            $scope.nameStatistic = "Duplications per user";
 
             users.getAdminStatistics(8, function (data) {
                 var info = {

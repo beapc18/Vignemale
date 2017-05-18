@@ -592,6 +592,7 @@ var appRouter = function(router, mongo, app, config, database) {
             if (err) {
                 response = {"status": 500, "message": "Error fetching data"};
             } else {
+                console.log(data)
                 response = {"status": 201, "message": data};
             }
             res.json(response);
@@ -1476,7 +1477,7 @@ var appRouter = function(router, mongo, app, config, database) {
             }
 
         });
-    })
+    });
 
     var bucleForShare = function (arrayIds, i, arrayCounts, callback) {
         if (i < arrayIds.length) {
@@ -1497,6 +1498,34 @@ var appRouter = function(router, mongo, app, config, database) {
             callback(arrayIds, arrayCounts);
         }
     };
+
+    var bucleForPlaces = function (arrayPlaces, found, notFound, i, callback) {
+        if(i < arrayPlaces.length) {
+            googleMapsClient.geocode({address: arrayPlaces[i].place}, function (err, response) {
+                if (err) {
+                    console.log("Error searching with Google Maps");
+                }
+                else {
+                    if (response.json.status === "ZERO_RESULTS") {
+                        console.log("Place not found in Maps");
+                        notFound++;
+                    }
+                    else {
+                        console.log("Place found");
+                        found++;
+                    }
+                    i++;
+                    bucleForPlaces(arrayPlaces, found, notFound, i, callback);
+                }
+            });
+
+        }
+        else {
+            callback(found, notFound);
+        }
+
+
+    }
 
 
     router.get("/users/:id/statistics/5", function (req, res) {
@@ -1722,8 +1751,8 @@ var appRouter = function(router, mongo, app, config, database) {
             labels[2] = "5 or more pois";
 
             mongo.pois.aggregate([{$group: {_id: "$creator", count: {$sum:1}}}], function (err, data) {
-                /*var percentActive = (data.length / totalUsers * 100).toFixed(1);
-                var percentInactive = 100 - percentActive;*/
+                console.log(data);
+                counts[0] = totalUsers - data.length;
                 for(var i = 0; i < data.length; i++) {
                     if(data[i].count < 5) counts[1]++;
                     else if(data[i].count >= 5) counts[2]++;
@@ -1784,93 +1813,121 @@ var appRouter = function(router, mongo, app, config, database) {
         })
     });
 
+    router.get("/admin/statistics/6", function (req, res) {
+        console.log("/admin/statistics/6");
 
-    router.get("/admin/statistics/7", function (req, res) {
-        console.log("/admin/statistics/7");
-        mongo.shares.aggregate([{$group : {_id: {id:"$idUser"}, count:{$sum:1}}}],function(err,data){
-            if (err) {
-                response = {"status": 500, "message": "Error fetching pois"};
-            } else {
-                var names = new Array(4);
+        /*var found = 0;
+         var notFound = 0;
+         var total = 0;*/
+        var percent = [];
+        var label = [];
+        label[1] = "Not found";
+        label[0] = "Found";
 
-                names[0] = "Under 5";
-                names[1] = "5-9";
-                names[2] = "10-15";
-                names[3] = "Over 15";
-
-                var count = new Array(4).fill(0);
-
-                var counts = data.map(function(a){ return a.count});
-
-                for(i=0;i<count.length;i++){
-                    if(counts[i]<5){
-                        count[0]++;
-                    }else if(counts[i]>=5 && counts[i]<10){
-                        counts[1]++;
-                    }else if(counts[i]>=10 && counts[i]<=15){
-                        count[2]++;
-                    }else{
-                        counts[3]++;
-                    }
-                }
+        mongo.users.find({isAdmin: {$ne: 1}}, {place: 1}, function (err, data) {
+            bucleForPlaces(data, 0, 0, 0, function (found, notFound) {
+                console.log("Encontrados y no");
+                console.log(found);
+                console.log(notFound);
+                percent[0] = Number(found *100/ found + notFound).toFixed(2);
+                percent[1] = Number(notFound *100/ found + notFound).toFixed(2);
 
                 response = {
-                    "status": 200, "message": {
-                        "names": names
-                        , "count": count
-                    }
-                }; //devolver solo la lista de seguidores
-            }
-            res.status(response.status).json(response.message);
-        });
-
-    });
-
-
-    router.get("/admin/statistics/8", function (req, res) {
-        console.log("/admin/statistics/8");
-
-        mongo.pois.aggregate([{ $match: { originCreator:{$exists:true} } },{$group : {_id: {id:"$originCreator"}, count:{$sum:1}}}],function(err,data){
-            if (err) {
-                response = {"status": 500, "message": "Error fetching pois"};
-            } else {
-
-                var names = new Array(4);
-
-                names[0] = "Under 5";
-                names[1] = "5-9";
-                names[2] = "10-15";
-                names[3] = "Over 15";
-
-                var count = new Array(4).fill(0);
-
-                var counts = data.map(function(a){ return a.count});
-
-                for(i=0;i<count.length;i++){
-                    if(counts[i]<5){
-                        count[0]++;
-                    }else if(counts[i]>=5 && counts[i]<10){
-                        counts[1]++;
-                    }else if(counts[i]>=10 && counts[i]<=15){
-                        count[2]++;
-                    }else{
-                        counts[3]++;
-                    }
-                }
-
-                response = {
-                    "status": 200, "message": {
-                        "names": names
-                        , "count": count
-                    }
-                }; //devolver solo la lista de seguidores
-            }
-            res.status(response.status).json(response.message);
+                    "status": 200, "message": {"percent": percent, "label": label}
+                };
+                res.status(response.status).json(response.message)
+            })
         });
     });
 
-};
+
+
+        router.get("/admin/statistics/7", function (req, res) {
+            console.log("/admin/statistics/7");
+            mongo.shares.aggregate([{$group : {_id: {id:"$idUser"}, count:{$sum:1}}}],function(err,data){
+                if (err) {
+                    response = {"status": 500, "message": "Error fetching pois"};
+                } else {
+                    var names = new Array(4);
+
+                    names[0] = "Under 5";
+                    names[1] = "5-9";
+                    names[2] = "10-15";
+                    names[3] = "Over 15";
+
+                    var count = new Array(4).fill(0);
+
+                    var counts = data.map(function(a){ return a.count});
+
+                    for(i=0;i<count.length;i++){
+                        if(counts[i]<5){
+                            count[0]++;
+                        }else if(counts[i]>=5 && counts[i]<10){
+                            counts[1]++;
+                        }else if(counts[i]>=10 && counts[i]<=15){
+                            count[2]++;
+                        }else{
+                            counts[3]++;
+                        }
+                    }
+
+                    response = {
+                        "status": 200, "message": {
+                            "names": names
+                            , "count": count
+                        }
+                    }; //devolver solo la lista de seguidores
+                }
+                res.status(response.status).json(response.message);
+            });
+
+        });
+
+
+        router.get("/admin/statistics/8", function (req, res) {
+            console.log("/admin/statistics/8");
+
+            mongo.pois.aggregate([{ $match: { originCreator:{$exists:true} } },{$group : {_id: {id:"$originCreator"}, count:{$sum:1}}}],function(err,data){
+                if (err) {
+                    response = {"status": 500, "message": "Error fetching pois"};
+                } else {
+
+                    var names = new Array(4);
+
+                    names[0] = "Under 5";
+                    names[1] = "5-9";
+                    names[2] = "10-15";
+                    names[3] = "Over 15";
+
+                    var count = new Array(4).fill(0);
+
+                    var counts = data.map(function(a){ return a.count});
+
+                    for(i=0;i<count.length;i++){
+                        if(counts[i]<5){
+                            count[0]++;
+                        }else if(counts[i]>=5 && counts[i]<10){
+                            counts[1]++;
+                        }else if(counts[i]>=10 && counts[i]<=15){
+                            count[2]++;
+                        }else{
+                            counts[3]++;
+                        }
+                    }
+
+                    response = {
+                        "status": 200, "message": {
+                            "names": names
+                            , "count": count
+                        }
+                    }; //devolver solo la lista de seguidores
+                }
+                res.status(response.status).json(response.message);
+            });
+        });
+
+    };
 
 
 
-module.exports = appRouter;
+    module.exports = appRouter;

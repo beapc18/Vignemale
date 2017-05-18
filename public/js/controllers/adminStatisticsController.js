@@ -176,6 +176,8 @@ angular.module('vignemale')
         }
         // pois by user and rating average
         else if($scope.id == 4) {
+            $scope.nameStatistic = "Pois by user";
+
             users.getAdminStatistics(4, function (data) {
                 console.log(data.bubbles);
 
@@ -202,6 +204,8 @@ angular.module('vignemale')
         }
         //users logged with googles/not
         else if($scope.id == 5) {
+            $scope.nameStatistic = "Register with Google vs Normal register";
+
             users.getAdminStatistics(5, function (data) {
                 var info = {
                     labels: data.label,
@@ -232,8 +236,47 @@ angular.module('vignemale')
         }
 
         else if($scope.id == 6) {
+            $scope.nameStatistic = "Places not found in Google Maps";
 
+            users.getAdminStatistics(6, function (data) {
+                var info = {
+                    labels: data.label,
+                    datasets: [
+                        {
+                            data: data.percent,
+                            backgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404"
 
+                            ],
+                            hoverBackgroundColor: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#31B404"
+                            ]
+                        }]
+                };
+                new Chart(ctx,{
+                    type:"pie",
+                    data: info,
+                    options: {
+                        animation:{
+                            animateScale:true
+                        },
+                        tooltips: {
+                            mode: 'label',
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    return data['datasets'][0]['data'][tooltipItem['index']] + '%';
+                                }
+                            }
+                        }
+                    }
+                });
+            });
         }
 
         else if($scope.id == 7) {

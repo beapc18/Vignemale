@@ -11,7 +11,6 @@ var getInfoUser = function(mongo, id, callback){
         if (err) {
             response = {"status": 500, "res": {"message": "Error searching user"}};
         } else {
-            console.log(user);
             response = {"status": 200, "res": {"message": user}};
         }
         callback(response);
@@ -244,34 +243,34 @@ var getNamePOIcreator = function (mongo, idCreator, callback) {
     });
 };
 
-    var ratePoi = function (mongo, idUser, idPoi, rating, callback) {
-        var response = {};
-        mongo.ratings.find({idUser: idUser, idPoi: idPoi}, function (err, data) {
-            if (err) {
-                console.log("Error database");
-                response = {"status": 500, "res": {"message": "Error rating poi"}};
-            }
-            else {
-                //update mean in poi if the user hasn't voted yet
-                if (data.length === 0){
-                    updateRatingPoi(mongo, idPoi, rating, function (response) {
-                        if (response.status === 500) {
+var ratePoi = function (mongo, idUser, idPoi, rating, callback) {
+    var response = {};
+    mongo.ratings.find({idUser: idUser, idPoi: idPoi}, function (err, data) {
+        if (err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error rating poi"}};
+        }
+        else {
+            //update mean in poi if the user hasn't voted yet
+            if (data.length === 0){
+                updateRatingPoi(mongo, idPoi, rating, function (response) {
+                    if (response.status === 500) {
+                        callback(response);
+                    } else{
+                        //save new rating, user poi and value
+                        saveRating(mongo, idUser, idPoi, rating, function (response) {
                             callback(response);
-                        } else{
-                            //save new rating, user poi and value
-                            saveRating(mongo, idUser, idPoi, rating, function (response) {
-                                callback(response);
-                            });
-                        }
-                    })
-                }
-                else{
-                    response = {"status": 200, "res": {"message": "You cannot rate twice the same POI"}};
-                    callback(response);
-                }
+                        });
+                    }
+                })
             }
-        });
-    };
+            else{
+                response = {"status": 200, "res": {"message": "You cannot rate twice the same POI"}};
+                callback(response);
+            }
+        }
+    });
+};
 
 //save new rating in table ratings
 var saveRating = function (mongo, idUser, idPoi, rating, callback) {
@@ -377,16 +376,16 @@ var getFollowingPoisByCountry = function (mongo, idUser, callback) {
 var getUsersByPlace = function (mongo, callback) {
     var response;
     //mongo.users.find({isAdmin: {$ne: 1}}, function (err, data) {
-        mongo.users.aggregate([{$group: {_id: "$place", count: {$sum:1}}}], function (err, data) {
-            if(err) {
-                console.log("Error database");
-                response = {"status": 500, "res": {"message": "Error getting users by place"}};
-            }
-            else {
-                response = {"status": 200, "res": {"message": data}};
-                callback(response);
-            }
-        })
+    mongo.users.aggregate([{$group: {_id: "$place", count: {$sum:1}}}], function (err, data) {
+        if(err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error getting users by place"}};
+        }
+        else {
+            response = {"status": 200, "res": {"message": data}};
+            callback(response);
+        }
+    })
 };
 
 //following users' activity depending on pois and age
@@ -477,6 +476,41 @@ var getGoogleUsers = function (mongo, callback) {
         }
     });
 };
+
+/*var placesWithGoogle = function (mongo, googleMapsClient, callback) {
+    var response;
+    var found = 0;
+    var notFound = 0;
+    var total = 0;
+
+    mongo.users.find({isAdmin: {$ne: 1}}, {place:1}, function (err, data) {
+        if(err) {
+            console.log("Error database");
+            response = {"status": 500, "res": {"message": "Error getting places in Google"}};
+        }
+        else {
+            for(var i = 0; i< data.length; i++) {
+                googleMapsClient.geocode({address: data[i].place}, function (err, response) {
+                    if (err) {
+                        console.log("Error searching with Google Maps");
+                    }
+                    else {
+                        if (response.json.status === "ZERO_RESULTS") {
+                            console.log("Place not found in Maps");
+                            notFound++;
+                        }
+                        else {
+                            console.log("Place found");
+                            found++;
+                        }
+                    }
+                });
+            }
+            response = {"status": 200, "res": {"found": found, "notFound": notFound, "total":found+notFound}};
+            callback(response);
+        }
+    });
+};*/
 
 module.exports = {
     getInfoUser: getInfoUser,

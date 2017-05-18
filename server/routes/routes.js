@@ -1059,7 +1059,24 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
 
+
     router.route("/routes")
+    /**
+     * @swagger
+     * /routes:
+     *   get:
+     *     tags:
+     *       - Routes
+     *     description: Get information of all routes
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Successfully got information of all routes
+     *       500:
+     *          description: Error in server
+     *
+     */
         .get(function (req, res) {
             console.log("GET routes");
             var response = {};
@@ -1072,6 +1089,41 @@ var appRouter = function(router, mongo, app, config, database) {
                 res.status(response.status).json(response);
             });
         })
+        /**
+         * @swagger
+         * /routes:
+         *   post:
+         *     tags:
+         *       - Routes
+         *     description: Add a route with some pois
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: name
+         *         description: Name of route
+         *         in: body
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Routes'
+         *       - name: pois
+         *         description: Pois of the route
+         *         in: body
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Routes'
+         *       - name: creator
+         *         description: Creator of the route
+         *         in: body
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Routes'
+         *     responses:
+         *       200:
+         *         description: Successfully added a route
+         *       500:
+         *          description: Error in server
+         *
+         */
         .post(passport.authenticate('jwt', {session: false}), function (req, res) {
             console.log("POST routes");
             var db = new mongo.routes;
@@ -1080,22 +1132,15 @@ var appRouter = function(router, mongo, app, config, database) {
             var name = req.body.name;
             var pois = req.body.pois;
 
-
             var array = [];
-
             for (i = 0; i < pois.length; i++) {
                 array.push(JSON.parse(pois[i]));
             }
-
             var creator = req.body.creator;
-
-
             db.name = name;
             db.numRecommendations = 0;
-
             db.pois = array;
             db.creator = creator;
-
 
             db.save(function (err) {
                 // save() will run insert() command of MongoDB.
@@ -1110,6 +1155,29 @@ var appRouter = function(router, mongo, app, config, database) {
         });
 
 
+    /**
+     * @swagger
+     * /routes/:id:
+     *   get:
+     *     tags:
+     *       - Routes
+     *     description: Get information of the route
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Routes'
+     *     responses:
+     *       200:
+     *         description: Successfully got information of the route
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.route("/routes/:id").get(function (req, res) {
         console.log("GET routes/" + req.params.id);
         var response = {};
@@ -1123,6 +1191,29 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
+    /**
+     * @swagger
+     * /routes/:id:
+     *   delete:
+     *     tags:
+     *       - Routes
+     *     description: Delete the route
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Routes'
+     *     responses:
+     *       200:
+     *         description: Successfully deleted the route
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.route("/routes/:id").delete(passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("DELETE routes/" + req.params.id);
         var response = {};
@@ -1136,8 +1227,30 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
+    /**
+     * @swagger
+     * /short/:id:
+     *   get:
+     *     tags:
+     *       - Pois
+     *     description: Get url shorten
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Pois'
+     *     responses:
+     *       200:
+     *         description: Successfully get url shorten
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/short/:id", function (req, res) {
-
         console.log("redirect");
         mongo.shorturls.find({_id: req.params.id}, function (err, data) {
             if (err) {
@@ -1148,6 +1261,29 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
+    /**
+     * @swagger
+     * /search/pois/:words:
+     *   get:
+     *     tags:
+     *       - Pois
+     *     description: Search pois through the words
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: words
+     *         description: Words which user wants to search pois with
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Pois'
+     *     responses:
+     *       200:
+     *         description: Successfully searched pois with these words
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.route("/search/pois/:words")
         .get(function (req, res) {
             console.log("GET /search/pois/" + req.params.words);
@@ -1163,21 +1299,75 @@ var appRouter = function(router, mongo, app, config, database) {
             });
         });
 
+    /**
+     * @swagger
+     * /share:
+     *   post:
+     *     tags:
+     *       - Users
+     *     description: Share poi sending email to an user
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: isPoi
+     *         description: Boolean that indicates if it's a poi
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Users'
+     *       - name: idPoiRoute
+     *         description: id of the poi or the route
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Users'
+     *       - name: idOrigin
+     *         description: id of user
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Users'
+     *       - name: message
+     *         description: the text of the message
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Users'
+     *       - name: userNameOrigin
+     *         description: name of the user that sends the email
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Users'
+     *       - name: userLastNameOrigin
+     *         description: lastname of the user that sends the email
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Users'
+     *       - name: email
+     *         description: email of user that is going to receive the email
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Users'
+     *     responses:
+     *       200:
+     *         description: Successfully shared poi
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.route("/share")
         .post(function (req, res) {
             console.log("POST /share");
 
             var response = {};
             //find similar results using an index
-
             console.log(req.body.isPoi);
             var url;
-
             var db = new mongo.shares;
-
             if (req.body.isPoi == "true") {
-
-
                 mongo.pois.find({_id: req.body.idPoiRoute}, function (err, data) {
                     if (err) {
                         response = {"status": 500, "message": "Error fetching data"};
@@ -1189,11 +1379,8 @@ var appRouter = function(router, mongo, app, config, database) {
                         });
                     }
                 });
-
-
                 url = 'http://localhost:8888/#/pois/' + req.body.idPoiRoute;
             } else {
-
                 mongo.routes.find({_id: req.body.idPoiRoute}, function (err, data) {
                     if (err) {
                         response = {"status": 500, "message": "Error fetching data"};
@@ -1205,10 +1392,8 @@ var appRouter = function(router, mongo, app, config, database) {
                         });
                     }
                 });
-
                 url = 'http://localhost:8888/#/routes/' + req.body.idPoiRoute;
             }
-
             var text = req.body.message + '\n' +
                 'Click the link bellow to watch your recommendation from ' + req.body.userNameOrigin +
                 ' ' + req.body.userLastNameOrigin + '.\n'
@@ -1222,14 +1407,34 @@ var appRouter = function(router, mongo, app, config, database) {
                 // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
             };
 
-
             transporter.sendMail(mailOptions);
-
             response = {"status": 200, "message": "Message sent"};
-
             res.status(response.status).json(response.message);
-
         });
+
+    /**
+     * @swagger
+     * /search/users/:words:
+     *   get:
+     *     tags:
+     *       - Users
+     *     description: Send email to user from admin
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: words
+     *         description: Words which user wants to search users with
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Users'
+     *     responses:
+     *       200:
+     *         description: Successfully searched users with these words
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.route("/search/users/:words")
         .get(function (req, res) {
             console.log("GET /search/users/" + req.params.words);
@@ -1246,6 +1451,22 @@ var appRouter = function(router, mongo, app, config, database) {
         });
 
 
+    /**
+     * @swagger
+     * /admin/usersList:
+     *   get:
+     *     tags:
+     *       - Admin
+     *     description: Get data of all users of the system
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Successfully got information of all users
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/admin/usersList", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("Management list...");
 
@@ -1261,6 +1482,30 @@ var appRouter = function(router, mongo, app, config, database) {
 
     });
 
+
+    /**
+     * @swagger
+     * /sendMail/:email:
+     *   post:
+     *     tags:
+     *       - Admin
+     *     description: Send email to user from admin
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: email
+     *         description: User's email
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Admin'
+     *     responses:
+     *       200:
+     *         description: Successfully sent email to user from admin
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.post("/sendMail/:email", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("Sending mail from admin to " + req.params.email);
         var text = "This is a warning from the Admin";
@@ -1284,9 +1529,32 @@ var appRouter = function(router, mongo, app, config, database) {
             }
             res.status(response.status).json(response.message);
         });
-    })
+    });
 
 
+    /**
+     * @swagger
+     * /users/:id/statistics/1:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Creation date of user and people he follows
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Statistics'
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 1 of user
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id/statistics/1", function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/1");
 
@@ -1333,9 +1601,32 @@ var appRouter = function(router, mongo, app, config, database) {
                 });
             }
         });
-    })
+    });
 
 
+    /**
+     * @swagger
+     * /users/:id/statistics/2:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Last access of user and people he follows
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Statistics'
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 2 of user
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id/statistics/2", function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/2");
 
@@ -1345,58 +1636,42 @@ var appRouter = function(router, mongo, app, config, database) {
                 response = {"status": 500, "message": "Error getting follows"};
             } else {
                 var userLastAccess = data[0].lastAccess;
-
                 var following = [];
                 bucleForUser(data[0].following, 0, following, function (arrayIds, arrayUsers) {
-
                     var date = new Date();
                     var size = 8;
-
-
                     var names = new Array(size);
-
 
                     names[0] = "Before";
                     //names of the months
                     for (i = 0; i < size - 1; i++) {
-
                         var dat = new Date();
                         dat.setDate(dat.getDate() - i);
-
                         names[size - (i + 1)] = getDateString(dat);
                     }
-
-
                     var lastAccessArray = new Array(size).fill(0);
                     var dateLastAccess;
 
                     arrayUsers.push({
                         lastAccess: userLastAccess
                     });
-
                     var added = false;
                     //number of creation per month
                     for (i = 0; i < arrayUsers.length; i++) {
                         dateLastAccess = arrayUsers[i].lastAccess;
-
-
                         for (j = 1; j < size; j++) {
                             if (names[j] == getDateString(dateLastAccess)) {
                                 lastAccessArray[j]++;
                                 added = true;
                             }
                         }
-
                         if (!added) {
                             lastAccessArray[0]++;
                         }
                         added = false;
                     }
-
-
                     //add user to the list
                     //creations[12*(userCreationDate.getFullYear() - 2017) + (userCreationDate.getMonth() - 1)]++;
-
                     response = {
                         "status": 200, "message": {
                             "names": names
@@ -1407,73 +1682,32 @@ var appRouter = function(router, mongo, app, config, database) {
                 });
             }
         });
-
-    })
-
-    //user's pois by country
-    router.get("/users/:id/statistics/6", function (req, res) {
-        console.log("/user/" + req.params.id + "/statistics/6");
-        database.getUserPoisByCountry(mongo, req.params.id, function (data) {
-            if (data.status != 500) {
-                var countries = [];
-                var numPois = [];
-                for (i = 0; i < data.array.length; i++) {
-                    countries.push("% "+data.array[i]._id.country);
-                    numPois.push(parseFloat((data.array[i].total/data.tot)*100).toFixed(2));
-                }
-                response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
-            }
-            res.status(response.status).json(response.message);
-        })
-
     });
 
-    //following's pois by country
-    router.get("/users/:id/statistics/7", function (req, res) {
-        console.log("/user/" + req.params.id + "/statistics/7");
-        database.getFollowingPoisByCountry(mongo, req.params.id, function (data) {
-            if (data.status != 500) {
-                var countries = [];
-                var numPois = [];
-                for (i = 0; i < data.array.length; i++) {
-                    countries.push("% "+data.array[i]._id.country);
-                    numPois.push(parseFloat(data.array[i].total / data.tot * 100).toFixed(2)); //porcentaje
-                }
-                response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
-            }
-            res.status(response.status).json(response.message);
-        })
-    });
 
-    //following users' activity depending on pois and age
-    router.get("/users/:id/statistics/9", function (req, res) {
-        console.log("/user/" + req.params.id + "/statistics/9");
-        database.getUserInfo(mongo, req.params.id, function (data) {
-            if (data.status != 500) {
-                var users = [];
-                var info = [];
-
-                for (i = 0; i < data.follows.length; i++) {
-                    users.push(data.follows[i].name);
-                    for (j = 0; j < data.pois.length; j++) {
-                        if (String(data.follows[i]._id) == String(data.pois[j]._id.creator)) {
-                            info.push(data.pois[j].total);
-                            data.pois.splice(j);
-                            break;
-                        }
-                    }
-                }
-                response = {"status": 200, "message": {"users": users, "info": info}};
-            }
-            res.status(response.status).json(response.message);
-        })
-    });
-
-    var getDateString = function (date) {
-        return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
-    }
-
-
+    /**
+     * @swagger
+     * /users/:id/statistics/3:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Pois of people user follows that he has recommended
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Statistics'
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 3 of user
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id/statistics/3", function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/3");
 
@@ -1505,9 +1739,33 @@ var appRouter = function(router, mongo, app, config, database) {
             }
             res.status(response.status).json(response.message);
         });
-    })
+    });
 
 
+
+    /**
+     * @swagger
+     * /users/:id/statistics/4:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Pois of people user follows that he has duplicated
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Statistics'
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 4 of user
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id/statistics/4", function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/4");
 
@@ -1541,55 +1799,31 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
-    var bucleForShare = function (arrayIds, i, arrayCounts, callback) {
-        if (i < arrayIds.length) {
-            mongo.shares.find({idPoiRoute: arrayIds[i]}, function (err, data) {
-                if (err) {
-                } else {
-                    var index = arrayIds.indexOf(arrayIds[0]);
-
-                    if (index !== -1) {
-                        arrayCounts[i] = data.length;
-                    }
-                    i++;
-                    bucleForShare(arrayIds, i, arrayCounts, callback);
-                }
-            });
-        }
-        else {
-            callback(arrayIds, arrayCounts);
-        }
-    };
-
-    var bucleForPlaces = function (arrayPlaces, found, notFound, i, callback) {
-        if(i < arrayPlaces.length) {
-            googleMapsClient.geocode({address: arrayPlaces[i].place}, function (err, response) {
-                if (err) {
-                    console.log("Error searching with Google Maps");
-                }
-                else {
-                    if (response.json.status === "ZERO_RESULTS") {
-                        console.log("Place not found in Maps");
-                        notFound++;
-                    }
-                    else {
-                        console.log("Place found");
-                        found++;
-                    }
-                    i++;
-                    bucleForPlaces(arrayPlaces, found, notFound, i, callback);
-                }
-            });
-
-        }
-        else {
-            callback(found, notFound);
-        }
 
 
-    }
-
-
+    /**
+     * @swagger
+     * /users/:id/statistics/5:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Followed user that has more duplicated pois from you
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Statistics'
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 5 of user
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id/statistics/5", function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/5");
 
@@ -1626,6 +1860,109 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
 
+    /**
+     * @swagger
+     * /users/:id/statistics/6:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Pois of user by country
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Statistics'
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 6 of user
+     *       500:
+     *          description: Error in server
+     *
+     */    router.get("/users/:id/statistics/6", function (req, res) {
+        console.log("/user/" + req.params.id + "/statistics/6");
+        database.getUserPoisByCountry(mongo, req.params.id, function (data) {
+            if (data.status != 500) {
+                var countries = [];
+                var numPois = [];
+                for (i = 0; i < data.array.length; i++) {
+                    countries.push("% "+data.array[i]._id.country);
+                    numPois.push(parseFloat((data.array[i].total/data.tot)*100).toFixed(2));
+                }
+                response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
+            }
+            res.status(response.status).json(response.message);
+        })
+
+    });
+
+    /**
+     * @swagger
+     * /users/:id/statistics/7:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Pois of people user follow by country
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Statistics'
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 7 of user
+     *       500:
+     *          description: Error in server
+     *
+     */
+    router.get("/users/:id/statistics/7", function (req, res) {
+        console.log("/user/" + req.params.id + "/statistics/7");
+        database.getFollowingPoisByCountry(mongo, req.params.id, function (data) {
+            if (data.status != 500) {
+                var countries = [];
+                var numPois = [];
+                for (i = 0; i < data.array.length; i++) {
+                    countries.push("% "+data.array[i]._id.country);
+                    numPois.push(parseFloat(data.array[i].total / data.tot * 100).toFixed(2)); //porcentaje
+                }
+                response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
+            }
+            res.status(response.status).json(response.message);
+        })
+    });
+
+
+
+    /**
+     * @swagger
+     * /users/:id/statistics/8:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description:
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Statistics'
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 8 of user
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id/statistics/8", function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/8");
 
@@ -1634,25 +1971,19 @@ var appRouter = function(router, mongo, app, config, database) {
                 console.log("Error getting follows");
                 response = {"status": 500, "message": "Error getting follows"};
             } else {
-
                 var myAge = data[0].birthDate;
-
                 var following = [];
                 bucleForUser(data[0].following, 0, following, function (arrayIds, arrayUsers) {
 
                     var date = new Date();
                     var size = 5;
-
-
                     var names = new Array(size);
-
 
                     names[0] = "Under 18";
                     names[1] = "18-30";
                     names[2] = "31-50";
                     names[3] = "Over 50";
                     names[4] = "Unknown";
-
 
                     var ages = new Array(size).fill(0);
                     var age;
@@ -1663,7 +1994,6 @@ var appRouter = function(router, mongo, app, config, database) {
 
                     //number of creation per month
                     for (i = 0; i < arrayUsers.length; i++) {
-
                         if ("undefined" === typeof arrayUsers[i].birthDate) {
                             ages[4]++;
                         } else {
@@ -1679,7 +2009,6 @@ var appRouter = function(router, mongo, app, config, database) {
                             }
                         }
                     }
-
 
                     //add user to the list
                     //creations[12*(userCreationDate.getFullYear() - 2017) + (userCreationDate.getMonth() - 1)]++;
@@ -1697,64 +2026,134 @@ var appRouter = function(router, mongo, app, config, database) {
 
     });
 
+
+    /**
+     * @swagger
+     * /users/:id/statistics/9:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Activity of people that user follow
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Statistics'
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 9 of user
+     *       500:
+     *          description: Error in server
+     *
+     */
+    router.get("/users/:id/statistics/9", function (req, res) {
+        console.log("/user/" + req.params.id + "/statistics/9");
+        database.getUserInfo(mongo, req.params.id, function (data) {
+            if (data.status != 500) {
+                var users = [];
+                var info = [];
+
+                for (i = 0; i < data.follows.length; i++) {
+                    users.push(data.follows[i].name);
+                    for (j = 0; j < data.pois.length; j++) {
+                        if (String(data.follows[i]._id) == String(data.pois[j]._id.creator)) {
+                            info.push(data.pois[j].total);
+                            data.pois.splice(j);
+                            break;
+                        }
+                    }
+                }
+                response = {"status": 200, "message": {"users": users, "info": info}};
+            }
+            res.status(response.status).json(response.message);
+        })
+    });
+
+
+    /**
+     * @swagger
+     * /users/:id/statistics/10:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Pois of people that user follow and their rating
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: id
+     *         description: User's id
+     *         in: params
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/Statistics'
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 10 of user
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/users/:id/statistics/10", function (req, res) {
         console.log("/users/:id/statistics/10 " + req.params.id);
 
         mongo.pois.find({creator: {$ne: req.params.id}}, {rating:1}, function (err, data) {
-            var percent = [];
-            var labels = [];
-            labels[0] = "1";
-            labels[1] = "2";
-            labels[2] = "3";
-            labels[3] = "4";
-            labels[4] = "5";
-
-            var ratings = new Array(5).fill(0);
-
-            for(i = 0; i < data.length; i++) {
-                ratings[Math.round(data[i].rating)-1]++;
-            }
-
-            for(k = 0; k < labels.length; k++) {
-                percent[k] = (ratings[k] / data.length * 100).toFixed(1);
-            }
-
-            response = {
-                "status": 200, "message": {
-                    "labels": labels,
-                    "ratings": percent
+            if(err) {
+                response = {
+                    "status": 500, "message": "Error database"
                 }
-            };
-            res.status(response.status).json(response.message);
+            }
+            else {
+                var percent = [];
+                var labels = [];
+                labels[0] = "1";
+                labels[1] = "2";
+                labels[2] = "3";
+                labels[3] = "4";
+                labels[4] = "5";
+
+                var ratings = new Array(5).fill(0);
+
+                for (i = 0; i < data.length; i++) {
+                    ratings[Math.round(data[i].rating) - 1]++;
+                }
+
+                for (k = 0; k < labels.length; k++) {
+                    percent[k] = (ratings[k] / data.length * 100).toFixed(1);
+                }
+
+                response = {
+                    "status": 200, "message": {
+                        "labels": labels,
+                        "ratings": percent
+                    }
+                };
+                res.status(response.status).json(response.message);
+            }
         });
+
     });
 
-        /*mongo.users.find({_id: req.params.id}, function (err, data) {
-            if (err) {
-                console.log("Error getting follows");
-                response = {"status": 500, "message": "Error getting follows"};
-            } else {
-                // var myAge = data[0].birthDate;
 
-                var following = [];
-                //var names = Array();
-                var ratings = [];
-                mongo.pois.find({}, {creator: {$ne: })
-                mongo.users.find({_id: data[0].following}, {name: 1}, function (err, IdNamefollowings) {
-                    console.log("Following:" + IdNamefollowings);
-
-                    //bucleForUser(data[0].following, 0, following, function (arrayIds, arrayUsers) {
-                    bucleForPOIscreator(IdNamefollowings, 0, [], ratings, function (arrayIds, arrayPOIs) {
-                        console.log("Array final de ratings: " + arrayPOIs);
-
-                        response = {"status": 200, "message": {infoPois: arrayPOIs}};
-                        res.status(response.status).json(response.message);
-                    });
-                    //});
-                });
-            }
-        });*/
-
+    /**
+     * @swagger
+     * /admin/statistics/1:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Users and their ages
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 1 of admin
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/admin/statistics/1", function (req, res) {
         console.log("/admin/statistics/1");
         mongo.users.find({isAdmin: {$ne: 1}}, function (err, data) {
@@ -1801,6 +2200,22 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
+    /**
+     * @swagger
+     * /admin/statistics/2:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Users and place where they live
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 2 of admin
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/admin/statistics/2", function (req, res) {
         console.log("/admin/statistics/2");
         database.getUsersByPlace(mongo, function (data) {
@@ -1831,6 +2246,22 @@ var appRouter = function(router, mongo, app, config, database) {
         })
     });
 
+    /**
+     * @swagger
+     * /admin/statistics/3:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Existing users and active users
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 3 of admin
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/admin/statistics/3", function (req, res) {
         console.log("/admin/statistics/3");
         mongo.users.count({isAdmin: {$ne: 1}}, function (err, data) {
@@ -1865,6 +2296,22 @@ var appRouter = function(router, mongo, app, config, database) {
         })
     });
 
+    /**
+     * @swagger
+     * /admin/statistics/4:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Average rating of pois created by each user
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 4 of admin
+     *       500:
+     *          description: Error in server
+     *
+     */
     //pois by user and rating average
     router.get("/admin/statistics/4", function (req, res) {
         console.log("/admin/statistics/4");
@@ -1892,6 +2339,22 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
 
+    /**
+     * @swagger
+     * /admin/statistics/5:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Users that has been registered with Google and with normal account
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 5 of admin
+     *       500:
+     *          description: Error in server
+     *
+     */
     //users logged with googles/not
     router.get("/admin/statistics/5", function (req, res) {
         console.log("/admin/statistics/5");
@@ -1910,6 +2373,22 @@ var appRouter = function(router, mongo, app, config, database) {
         })
     });
 
+    /**
+     * @swagger
+     * /admin/statistics/6:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Places that has and has not been found with Google Maps
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 6 of admin
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.get("/admin/statistics/6", function (req, res) {
         console.log("/admin/statistics/6");
 
@@ -1935,7 +2414,22 @@ var appRouter = function(router, mongo, app, config, database) {
     });
 
 
-
+    /**
+     * @swagger
+     * /admin/statistics/7:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Users and number of pois that has been recommended
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 7 of admin
+     *       500:
+     *          description: Error in server
+     *
+     */
         router.get("/admin/statistics/7", function (req, res) {
             console.log("/admin/statistics/7");
             mongo.shares.aggregate([{$group : {_id: {id:"$idUser"}, count:{$sum:1}}}],function(err,data){
@@ -1986,6 +2480,22 @@ var appRouter = function(router, mongo, app, config, database) {
         });
 
 
+    /**
+     * @swagger
+     * /admin/statistics/8:
+     *   get:
+     *     tags:
+     *       - Statistics
+     *     description: Users and number of pois that has been duplicated
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Successfully got statistic 8 of admin
+     *       500:
+     *          description: Error in server
+     *
+     */
         router.get("/admin/statistics/8", function (req, res) {
             console.log("/admin/statistics/8");
 
@@ -2033,6 +2543,57 @@ var appRouter = function(router, mongo, app, config, database) {
                 res.status(response.status).json(response.message);
             });
         });
+
+
+    var getDateString = function (date) {
+        return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
+    };
+
+    var bucleForShare = function (arrayIds, i, arrayCounts, callback) {
+        if (i < arrayIds.length) {
+            mongo.shares.find({idPoiRoute: arrayIds[i]}, function (err, data) {
+                if (err) {
+                } else {
+                    var index = arrayIds.indexOf(arrayIds[0]);
+
+                    if (index !== -1) {
+                        arrayCounts[i] = data.length;
+                    }
+                    i++;
+                    bucleForShare(arrayIds, i, arrayCounts, callback);
+                }
+            });
+        }
+        else {
+            callback(arrayIds, arrayCounts);
+        }
+    };
+
+    var bucleForPlaces = function (arrayPlaces, found, notFound, i, callback) {
+        if(i < arrayPlaces.length) {
+            googleMapsClient.geocode({address: arrayPlaces[i].place}, function (err, response) {
+                if (err) {
+                    console.log("Error searching with Google Maps");
+                }
+                else {
+                    if (response.json.status === "ZERO_RESULTS") {
+                        console.log("Place not found in Maps");
+                        notFound++;
+                    }
+                    else {
+                        console.log("Place found");
+                        found++;
+                    }
+                    i++;
+                    bucleForPlaces(arrayPlaces, found, notFound, i, callback);
+                }
+            });
+
+        }
+        else {
+            callback(found, notFound);
+        }
+    };
 
     };
 

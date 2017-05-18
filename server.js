@@ -23,7 +23,7 @@ var swaggerDefinition = {
         version: '1.0.0',
         description: 'POI management'
     },
-    host: 'localhost:3000',
+    host: 'localhost:8888',
     basePath: '/'
 };
 
@@ -32,7 +32,7 @@ var options = {
     // import swaggerDefinitions
     swaggerDefinition: swaggerDefinition,
     // path to the API docs --> add paths where stay the files with swagger docs
-    apis: ['*.js','server/*/*.js'] //???
+    apis: ['*.js','server/*/*.js', 'public/api-docs/*.js', 'public/api-docs/*/*.js'] //???
 };
 // initialize swagger-jsdoc
 var swaggerSpec = swaggerJSDoc(options);

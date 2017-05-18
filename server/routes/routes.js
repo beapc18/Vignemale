@@ -4,12 +4,9 @@ var passport  = require('passport');
 var passportJWT  = require('passport-jwt');
 var GoogleAuth = require('google-auth-library');
 
-
 //https://jonathanmh.com/express-passport-json-web-token-jwt-authentication-beginners/
 var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;
-
-
 
 var appRouter = function(router, mongo, app, config, database) {
 
@@ -56,7 +53,39 @@ var appRouter = function(router, mongo, app, config, database) {
         return id === idToken;
     };
 
-
+    /**
+     * @swagger
+     * /signIn:
+     *   post:
+     *     tags:
+     *       - Users
+     *     description: Allow users to sign in
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: email
+     *         description: User's email
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *       - name: password
+     *         description: User's password
+     *         in: body
+     *         required: true
+     *         schema:
+     *           $ref: '#/definitions/User'
+     *     responses:
+     *       200:
+     *         description: Successfully created
+     *       400:
+     *          description: Empty or invalid parameters
+     *       403:
+     *          description: Unauthorized
+     *       500:
+     *          description: Error in server
+     *
+     */
     router.post("/signIn", function (req, res) {
         console.log("signIn user");
 
@@ -126,6 +155,8 @@ var appRouter = function(router, mongo, app, config, database) {
             });
         }
     });
+
+
     router.post("/googleSignIn", function (req, res) {
 
         console.log("googleSignIn user");

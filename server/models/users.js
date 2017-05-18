@@ -476,41 +476,6 @@ var getGoogleUsers = function (mongo, callback) {
     });
 };
 
-/*var placesWithGoogle = function (mongo, googleMapsClient, callback) {
-    var response;
-    var found = 0;
-    var notFound = 0;
-    var total = 0;
-
-    mongo.users.find({isAdmin: {$ne: 1}}, {place:1}, function (err, data) {
-        if(err) {
-            console.log("Error database");
-            response = {"status": 500, "res": {"message": "Error getting places in Google"}};
-        }
-        else {
-            for(var i = 0; i< data.length; i++) {
-                googleMapsClient.geocode({address: data[i].place}, function (err, response) {
-                    if (err) {
-                        console.log("Error searching with Google Maps");
-                    }
-                    else {
-                        if (response.json.status === "ZERO_RESULTS") {
-                            console.log("Place not found in Maps");
-                            notFound++;
-                        }
-                        else {
-                            console.log("Place found");
-                            found++;
-                        }
-                    }
-                });
-            }
-            response = {"status": 200, "res": {"found": found, "notFound": notFound, "total":found+notFound}};
-            callback(response);
-        }
-    });
-};*/
-
 module.exports = {
     getInfoUser: getInfoUser,
     findUserByPassword: findUserByPassword,

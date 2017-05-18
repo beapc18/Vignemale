@@ -537,11 +537,28 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/users/:id/favs", function (req, res) {
         console.log("GET favs from user " + req.params.id);
         database.getFavs(mongo, req.params.id, function (response) {
-            var favsNames = [];
-            bucleForPOIs(response.res.message[0].favs, 0, favsNames, function (arrayIds, arrayNames) {
-                response = {"status": 200, "message": {"favsNames": arrayNames, "favsIds": arrayIds}}; //devolver solo la lista de seguidores
+            mongo.pois.find({_id: response.res.message[0].favs, $or: [{removed: false}, {removed : { "$exists" : false }}]}, {name: 1}, function (err, data) {
+                if (err) {
+                    console.log("Error getting favs");
+                    response = {
+                        "status": 500,
+                        "message": "Error getting favs"
+                    };
+                }else{
+                    var arrayNames = [];
+                    var favsIds = [];
+                    for(i=0; i<data.length; i++){
+                        favsIds.push(data[i].id);
+                        arrayNames.push(data[i].name);
+                    }
+                    response = {
+                        "status": 200,
+                        "message": {
+                            "favsNames": arrayNames
+                            , "favsIds": favsIds
+                        }};
+                }
                 res.status(response.status).json(response.message);
-
             });
         });
     });
@@ -968,7 +985,6 @@ var appRouter = function(router, mongo, app, config, database) {
                 response = {"status": 500, "message": "Error getting follows"};
                 res.status(response.status).json(response.message);
             } else {
-                console.log(data[0].following)
                 mongo.users.find({_id: data[0].following, removed: false}, {name: 1}, function (err, data) {
                     if (err) {
                         console.log("Error getting follows");

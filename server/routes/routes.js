@@ -1029,7 +1029,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *     produces:
      *       - application/json
      *     parameters:
-     *       responses:
+     *     responses:
      *       200:
      *         description: Get all pois successfully
      *       500:
@@ -1452,9 +1452,6 @@ var appRouter = function(router, mongo, app, config, database) {
             res.status(response.status).json(response.message);
         });
     });
-
-
-
 
     /**
      * @swagger

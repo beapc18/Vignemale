@@ -1,7 +1,7 @@
 angular.module('vignemale')
 
     .controller('usersCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'users', 'auth', 'pois',
-        'recommendations','routes','maps', function ($scope, $state, $stateParams,$httpParamSerializer, users, auth, pois, recommendations, routes, maps) {
+        'recommendations','routes','maps','$rootScope', function ($scope, $state, $stateParams,$httpParamSerializer, users, auth, pois, recommendations, routes, maps,$rootScope) {
 
             //user id from url
             $scope.idRequest = "";
@@ -68,6 +68,7 @@ angular.module('vignemale')
             $scope.itsme = false;
             $scope.itsfollowed = false;
             $scope.isfav = false;
+            $scope.confirm = false;
 
             $scope.show = "pois";
             $scope.itslogged = false;
@@ -188,6 +189,7 @@ angular.module('vignemale')
 
             $scope.showEdit = function () {
                 $scope.show="editUser";
+                $scope.confirm = false;
             };
 
             // hide the error mensage
@@ -380,14 +382,16 @@ angular.module('vignemale')
                 }
             };
 
+
+            $scope.confirmRemove = function () {
+                $scope.confirm=true;
+            };
+
             //disable user account in db
             $scope.removeUser = function () {
-                var deleteUser = window.confirm('Are you sure?');
-                if(deleteUser){
-                    users.deleteUser($scope.idUser, function (data) {
-                        auth.logout();
-                    }, showError);
-                }
+                users.deleteUser($scope.idUser, function (data) {
+                    $rootScope.$broadcast('logout', 'something');
+                }, showError);
             };
 
             //Get data about user

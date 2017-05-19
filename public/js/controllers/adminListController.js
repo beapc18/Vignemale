@@ -11,6 +11,11 @@ angular.module('vignemale')
         $scope.successMsg = "";
         $scope.errorMsg = "";
 
+
+        $scope.index= "";
+        $scope.send= "";
+        $scope.message= "";
+
         // hide the error mensage
         $scope.hideError = function () {
             $scope.errorMsg = "";
@@ -37,25 +42,35 @@ angular.module('vignemale')
         };
 
 
-        $scope.sendMail = function (index) {
+
+
+        $scope.select = function (index,send) {
             //ABRIR VENTANA PARA ESCRIBIR ALGO INSITU
-            var userMail = $scope.listOfUsers[index];
+            $scope.index=index;
+            $scope.send =send;
+            console.log($scope.send);
+
+        };
+
+
+        $scope.sendMail = function () {
+            console.log($scope.message);
+            //ABRIR VENTANA PARA ESCRIBIR ALGO INSITU
+            var userMail = $scope.listOfUsers[$scope.index];
             var userObject = {
-                email : userMail.email
-                //texto a escribir
+                email : userMail.email,
+                message: $scope.message
             };
             users.sendMail(userObject, showSuccess, showError);
         };
 
-        $scope.deleteUser = function (index) {
-            var deletePoi = window.confirm('Are you sure?');
-            if(deletePoi) {
-                var userDelete = $scope.listOfUsers[index];
-                users.deleteUser(userDelete._id, function (data) {
-                    showSuccess(data.message);
-                    $scope.listOfUsers.splice(index, 1);
-                }, showError);
-            }
+        $scope.deleteUser = function () {
+            var index = $scope.index;
+            var userDelete = $scope.listOfUsers[index];
+            users.deleteUser(userDelete._id, function (data) {
+                showSuccess(data.message);
+                $scope.listOfUsers.splice(index, 1);
+            }, showError);
         };
 
         /*$scope.isNotRemoved = function () {

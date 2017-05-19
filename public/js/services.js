@@ -379,7 +379,7 @@ angular.module('vignemale')
                 $http({
                     method: 'POST',
                     url: '/sendMail/' + userObject.email,
-                    data: $httpParamSerializer(userObject.email),
+                    data: $httpParamSerializer(userObject),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'Authorization': auth.getToken()

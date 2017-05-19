@@ -38,6 +38,10 @@ angular.module('vignemale')
             setId($scope.goHome);
         });
 
+        $scope.$on('logout', function (event, arg) {
+            $scope.logout();
+        });
+
         var setId = function(callback){
             if(auth.isAuthenticated()){
                 auth.getIdFromToken(auth.getToken(),function(id) {

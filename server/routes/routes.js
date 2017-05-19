@@ -350,6 +350,7 @@ var appRouter = function(router, mongo, app, config, database) {
      */
     router.post("/signUp", function (req, res) {
         console.log("signUp user");
+        console.log(req.body);
         var db = new mongo.users;
         var response = {};
         var idUser = "";
@@ -1065,6 +1066,7 @@ var appRouter = function(router, mongo, app, config, database) {
          */
         .post(passport.authenticate('jwt', {session: false}), function (req, res) {
             console.log("POST pois");
+            console.log(req.body);
             var db = new mongo.pois;
             var response = {};
 
@@ -1614,7 +1616,9 @@ var appRouter = function(router, mongo, app, config, database) {
          *
          */
         .post(passport.authenticate('jwt', {session: false}), function (req, res) {
+
             console.log("POST routes");
+            console.log(req.body);
             var db = new mongo.routes;
             var response = {};
 
@@ -1623,6 +1627,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
             var array = [];
             for (i = 0; i < pois.length; i++) {
+                console.log(pois[i]);
                 array.push(JSON.parse(pois[i]));
             }
             var creator = req.body.creator;
@@ -1850,6 +1855,7 @@ var appRouter = function(router, mongo, app, config, database) {
     router.route("/share")
         .post(function (req, res) {
             console.log("POST /share");
+            console.log(req.body);
 
             var response = {};
             //find similar results using an index
@@ -1997,7 +2003,7 @@ var appRouter = function(router, mongo, app, config, database) {
      */
     router.post("/sendMail/:email", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("Sending mail from admin to " + req.params.email);
-        var text = "This is a warning from the Admin";
+        var text = req.body.message;
         var email = req.params.email;
 
         var mailOptions = {

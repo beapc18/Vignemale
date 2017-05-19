@@ -185,7 +185,12 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: body
      *         required: true
      *         schema:
-     *           $ref: '#/definitions/Auth'
+     *           type: object
+     *           required:
+     *             - token
+     *           properties:
+     *             token:
+     *               type: string
      *     responses:
      *       200:
      *         description: Sign in with Google successfully
@@ -315,42 +320,29 @@ var appRouter = function(router, mongo, app, config, database) {
      *     produces:
      *       - application/json
      *     parameters:
-     *       - name: name
-     *         description: User name
+     *       - name: userObject
+     *         description: User info
      *         in: body
      *         required: true
      *         schema:
-     *           $ref: '#/definitions/Auth'
-     *       - name: lastName
-     *         description: User last name
-     *         in: body
-     *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Auth'
-     *       - name: lastName
-     *         description: User last name
-     *         in: body
-     *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Auth'
-     *       - name: email
-     *         description: User email
-     *         in: body
-     *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Auth'
-     *       - name: birthDate
-     *         description: User birth date
-     *         in: body
-     *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Auth'
-     *       - name: place
-     *         description: User living place
-     *         in: body
-     *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Auth'
+     *           type: object
+     *           required:
+     *             - name
+     *             - lastName
+     *             - email
+     *             - birthDate
+     *             - place
+     *           properties:
+     *             name:
+     *               type: string
+     *             lastName:
+     *               type: string
+     *             email:
+     *               type: string
+     *             birthDate:
+     *               type: string
+     *             place:
+     *               type: string
      *     responses:
      *       201:
      *         description: Sign up successfully
@@ -458,15 +450,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     description: Return user id who makes the request
      *     produces:
      *       - application/json
-     *     parameters:
-     *       - name: token
-     *         description: token to be passed as a header
-     *         in: header
-     *         required: true
-     *         type: array
-     *         items:
-     *           type: integer
-     *           format: int64
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Id taken successfully
@@ -494,7 +479,12 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: body
      *         required: true
      *         schema:
-     *           $ref: '#/definitions/User'
+     *           type: object
+     *           required:
+     *             - email
+     *           properties:
+     *             email:
+     *               type: string
      *     responses:
      *       200:
      *         description: Change password successfully
@@ -622,7 +612,15 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: body
      *         required: true
      *         schema:
-     *           $ref: '#/definitions/User'
+     *           type: object
+     *           required:
+     *             - id
+     *             - password
+     *           properties:
+     *             id:
+     *               type: string
+     *             password:
+     *               type: string
      *     responses:
      *       200:
      *         description: Password changed successfully
@@ -757,26 +755,25 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: path
      *         required: true
      *         type: string
-     *       - name: newPassword
-     *         description: User's new password
+     *       - name: userObject
+     *         description: User's new and old passwords
      *         in: body
      *         required: true
      *         schema:
-     *           $ref: '#/definitions/User'
-     *       - name: oldPassword
-     *         description: User's old password
-     *         in: body
-     *         required: true
-     *         schema:
-     *           $ref: '#/definitions/User'
-     *       - name: Authorization
-     *         description: token to be passed as a header
-     *         in: header
-     *         required: true
-     *         type: array
-     *         items:
-     *           type: integer
-     *           format: int64
+     *           type: object
+     *           required:
+     *             - newPassword
+     *             - newRePassword
+     *             - oldPassword
+     *           properties:
+     *             newPassword:
+     *               type: string
+     *             newRePassword:
+     *               type: string
+     *             oldPassword:
+     *               type: string
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Change user's password successfully
@@ -834,6 +831,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: path
      *         required: true
      *         type: string
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Get user favs successfully
@@ -886,20 +885,19 @@ var appRouter = function(router, mongo, app, config, database) {
      *         required: true
      *         schema:
      *           $ref: '#/definitions/User'
-     *       - name: idPoi
+     *       - name: idUser
      *         description: Id of POI for adding to fav list
      *         in: body
      *         required: true
      *         schema:
-     *           $ref: '#/definitions/User'
-     *       - name: Authorization
-     *         description: token to be passed as a header
-     *         in: header
-     *         required: true
-     *         type: array
-     *         items:
-     *           type: integer
-     *           format: int64
+     *           type: object
+     *           required:
+     *             - idPoi
+     *           properties:
+     *             idPoi:
+     *               type: string
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Add fav to user successfully
@@ -930,20 +928,19 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: path
      *         required: true
      *         type: string
-     *       - name: idPoi
+     *       - name: idUser
      *         description: Id of POI for removing of fav list
      *         in: body
      *         required: true
      *         schema:
-     *           $ref: '#/definitions/User'
-     *       - name: Authorization
-     *         description: token to be passed as a header
-     *         in: header
-     *         required: true
-     *         type: array
-     *         items:
-     *           type: integer
-     *           format: int64
+     *           type: object
+     *           required:
+     *             - idPoi
+     *           properties:
+     *             idPoi:
+     *               type: string
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Remove fav to user successfully
@@ -974,14 +971,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         required: true
      *         schema:
      *           $ref: '#/definitions/User'
-     *       - name: Authorization
-     *         description: token to be passed as a header
-     *         in: header
-     *         required: true
-     *         type: array
-     *         items:
-     *           type: integer
-     *           format: int64
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Add user to follow list successfully
@@ -1014,14 +1005,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: path
      *         required: true
      *         type: string
-     *       - name: Authorization
-     *         description: token to be passed as a header
-     *         in: header
-     *         required: true
-     *         type: array
-     *         items:
-     *           type: integer
-     *           format: int64
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Remove user to follow list successfully
@@ -1054,6 +1039,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: path
      *         required: true
      *         type: string
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Get pois of user successfully
@@ -1112,92 +1099,60 @@ var appRouter = function(router, mongo, app, config, database) {
          *   post:
          *     tags:
          *       - Pois
-         *     description: Add new poi
+         *     description: Add new poi or duplicate an existing poi
          *     produces:
          *       - application/json
          *     parameters:
-         *       - name: name
+         *       - name: poi
+         *         description: Poi with necessary values for creating it. If you wanted duplicate a poi, you would passed idDuplicate and originCreator. Also you can assign and url and image to the poi
          *         in: body
-         *         description: Name of the poi
          *         required: true
          *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: description
-         *         in: body
-         *         description: Description of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: keywords
-         *         in: body
-         *         description: Keywords of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: lat
-         *         in: body
-         *         description: Latitude of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: lng
-         *         in: body
-         *         description: Longitude of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: image
-         *         in: body
-         *         description: Image of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *         type: file
-         *       - name: rating
-         *         in: body
-         *         description: Rating of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: creator
-         *         in: body
-         *         description: Creator of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/User'
-         *       - name: idDuplicate
-         *         in: body
-         *         description: Id of user who has duplicated of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: originCreator
-         *         in: body
-         *         description: Id of user who created the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: Authorization
-         *         description: token to be passed as a header
-         *         in: header
-         *         required: true
-         *         type: array
-         *         items:
-         *           type: integer
-         *           format: int64
+         *           type: object
+         *           required:
+         *             - name
+         *             - description
+         *             - keywords
+         *             - lat
+         *             - lng
+         *             - rating
+         *             - creator
+         *           properties:
+         *             name:
+         *               type: string
+         *             description:
+         *               type: string
+         *             keywords:
+         *               type: string
+         *             lat:
+         *               type: number
+         *             lng:
+         *               type: number
+         *             rating:
+         *               type: number
+         *             creator:
+         *               type: string
+         *             image:
+         *               type: file
+         *             url:
+         *               type: string
+         *             idDuplicate:
+         *               type: string
+         *             originCreator:
+         *               type: string
+         *     security:
+         *       - Token: []
          *     responses:
          *       201:
-         *         description: Add poi successfully
+         *         description: Add or duplicate poi successfully
          *       500:
          *          description: Error in server
          *
          */
         .post(passport.authenticate('jwt', {session: false}), function (req, res) {
             console.log("POST pois");
-            console.log(req.body);
             var db = new mongo.pois;
             var response = {};
-
             db.name = req.body.name;
             db.description = req.body.description;
             console.log(req.body.keywords.split(","));
@@ -1335,193 +1290,187 @@ var appRouter = function(router, mongo, app, config, database) {
             });
         })
 
-        /**
-         * @swagger
-         * /users/{id}/pois:
-         *   put:
-         *     tags:
-         *       - Pois
-         *     description: Change info of poi
-         *     produces:
-         *       - application/json
-         *     parameters:
-         *       - name: id
-         *         description: Id of poi
-         *         in: path
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Pois'
-         *       - name: name
-         *         in: body
-         *         description: Name of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: description
-         *         in: body
-         *         description: Description of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: keywords
-         *         in: body
-         *         description: Keywords of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: lat
-         *         in: body
-         *         description: Latitude of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: lng
-         *         in: body
-         *         description: Longitude of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: image
-         *         in: body
-         *         description: Image of the poi
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *         type: file
-         *       - name: shortURL
-         *         in: body
-         *         description: Url shorten
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Poi'
-         *       - name: Authorization
-         *         description: token to be passed as a header
-         *         in: header
-         *         required: true
-         *         type: array
-         *         items:
-         *           type: integer
-         *           format: int64
-         *         collectionFormat: csv
-         *     responses:
-         *       200:
-         *         description: Update info of poi successfully
-         *       500:
-         *          description: Error in server
-         *
-         */
-        .put(passport.authenticate('jwt', {session: false}), function (req, res) {
-            console.log("PUT pois/" + req.params.id);
-
-            mongo.pois.find({_id: req.params.id}, function (err, data) {
-                if (err) {
-                    response = {"status": 500, "message": "Error fetching data"};
-                } else {
-                    var db = new mongo.pois;
-                    var updateInfo = {
-                        name: req.body.name,
-                        description: req.body.description,
-                        keywords: req.body.keywords,
-                        lat: req.body.lat,
-                        lng: req.body.lng,
-                        image: req.body.image
-                    };
-
-                    if (req.body.shortURL != "") {
-                        var url = req.body.shortURL;
-                        mongo.pois.update({_id: req.params.id}, updateInfo, function (err, data) {
-                            if (err) {
-                                response = {"status": 500, "message": "Error updating data"};
-                            } else {
-                                if (url != data.shortURL) {
-                                    var shorturls = new mongo.shorturls;
-
-                                    shorturls.url = url;
-                                    shorturls.save(function (err, data) {
-                                        if (err) {
-                                            response = {"status": 500, "message": "Error updating data"};
-                                            res.status(response.status).json(response);
-                                        } else {
-                                            //update last access when user access and jwt
-                                            mongo.pois.update({_id: req.params.id}, {shortURL: "http://localhost:8888/short/" + data._id}, function (err) {
-                                                if (err) {
-                                                    response = {"status": 500, "message": "Error updating data"};
-                                                } else {
-                                                    response = {"status": 201, "message": "POI updated successfully"};
-                                                }
-                                                res.status(response.status).json(response);
-                                            });
-                                        }
-                                    });
-
-                                } else {
-                                    response = {"status": 200, "message": "POI updated successfully"};
-                                    res.status(response.status).json(response);
-                                }
-
-                            }
-                        })
-                    } else {
-                        response = {"status": 200, "message": "POI updated successfully"};
-                        res.status(response.status).json(response);
-                    }
-                }
-            });
-        })
-
-        /**
-         * @swagger
-         * /users/{id}/pois:
-         *   delete:
-         *     tags:
-         *       - Pois
-         *     description: Delete poi
-         *     produces:
-         *       - application/json
-         *     parameters:
-         *       - name: id
-         *         description: Id of poi
-         *         in: path
-         *         required: true
-         *       - name: Authorization
-         *         description: token to be passed as a header
-         *         in: header
-         *         required: true
-         *         type: apiKey
-         *     responses:
-         *       200:
-         *         description: Delete poi successfully
-         *       500:
-         *          description: Error in server
-         *
-         */
-        .delete(passport.authenticate('jwt', {session: false}), function (req, res) {
-            console.log("DELETE pois/" + req.params.id);
-
-            //delete pois in favs of another users asynchronous
-            database.removePoisFromFavs(mongo, req.params.id);
-
-            mongo.pois.find({_id: req.params.id}, function (err, data) {
-                if (err) {
-                    response = {"status": 500, "message": "Error fetching data"};
-                } else {
-                    //data exists, remove
-                    mongo.pois.remove({_id: req.params.id}, function (err, data) {
-
-
-                        if (err) {
-                            response = {"status": 500, "message": "Error deleting data"};
-                        } else {
-                            response = {
-                                "status": 200,
-                                "message": "POI deleted successfully"
-                            };
-                        }
-                        res.status(response.status).json(response);
-                    });
-                }
-            });
-        });
+        // /**
+        //  * @swagger
+        //  * /users/{id}/pois:
+        //  *   put:
+        //  *     tags:
+        //  *       - Pois
+        //  *     description: Change info of poi
+        //  *     produces:
+        //  *       - application/json
+        //  *     parameters:
+        //  *       - name: id
+        //  *         description: Id of poi
+        //  *         in: path
+        //  *         required: true
+        //  *         schema:
+        //  *           $ref: '#/definitions/Pois'
+        //  *       - name: name
+        //  *         in: body
+        //  *         description: Name of the poi
+        //  *         required: true
+        //  *         schema:
+        //  *           $ref: '#/definitions/Poi'
+        //  *       - name: description
+        //  *         in: body
+        //  *         description: Description of the poi
+        //  *         required: true
+        //  *         schema:
+        //  *           $ref: '#/definitions/Poi'
+        //  *       - name: keywords
+        //  *         in: body
+        //  *         description: Keywords of the poi
+        //  *         required: true
+        //  *         schema:
+        //  *           $ref: '#/definitions/Poi'
+        //  *       - name: lat
+        //  *         in: body
+        //  *         description: Latitude of the poi
+        //  *         required: true
+        //  *         schema:
+        //  *           $ref: '#/definitions/Poi'
+        //  *       - name: lng
+        //  *         in: body
+        //  *         description: Longitude of the poi
+        //  *         required: true
+        //  *         schema:
+        //  *           $ref: '#/definitions/Poi'
+        //  *       - name: image
+        //  *         in: body
+        //  *         description: Image of the poi
+        //  *         required: true
+        //  *         schema:
+        //  *           $ref: '#/definitions/Poi'
+        //  *         type: file
+        //  *       - name: shortURL
+        //  *         in: body
+        //  *         description: Url shorten
+        //  *         required: true
+        //  *         schema:
+        //  *           $ref: '#/definitions/Poi'
+        //  *
+        //  *     security:
+        //  *       - Token: []
+        //  *     responses:
+        //  *       200:
+        //  *         description: Update info of poi successfully
+        //  *       500:
+        //  *          description: Error in server
+        //  *
+        //  */
+        // .put(passport.authenticate('jwt', {session: false}), function (req, res) {
+        //     console.log("PUT pois/" + req.params.id);
+        //
+        //     mongo.pois.find({_id: req.params.id}, function (err, data) {
+        //         if (err) {
+        //             response = {"status": 500, "message": "Error fetching data"};
+        //         } else {
+        //             var db = new mongo.pois;
+        //             var updateInfo = {
+        //                 name: req.body.name,
+        //                 description: req.body.description,
+        //                 keywords: req.body.keywords,
+        //                 lat: req.body.lat,
+        //                 lng: req.body.lng,
+        //                 image: req.body.image
+        //             };
+        //
+        //             if (req.body.shortURL != "") {
+        //                 var url = req.body.shortURL;
+        //                 mongo.pois.update({_id: req.params.id}, updateInfo, function (err, data) {
+        //                     if (err) {
+        //                         response = {"status": 500, "message": "Error updating data"};
+        //                     } else {
+        //                         if (url != data.shortURL) {
+        //                             var shorturls = new mongo.shorturls;
+        //
+        //                             shorturls.url = url;
+        //                             shorturls.save(function (err, data) {
+        //                                 if (err) {
+        //                                     response = {"status": 500, "message": "Error updating data"};
+        //                                     res.status(response.status).json(response);
+        //                                 } else {
+        //                                     //update last access when user access and jwt
+        //                                     mongo.pois.update({_id: req.params.id}, {shortURL: "http://localhost:8888/short/" + data._id}, function (err) {
+        //                                         if (err) {
+        //                                             response = {"status": 500, "message": "Error updating data"};
+        //                                         } else {
+        //                                             response = {"status": 201, "message": "POI updated successfully"};
+        //                                         }
+        //                                         res.status(response.status).json(response);
+        //                                     });
+        //                                 }
+        //                             });
+        //
+        //                         } else {
+        //                             response = {"status": 200, "message": "POI updated successfully"};
+        //                             res.status(response.status).json(response);
+        //                         }
+        //
+        //                     }
+        //                 })
+        //             } else {
+        //                 response = {"status": 200, "message": "POI updated successfully"};
+        //                 res.status(response.status).json(response);
+        //             }
+        //         }
+        //     });
+        // })
+        //
+        // /**
+        //  * @swagger
+        //  * /users/{id}/pois:
+        //  *   delete:
+        //  *     tags:
+        //  *       - Pois
+        //  *     description: Delete poi
+        //  *     produces:
+        //  *       - application/json
+        //  *     parameters:
+        //  *       - name: id
+        //  *         description: Id of poi
+        //  *         in: path
+        //  *         required: true
+        //  *       - name: Authorization
+        //  *         description: token to be passed as a header
+        //  *         in: header
+        //  *         required: true
+        //  *         type: apiKey
+        //  *     responses:
+        //  *       200:
+        //  *         description: Delete poi successfully
+        //  *       500:
+        //  *          description: Error in server
+        //  *
+        //  */
+        // .delete(passport.authenticate('jwt', {session: false}), function (req, res) {
+        //     console.log("DELETE pois/" + req.params.id);
+        //
+        //     //delete pois in favs of another users asynchronous
+        //     database.removePoisFromFavs(mongo, req.params.id);
+        //
+        //     mongo.pois.find({_id: req.params.id}, function (err, data) {
+        //         if (err) {
+        //             response = {"status": 500, "message": "Error fetching data"};
+        //         } else {
+        //             //data exists, remove
+        //             mongo.pois.remove({_id: req.params.id}, function (err, data) {
+        //
+        //
+        //                 if (err) {
+        //                     response = {"status": 500, "message": "Error deleting data"};
+        //                 } else {
+        //                     response = {
+        //                         "status": 200,
+        //                         "message": "POI deleted successfully"
+        //                     };
+        //                 }
+        //                 res.status(response.status).json(response);
+        //             });
+        //         }
+        //     });
+        // });
 
     /**
      * @swagger
@@ -1674,6 +1623,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 response = {"status": 500, "message": "Error getting follows"};
                 res.status(response.status).json(response.message);
             } else {
+                console.log(data)
                 mongo.users.find({_id: data[0].following, removed: false}, {name: 1}, function (err, data) {
                     if (err) {
                         console.log("Error getting follows");
@@ -1682,6 +1632,7 @@ var appRouter = function(router, mongo, app, config, database) {
                             "message": "Error getting follows"
                         };
                     }else{
+
                         var arrayNames = [];
                         var arrayIds = [];
                         for(i=0; i<data.length; i++){

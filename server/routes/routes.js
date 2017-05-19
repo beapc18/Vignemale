@@ -1537,15 +1537,20 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: Id of poi
      *         in: path
      *         required: true
-     *       - name: Authorization
-     *         description: token to be passed as a header
-     *         in: header
-     *         required: true
-     *         type: array
-     *         items:
-     *           type: integer
-     *           format: int64
-     *         collectionFormat: csv
+     *       - name: rating
+     *         description: Rating of the poi
+     *         in: body
+     *         schema:
+     *           type: object
+     *           required:
+     *             - rating
+     *           properties:
+     *             rating:
+     *               type: string
+     *             idUser:
+     *               type: string
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Rate poi successfully
@@ -1710,15 +1715,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: Followed user's id
      *         in: path
      *         required: true
-     *       - name: Authorization
-     *         description: token to be passed as a header
-     *         in: header
-     *         required: true
-     *         type: array
-     *         items:
-     *           type: integer
-     *           format: int64
-     *         collectionFormat: csv
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Get if user is followed successfully
@@ -1772,6 +1770,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 res.status(response.status).json(response);
             });
         })
+
         /**
          * @swagger
          * /routes:
@@ -1782,40 +1781,34 @@ var appRouter = function(router, mongo, app, config, database) {
          *     produces:
          *       - application/json
          *     parameters:
-         *       - name: name
-         *         description: Name of route
+         *       - name: route
+         *         description: Create a route with some pois
+         *         required: true
          *         in: body
-         *         required: true
          *         schema:
-         *           $ref: '#/definitions/Routes'
-         *       - name: pois
-         *         description: Pois of the route
-         *         in: body
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Routes'
-         *       - name: creator
-         *         description: Creator of the route
-         *         in: body
-         *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Routes'
-         *       - name: Authorization
-         *         description: token to be passed as a header
-         *         in: header
-         *         required: true
-         *         type: array
-         *         items:
-         *           type: integer
-         *           format: int64
-         *         collectionFormat: csv
+         *           type: object
+         *           required:
+         *             - name
+         *             - pois
+         *             - creator
+         *           properties:
+         *             name:
+         *               type: string
+         *             pois:
+         *               type: array
+         *               items:
+         *                 type: object
+         *             creator:
+         *               type: string
+         *     security:
+         *       - Token: []
          *     responses:
          *       200:
          *         description: Successfully added a route
          *       500:
          *          description: Error in server
-         *
          */
+
         .post(passport.authenticate('jwt', {session: false}), function (req, res) {
 
             console.log("POST routes");
@@ -1829,7 +1822,7 @@ var appRouter = function(router, mongo, app, config, database) {
             var array = [];
             for (i = 0; i < pois.length; i++) {
                 console.log(pois[i]);
-                array.push(JSON.parse(pois[i]));
+                array.push(pois[i]);
             }
             var creator = req.body.creator;
             db.name = name;
@@ -1861,7 +1854,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *       - application/json
      *     parameters:
      *       - name: id
-     *         description: User's id
+     *         description: Id of route
      *         in: path
      *         required: true
      *     responses:
@@ -1895,18 +1888,11 @@ var appRouter = function(router, mongo, app, config, database) {
      *       - application/json
      *     parameters:
      *       - name: id
-     *         description: User's id
+     *         description: Id of route
      *         in: path
      *         required: true
-     *       - name: Authorization
-     *         description: token to be passed as a header
-     *         in: header
-     *         required: true
-     *         type: array
-     *         items:
-     *           type: integer
-     *           format: int64
-     *         collectionFormat: csv
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully deleted the route
@@ -1973,8 +1959,6 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: Words which user wants to search pois with (separated by commas)
      *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Pois'
      *     responses:
      *       200:
      *         description: Successfully searched pois with these words
@@ -2007,48 +1991,35 @@ var appRouter = function(router, mongo, app, config, database) {
      *     produces:
      *       - application/json
      *     parameters:
-     *       - name: isPoi
-     *         description: Boolean that indicates if it's a poi
-     *         in: body
+     *       - name: recommendation
+     *         description: Recommendation of poi or route
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Users'
-     *       - name: idPoiRoute
-     *         description: id of the poi or the route
      *         in: body
-     *         required: true
      *         schema:
-     *           $ref: '#/definitions/Users'
-     *       - name: idOrigin
-     *         description: id of user who recommends it
-     *         in: body
-     *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Users'
-     *       - name: message
-     *         description: the text of the message
-     *         in: body
-     *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Users'
-     *       - name: userNameOrigin
-     *         description: name of the user that sends the email
-     *         in: body
-     *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Users'
-     *       - name: userLastNameOrigin
-     *         description: lastname of the user that sends the email
-     *         in: body
-     *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Users'
-     *       - name: email
-     *         description: email of user that is going to receive the email
-     *         in: body
-     *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Users'
+     *           type: object
+     *           required:
+     *             - message
+     *             - isPoi
+     *             - idPoiRoute
+     *             - idOrigin
+     *             - userNameOrigin
+     *             - userLastNameOrigin
+     *             - email
+     *           properties:
+     *             message:
+     *               type: string
+     *             isPoi:
+     *               type: boolean
+     *             idPoiRoute:
+     *               type: string
+     *             idOrigin:
+     *               type: string
+     *             userNameOrigin:
+     *               type: string
+     *             userLasNameOrigin:
+     *               type: string
+     *             email:
+     *               type: string
      *     responses:
      *       200:
      *         description: Successfully shared poi
@@ -2157,15 +2128,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     description: Get data of all users of the system
      *     produces:
      *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: token to be passed as a header
-     *         in: header
-     *         required: true
-     *         type: array
-     *         items:
-     *           type: integer
-     *           format: int64
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got information of all users
@@ -2203,14 +2167,19 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: User's email
      *         in: path
      *         required: true
-     *       - name: Authorization
-     *         description: token to be passed as a header
-     *         in: header
+     *       - name: userObject
+     *         description: Text for email
      *         required: true
-     *         type: array
-     *         items:
-     *           type: integer
-     *           format: int64
+     *         in: body
+     *         schema:
+     *           type: object
+     *           required:
+     *             - message
+     *           properties:
+     *             message:
+     *               type: string
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully sent email to user from admin

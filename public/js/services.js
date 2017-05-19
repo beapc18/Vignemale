@@ -549,9 +549,9 @@ angular.module('vignemale')
                 $http({
                     method: 'POST',
                     url: '/routes',
-                    data: $httpParamSerializer(route),
+                    data:route,
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Content-Type': 'application/json',
                         'Authorization': auth.getToken()
                     }
                 }).success(function (data) {

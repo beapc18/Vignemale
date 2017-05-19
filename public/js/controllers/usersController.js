@@ -355,7 +355,7 @@ angular.module('vignemale')
                 if (route.length > 2){
                     $scope.newRoute.creator = $stateParams.id;
                     $scope.newRoute.pois = getWaypts();
-
+                    console.log($scope.newRoute.pois);
                     routes.createRoute($scope.newRoute, function (data) {
                         showSuccess(data);
                         $scope.showRoutes();

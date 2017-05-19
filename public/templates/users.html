@@ -17,7 +17,7 @@
                 </div>
                 <!--Right part, with button-->
                 <div class="col-md-4">
-                    <button ng-if="show!='editUser' && itsme && itslogged" ng-click="showEdit()" class="btn btn-default theme-accent">
+                    <button ng-if="show!='editUser' && itsme && itslogged" ng-click="showEdit();hideRoutes();hidePois();" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-edit"></span>  Edit</button>
 
                     <button ng-if="!itsme && !itsfollowed && itslogged" ng-click="followFun()" class="btn btn-default theme-accent">
@@ -192,31 +192,41 @@
                 </div>
             </div>
 
-            <!--FORM to EDIT USER-->
-            <form name="form" ng-submit="modifyUser()" ng-if="show=='editUser'">
+            <div ng-if="show=='editUser'">
+                <!--FORM to EDIT USER-->
+                <form name="form" ng-submit="modifyUser()" ng-if="!confirm">
 
-                <!--Error & success messages-->
-                <div ng-if="error" class="alert alert-danger center">
-                    <strong>&#10008</strong> {{errorMsg}}
-                </div>
-                <div ng-if="success" class="alert alert-success center">
-                    <strong>&#10004</strong> {{successMsg}}
+                    <!--Error & success messages-->
+                    <div ng-if="error" class="alert alert-danger center">
+                        <strong>&#10008</strong> {{errorMsg}}
+                    </div>
+                    <div ng-if="success" class="alert alert-success center">
+                        <strong>&#10004</strong> {{successMsg}}
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password" ng-model="$parent.oldPassword" class="form-control" placeholder="Old password" required/>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" ng-model="$parent.newPassword" class="form-control" placeholder="Password" required />
+                    </div>
+                    <div class="form-group">
+                        <input type="password" ng-model="$parent.newRePassword" class="form-control" placeholder="Repeat password" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-sm theme-accent-sm">Change password</button>
+                    <a class="btn btn-sm btn-danger" ng-click="confirmRemove()">
+                        <span class="glyphicon glyphicon-trash"></span>  Remove Account</a>
+                    <button ng-click="showPois()" class="btn btn-sm btn-primary"> Return</button>
+                </form>
+
+                <div ng-if="confirm">
+                    <h3>Are you sure?</h3>
+                    <button type="button" ng-click="removeUser()" class="btn btn-default theme-accent">Confirm</button>
                 </div>
 
-                <div class="form-group">
-                    <input type="password" ng-model="$parent.oldPassword" class="form-control" placeholder="Old password" required/>
-                </div>
-                <div class="form-group">
-                    <input type="password" ng-model="$parent.newPassword" class="form-control" placeholder="Password" required />
-                </div>
-                <div class="form-group">
-                    <input type="password" ng-model="$parent.newRePassword" class="form-control" placeholder="Repeat password" required />
-                </div>
 
-                <button type="submit" class="btn btn-sm theme-accent-sm">Change password</button>
-                <a ng-click="removeUser()" class="btn btn-sm btn-danger">
-                    <span class="glyphicon glyphicon-trash"></span>  Remove Account</a>
-            </form>
+            </div>
 
 
             <form name="form" ng-if="show=='share'">
@@ -229,3 +239,4 @@
         </div>
     </div>
 </div>
+

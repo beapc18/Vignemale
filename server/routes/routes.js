@@ -3,6 +3,11 @@ var nodemailer = require('nodemailer');
 var passport  = require('passport');
 var passportJWT  = require('passport-jwt');
 var GoogleAuth = require('google-auth-library');
+var xmlparser = require('express-xml-bodyparser');
+var w3cvalidator = require('w3cvalidator');
+
+
+var xml2js = require('xml2js');
 
 //https://jonathanmh.com/express-passport-json-web-token-jwt-authentication-beginners/
 var ExtractJwt = passportJWT.ExtractJwt;
@@ -310,6 +315,7 @@ var appRouter = function(router, mongo, app, config, database) {
         });
     });
 
+
     /**
      * @swagger
      * /signUp:
@@ -354,92 +360,127 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.post("/signUp", function (req, res) {
+    router.post("/signUp",xmlparser({trim: false, explicitArray: false, normalizeTags: false}), function (req, res) {
         console.log("signUp user");
-        console.log(req.body);
-        var db = new mongo.users;
-        var response = {};
-        var idUser = "";
 
-        var name = req.body.name;
-        var lastName = req.body.lastName;
-        var email = req.body.email;
-        var birthDate = req.body.birthDate;
-        var place = req.body.place;
+        var contype = req.headers['content-type'];
 
-        //check if some value is empty
-        if (!name || !lastName || !email || !birthDate || !place) {
-            response = {"message": "Empty value"};
-            console.log(response);
-            res.status(400).json(response);
-        } else {
-            // fetch email and password from REST request.
-            db.name = name;
-            db.lastName = lastName;
-            db.email = email;
-            db.birthDate = birthDate;
-            db.place = place;
-            db.creationDate = new Date(); //no esta en formato yyyy-mm-dd
-            db.lastAccess = new Date();
-            db.isVerified = false;
-            db.firstLogin = true;
-            db.google = false;
-            db.removed = false;
+        var signIn = function () {
 
-            //save only if doesn't exist any user with the same email
-            mongo.users.find({email: email}, function (err, data) {
-                if (err) {
-                    response = {"message": "Error fetching data"};
-                    //console.log(response);
+
+            var db = new mongo.users;
+            var response = {};
+            var idUser = "";
+
+            var name = req.body.name;
+            var lastName = req.body.lastName;
+            var email = req.body.email;
+            var birthDate = req.body.birthDate;
+            var place = req.body.place;
+
+            //check if some value is empty
+            if (!name || !lastName || !email || !birthDate || !place) {
+                response = {"message": "Empty value"};
+                console.log(response);
+                res.status(400).json(response);
+            } else {
+                // fetch email and password from REST request.
+                db.name = name;
+                db.lastName = lastName;
+                db.email = email;
+                db.birthDate = birthDate;
+                db.place = place;
+                db.creationDate = new Date(); //no esta en formato yyyy-mm-dd
+                db.lastAccess = new Date();
+                db.isVerified = false;
+                db.firstLogin = true;
+                db.google = false;
+                db.removed = false;
+
+                //save only if doesn't exist any user with the same email
+                mongo.users.find({email: email}, function (err, data) {
+                    if (err) {
+                        response = {"message": "Error fetching data"};
+                        //console.log(response);
+                        res.status(500).json(response);
+                    } else if (data.length !== 0) {
+                        response = {"message": "Email exists"};
+                        console.log(response);
+                        res.status(409).json(response);
+                    } else {
+                        db.save(function (err) {
+                            if (err) {
+                                response = {"message": "Error adding user"};
+                                console.log(response);
+                                res.status(500).json(response);
+                            } else {
+                                mongo.users.find({email: email}, function (err, data) {
+                                    if (err) {
+                                        response = {"message": "Error fetching data"};
+                                        res.status(500).json(response);
+                                    } else {
+                                        idUser = data[0]._id;
+                                        //enviar mail usuario
+                                        var url = 'http://localhost:8888/#/users/' + idUser + '/verifyAccount';
+                                        var text = 'Welcome to POIManager.' +
+                                            ' please, click the link bellow to confirm yout password.\n'
+                                            + url + '\n';
+
+                                        var mailOptions = {
+                                            from: 'vignemaleSTW@gmail.com', // sender address
+                                            to: email, // list of receivers
+                                            subject: 'Confirmation', // Subject line
+                                            text: text //, // plaintext body
+                                        };
+
+                                        transporter.sendMail(mailOptions, function (error, info) {
+                                            if (error) {
+                                                response = {"message": "Message could not be sent"};
+                                                res.status(500).json(response);
+                                            } else {
+                                                console.log('Message sent: ' + info.response);
+                                                response = {"message": "You will receive a verification mail"};
+                                                res.status(201).json(response);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+
+
+        if (contype == 'application/xml'){
+
+            var dtd= "<?xml version=\"1.0\"?><!DOCTYPE user [ <!ELEMENT user (birthDate,email,lastName,name,place)> " +
+                "<!ELEMENT birthDate (#PCDATA)> <!ELEMENT email (#PCDATA)> <!ELEMENT lastName (#PCDATA)> " +
+                "<!ELEMENT name (#PCDATA)> <!ELEMENT place (#PCDATA)>]>"+'\n';
+
+            var xml = dtd + req.rawBody;
+
+            w3cvalidator.validate({input: xml,callback:function(result){
+                console.log(result);
+                if(result.messages.length == 0){
+                    req.body=req.body.user;
+                    signIn();
+                }else{
+                    var response = {"message": "xml not valid"};
                     res.status(500).json(response);
-                } else if (data.length !== 0) {
-                    response = {"message": "Email exists"};
-                    console.log(response);
-                    res.status(409).json(response);
-                } else {
-                    db.save(function (err) {
-                        if (err) {
-                            response = {"message": "Error adding user"};
-                            console.log(response);
-                            res.status(500).json(response);
-                        } else {
-                            mongo.users.find({email: email}, function (err, data) {
-                                if (err) {
-                                    response = {"message": "Error fetching data"};
-                                    res.status(500).json(response);
-                                } else {
-                                    idUser = data[0]._id;
-                                    //enviar mail usuario
-                                    var url = 'http://localhost:8888/#/users/' + idUser + '/verifyAccount';
-                                    var text = 'Welcome to POIManager.' +
-                                        ' please, click the link bellow to confirm yout password.\n'
-                                        + url + '\n';
-
-                                    var mailOptions = {
-                                        from: 'vignemaleSTW@gmail.com', // sender address
-                                        to: email, // list of receivers
-                                        subject: 'Confirmation', // Subject line
-                                        text: text //, // plaintext body
-                                    };
-
-                                    transporter.sendMail(mailOptions, function (error, info) {
-                                        if (error) {
-                                            response = {"message": "Message could not be sent"};
-                                            res.status(500).json(response);
-                                        } else {
-                                            console.log('Message sent: ' + info.response);
-                                            response = {"message": "You will receive a verification mail"};
-                                            res.status(201).json(response);
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
                 }
-            });
+            }});
+        }else{
+            signIn();
         }
     });
+
+
+
+
+
 
     /**
      * @swagger
@@ -1149,108 +1190,141 @@ var appRouter = function(router, mongo, app, config, database) {
          *          description: Error in server
          *
          */
-        .post(passport.authenticate('jwt', {session: false}), function (req, res) {
+        .post(passport.authenticate('jwt', {session: false}),xmlparser({trim: false, explicitArray: false, normalizeTags: false}), function (req, res) {
             console.log("POST pois");
-            var db = new mongo.pois;
-            var response = {};
-            db.name = req.body.name;
-            db.description = req.body.description;
-            console.log(req.body.keywords.split(","));
-            db.keywords = req.body.keywords.split(","); //separate by comma, save in array
-            db.lat = req.body.lat;
-            db.lng = req.body.lng;
-            db.image = req.body.image;
-            db.rating = req.body.rating;
-            db.creator = req.body.creator;
-            db.numRec = 0; //nº recomendaciones
 
-            if ("undefined" === typeof req.body.idDuplicate || "undefined" === typeof req.body.originCreator) {
-            } else {
-                db.idDuplicate = req.body.idDuplicate;
-                db.originCreator = req.body.originCreator;
 
-                console.log(req.body.idDuplicate);
-                console.log(req.body.originCreator);
+            var createPoi = function() {
+                var db = new mongo.pois;
+                var response = {};
+                db.name = req.body.name;
+                db.description = req.body.description;
+                console.log(req.body.keywords.split(","));
+                db.keywords = req.body.keywords.split(","); //separate by comma, save in array
+                db.lat = req.body.lat;
+                db.lng = req.body.lng;
+                db.image = req.body.image;
+                db.rating = req.body.rating;
+                db.creator = req.body.creator;
+                db.numRec = 0; //nº recomendaciones
+
+                if ("undefined" === typeof req.body.idDuplicate || "undefined" === typeof req.body.originCreator) {
+                } else {
+                    db.idDuplicate = req.body.idDuplicate;
+                    db.originCreator = req.body.originCreator;
+
+                    console.log(req.body.idDuplicate);
+                    console.log(req.body.originCreator);
+                }
+
+                //Collect data to statistics of country and city
+                googleMapsClient.reverseGeocode({
+                    latlng: [req.body.lat, req.body.lng]
+                }, function (err, response) {
+                    if (!err) {
+                        for (i = 0; i < response.json.results[0].address_components.length; i++) {
+                            if (response.json.results[0].address_components[i].types.includes("locality")) {
+                                db.city = response.json.results[0].address_components[i].long_name;
+                            } else if (response.json.results[0].address_components[i].types.includes("country")) {
+                                db.country = response.json.results[0].address_components[i].long_name;
+                                break;
+                            }
+                        }
+
+                        db.save(function (err, data) {
+                            if (err) {
+                                response = {"status": 500, "message": "Error creatting POI"};
+                                res.status(response.status).json(response);
+                            } else {
+                                var poiId = data._id;
+                                database.saveRating(mongo, req.body.creator, poiId, req.body.rating, function (data) {
+                                    if (data.status === 500) {
+                                        response = {"status": 500, "message": "Error creatting POI"};
+                                        res.status(response.status).json(response);
+                                    } else {
+                                        var shorturls = new mongo.shorturls;
+
+                                        shorturls.url = req.body.shortURL;
+
+                                        if (req.body.shortURL != "") {
+                                            shorturls.save(function (err, data) {
+                                                if (err) {
+                                                    response = {
+                                                        "status": 500,
+                                                        "message": "Error creatting POI"
+                                                    };
+                                                    res.status(response.status).json(response);
+                                                } else {
+                                                    mongo.pois.update({_id: poiId}, {shortURL: "http://localhost:8888/short/" + data._id}, function (err) {
+                                                        if (err) {
+                                                            response = {
+                                                                "status": 500,
+                                                                "message": "Error creatting POI"
+                                                            };
+                                                            res.status(response.status).json(response);
+                                                        } else {
+                                                            //update last access when user access and jwt
+                                                            mongo.pois.update({_id: poiId}, {shorturl: data._id}, function (err) {
+                                                                if (err) {
+                                                                    response = {
+                                                                        "status": 500,
+                                                                        "message": "Error creatting POI"
+                                                                    };
+                                                                } else {
+                                                                    response = {
+                                                                        "status": 201,
+                                                                        "message": "POI has been created successfully"
+                                                                    };
+                                                                }
+                                                                res.status(response.status).json(response);
+                                                            });
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        } else {
+                                            response = {
+                                                "status": 201,
+                                                "message": "POI has been created successfully"
+                                            };
+                                            res.status(response.status).json(response);
+                                        }
+                                    }
+                                });
+                            }
+                        })
+                    }
+                });
             }
 
-            //Collect data to statistics of country and city
-            googleMapsClient.reverseGeocode({
-                latlng: [req.body.lat, req.body.lng]
-            }, function (err, response) {
-                if (!err) {
-                    for(i=0; i<response.json.results[0].address_components.length; i++){
-                        if(response.json.results[0].address_components[i].types.includes("locality")){
-                            db.city = response.json.results[0].address_components[i].long_name;
-                        } else if(response.json.results[0].address_components[i].types.includes("country")){
-                            db.country = response.json.results[0].address_components[i].long_name;
-                            break;
-                        }
+
+
+
+            var contype = req.headers['content-type'];
+            if (contype == 'application/xml'){
+
+                var dtd= "<?xml version=\"1.0\"?><!DOCTYPE poi [ <!ELEMENT poi (creator,description,keywords,lat,lng,name," +
+                    "rating,shortURL,image?,idDuplicate?,originCreator?)> " +
+                    "<!ELEMENT creator (#PCDATA)> <!ELEMENT description (#PCDATA)> <!ELEMENT keywords (#PCDATA)> " +
+                    "<!ELEMENT lat (#PCDATA)> <!ELEMENT lng (#PCDATA)> <!ELEMENT name (#PCDATA)> <!ELEMENT rating (#PCDATA)>" +
+                    "<!ELEMENT image (#PCDATA)> <!ELEMENT shortURL (#PCDATA)> <!ELEMENT idDuplicate (#PCDATA)> <!ELEMENT originCreator (#PCDATA)>]>"+'\n';
+
+                var xml = dtd + req.rawBody;
+
+                w3cvalidator.validate({input: xml,callback:function(result){
+                    console.log(result);
+                    if(result.messages.length == 0){
+                        req.body=req.body.poi;
+                        createPoi();
+                    }else{
+                        var response = {"message": "xml not valid"};
+                        res.status(500).json(response);
                     }
+                }});
+            }else{
+                createPoi();
+            }
 
-                    db.save(function (err, data) {
-                        if (err) {
-                            response = {"status": 500, "message": "Error creatting POI"};
-                            res.status(response.status).json(response);
-                        } else {
-                            var poiId = data._id;
-                            database.saveRating(mongo, req.body.creator, poiId, req.body.rating, function (data) {
-                                if (data.status === 500) {
-                                    response = {"status": 500, "message": "Error creatting POI"};
-                                    res.status(response.status).json(response);
-                                } else {
-                                    var shorturls = new mongo.shorturls;
-
-                                    shorturls.url = req.body.shortURL;
-
-                                    if (req.body.shortURL != "") {
-                                        shorturls.save(function (err, data) {
-                                            if (err) {
-                                                response = {
-                                                    "status": 500,
-                                                    "message": "Error creatting POI"
-                                                };
-                                                res.status(response.status).json(response);
-                                            } else {
-                                                mongo.pois.update({_id: poiId}, {shortURL: "http://localhost:8888/short/" + data._id}, function (err) {
-                                                    if (err) {
-                                                        response = {
-                                                            "status": 500,
-                                                            "message": "Error creatting POI"
-                                                        };
-                                                        res.status(response.status).json(response);
-                                                    } else {
-                                                        //update last access when user access and jwt
-                                                        mongo.pois.update({_id: poiId}, {shorturl: data._id}, function (err) {
-                                                            if (err) {
-                                                                response = {
-                                                                    "status": 500,
-                                                                    "message": "Error creatting POI"
-                                                                };
-                                                            } else {
-                                                                response = {
-                                                                    "status": 201,
-                                                                    "message": "POI has been created successfully"
-                                                                };
-                                                            }
-                                                            res.status(response.status).json(response);
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    } else {
-                                        response = {
-                                            "status": 201,
-                                            "message": "POI has been created successfully"
-                                        };
-                                        res.status(response.status).json(response);
-                                    }
-                                }
-                            });
-                        }
-                    })
-                }
-            });
         });
 
     /**
@@ -1979,58 +2053,88 @@ var appRouter = function(router, mongo, app, config, database) {
      *
      */
     router.route("/share")
-        .post(function (req, res) {
+        .post(xmlparser({trim: false, explicitArray: false, normalizeTags: false}),function (req, res) {
             console.log("POST /share");
-            console.log(req.body);
 
-            var response = {};
-            //find similar results using an index
-            console.log(req.body.isPoi);
-            var url;
-            var db = new mongo.shares;
-            if (req.body.isPoi == "true") {
-                mongo.pois.find({_id: req.body.idPoiRoute}, function (err, data) {
-                    if (err) {
-                        response = {"status": 500, "message": "Error fetching data"};
-                    } else {
-                        db.idPoiRoute = req.body.idPoiRoute;
-                        db.idUser = req.body.idOrigin;
-                        db.namePoiRoute = data[0].name;
-                        db.save(function (err) {
-                        });
-                    }
-                });
-                url = 'http://localhost:8888/#/pois/' + req.body.idPoiRoute;
-            } else {
-                mongo.routes.find({_id: req.body.idPoiRoute}, function (err, data) {
-                    if (err) {
-                        response = {"status": 500, "message": "Error fetching data"};
-                    } else {
-                        db.idPoiRoute = req.body.idPoiRoute;
-                        db.idUser = req.body.idOrigin;
-                        db.namePoiRoute = data[0].name;
-                        db.save(function (err) {
-                        });
-                    }
-                });
-                url = 'http://localhost:8888/#/routes/' + req.body.idPoiRoute;
+            var share = function() {
+
+
+                var response = {};
+                //find similar results using an index
+                console.log(req.body.isPoi);
+                var url;
+                var db = new mongo.shares;
+                if (req.body.isPoi == "true") {
+                    mongo.pois.find({_id: req.body.idPoiRoute}, function (err, data) {
+                        if (err) {
+                            response = {"status": 500, "message": "Error fetching data"};
+                        } else {
+                            db.idPoiRoute = req.body.idPoiRoute;
+                            db.idUser = req.body.idOrigin;
+                            db.namePoiRoute = data[0].name;
+                            db.save(function (err) {
+                            });
+                        }
+                    });
+                    url = 'http://localhost:8888/#/pois/' + req.body.idPoiRoute;
+                } else {
+                    mongo.routes.find({_id: req.body.idPoiRoute}, function (err, data) {
+                        if (err) {
+                            response = {"status": 500, "message": "Error fetching data"};
+                        } else {
+                            db.idPoiRoute = req.body.idPoiRoute;
+                            db.idUser = req.body.idOrigin;
+                            db.namePoiRoute = data[0].name;
+                            db.save(function (err) {
+                            });
+                        }
+                    });
+                    url = 'http://localhost:8888/#/routes/' + req.body.idPoiRoute;
+                }
+                var text = req.body.message + '\n' +
+                    'Click the link bellow to watch your recommendation from ' + req.body.userNameOrigin +
+                    ' ' + req.body.userLastNameOrigin + '.\n'
+                    + url + '\n';
+
+                var mailOptions = {
+                    from: 'vignemaleSTW@gmail.com', // sender address
+                    to: req.body.email, // list of receivers
+                    subject: 'Recommendation', // Subject line
+                    text: text //, // plaintext body
+                    // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
+                };
+
+                transporter.sendMail(mailOptions);
+                response = {"status": 200, "message": "Message sent"};
+                res.status(response.status).json(response.message);
+
             }
-            var text = req.body.message + '\n' +
-                'Click the link bellow to watch your recommendation from ' + req.body.userNameOrigin +
-                ' ' + req.body.userLastNameOrigin + '.\n'
-                + url + '\n';
 
-            var mailOptions = {
-                from: 'vignemaleSTW@gmail.com', // sender address
-                to: req.body.email, // list of receivers
-                subject: 'Recommendation', // Subject line
-                text: text //, // plaintext body
-                // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
-            };
 
-            transporter.sendMail(mailOptions);
-            response = {"status": 200, "message": "Message sent"};
-            res.status(response.status).json(response.message);
+            var contype = req.headers['content-type'];
+            if (contype == 'application/xml'){
+
+                var dtd= "<?xml version=\"1.0\"?><!DOCTYPE share [ <!ELEMENT share (email,idOrigin,idPoiRoute,isPoi,message," +
+                    "userLastNameOrigin,userNameOrigin)> " +
+                    "<!ELEMENT email (#PCDATA)> <!ELEMENT idOrigin (#PCDATA)> <!ELEMENT idPoiRoute (#PCDATA)> " +
+                    "<!ELEMENT isPoi (#PCDATA)> <!ELEMENT message (#PCDATA)> <!ELEMENT userLastNameOrigin (#PCDATA)> "+
+                    "<!ELEMENT userNameOrigin (#PCDATA)> ]>"+'\n';
+
+                var xml = dtd + req.rawBody;
+
+
+                w3cvalidator.validate({input: xml,callback:function(result){
+                    if(result.messages.length == 0){
+                        req.body=req.body.share;
+                        share();
+                    }else{
+                        var response = {"message": "xml not valid"};
+                        res.status(500).json(response);
+                    }
+                }});
+            }else{
+                share();
+            }
         });
 
     /**

@@ -22,82 +22,15 @@
             <td>{{row.creationDate}}</td>
             <td>{{row.lastAccess}}</td>
             <!--Falta hacer acciones-->
-            <td><a class="icon" ng-click="deleteUser($index)" role="button">
+            <td><a class="icon" ng-click="select($index,false)" data-toggle="modal" data-target="#myModal" role="button">
                 <span class="glyphicon glyphicon glyphicon-trash"></span></a></td>
-            <td><a class="icon" ng-click="sendMail($index)" role="button">
+            <td><a class="icon" ng-click="select($index,true)" data-toggle="modal" data-target="#myModal" role="button">
                 <span class="glyphicon glyphicon glyphicon-envelope"></span></a></td>
-
-
-            <!-- <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
-             &lt;!&ndash; Modal &ndash;&gt;
-             <div class="modal fade" id="myModal" role="dialog">
-                 <div class="modal-dialog">
-                     &lt;!&ndash; Modal content&ndash;&gt;
-                     <div class="modal-content">
-                         <div class="modal-header">
-                             <button type="button" class="close" data-dismiss="modal">&times;</button>
-                             <h4 class="modal-title">Modal Header</h4>
-                         </div>
-                         <div class="modal-body">
-                             <p>Some text in the modal.</p>
-                         </div>
-                         <div class="modal-footer">
-                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                         </div>
-                     </div>
-
-                 </div>
-             </div>-->
         </tr>
         </tbody>
     </table>
 
     <br><br>
-    <!-- Parte ventana modal. NO ASOCIA EL CONTROLLER -->
-    <!--<div ng-controller="ModalDemoCtrl" class="modal-demo">
-        <script type="text/ng-template" id="myModalContent.html">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modal-title">I'm a modal!</h3>
-            </div>
-            <div class="modal-body" id="modal-body">
-                <ul>
-                    <li ng-repeat="item in items">
-                        <a href="#" ng-click="$event.preventDefault(); selected.item = item">{{ item }}</a>
-                    </li>
-                </ul>
-                Selected: <b>{{ selected.item }}</b>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
-                <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
-            </div>
-        </script>
-        <script type="text/ng-template" id="stackedModal.html">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modal-title-{{name}}">The {{name}} modal!</h3>
-            </div>
-            <div class="modal-body" id="modal-body-{{name}}">
-                Having multiple modals open at once is probably bad UX but it's technically possible.
-            </div>
-        </script>
-
-        <button type="button" class="btn btn-default" ng-click="open()">Open me!</button>
-        <button type="button" class="btn btn-default" ng-click="open('lg')">Large modal</button>
-        <button type="button" class="btn btn-default" ng-click="open('sm')">Small modal</button>
-        <button type="button"
-                class="btn btn-default"
-                ng-click="open('sm', '.modal-parent')">
-            Modal appended to a custom parent
-        </button>
-        <button type="button" class="btn btn-default" ng-click="toggleAnimation()">Toggle Animation ({{ animationsEnabled }})</button>
-        <button type="button" class="btn btn-default" ng-click="openComponentModal()">Open a component modal!</button>
-        <button type="button" class="btn btn-default" ng-click="openMultipleModals()">
-            Open multiple modals at once
-        </button>
-        <div ng-show="selected">Selection from a modal: {{ selected }}</div>
-        <div class="modal-parent">
-        </div>
-    </div>-->
 
     <!--Error & success messages-->
     <div ng-if="error" class="alert alert-danger center">
@@ -107,3 +40,44 @@
         <strong>&#10004</strong> {{successMsg}}
     </div>
 </div>
+
+<div class ="row">
+    <div id="myModal" class="modal fade" role="dialog" style="margin-right: 40%;">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 ng-if="send" class="modal-title">Warning</h4>
+                    <h4 ng-if="!send" class="modal-title">Are you sure?</h4>
+                </div>
+                <div class="modal-body text-left">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div ng-if="send" class="form-group">
+                                <label for="message">message:</label>
+                                <br/>
+                                <textarea class="form-control" rows="5" id="message" ng-model="$parent.message"></textarea>
+                                <br/>
+                                <button data-dismiss="modal" class="btn btn-default theme-accent" ng-click="sendMail()" >Send</button>
+                            </div>
+
+                            <div ng-if="!send" class="form-group">
+                                <button  data-dismiss="modal" class="btn btn-default theme-accent" ng-click="deleteUser()" >Confirm</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-6"></div>
+                    </div>
+                </div>
+                <div class="modal-footer text-left">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+

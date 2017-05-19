@@ -53,6 +53,7 @@ var appRouter = function(router, mongo, app, config, database) {
         return id === idToken;
     };
 
+
     /**
      * @swagger
      * /signIn:
@@ -438,15 +439,26 @@ var appRouter = function(router, mongo, app, config, database) {
     /**
      * @swagger
      * /getIdFromToken:
-     *   post:
+     *   get:
      *     tags:
      *       - Auth
      *     description: Return user id who makes the request
      *     produces:
      *       - application/json
+     *     parameters:
+     *       - name: token
+     *         description: token to be passed as a header
+     *         in: header
+     *         required: true
+     *         type: array
+     *         items:
+     *           type: integer
+     *           format: int64
      *     responses:
      *       200:
      *         description: Id taken successfully
+     *       401:
+     *         Unauthorized
      *
      */
     router.get('/getIdFromToken', passport.authenticate('jwt', {session: false}), function (req, res) {
@@ -515,20 +527,19 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /resetPassword:
+     * /users/{id}/verifyAccount:
      *   get:
      *     tags:
      *       - Users
-     *     description: Allow user to verify it password
+     *     description: Allow user to verify it account
      *     produces:
      *       - application/json
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/User'
+     *         type: string
      *     responses:
      *       200:
      *         description: Verify account successfully
@@ -580,8 +591,8 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/password:
-     *   post:
+     * /users/{id}/password:
+     *   put:
      *     tags:
      *       - Users
      *     description: Allow user to change it password
@@ -590,10 +601,9 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/User'
+     *         type: string
      *       - name: password
      *         description: User's password
      *         in: body
@@ -642,20 +652,19 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/:
+     * /users/{id}/:
      *   get:
      *     tags:
-     *       - User
+     *       - Users
      *     description: Get info about user
      *     produces:
      *       - application/json
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/User'
+     *         type: string
      *     responses:
      *       200:
      *         description: Get user info successfully
@@ -678,20 +687,27 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/:
+     * /users/{id}/:
      *   delete:
      *     tags:
-     *       - User
+     *       - Users
      *     description: Delete user in the system and its pois
      *     produces:
      *       - application/json
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/User'
+     *         type: string
+     *       - name: Authorization
+     *         description: token to be passed as a header
+     *         in: header
+     *         required: true
+     *         type: array
+     *         items:
+     *           type: integer
+     *           format: int64
      *     responses:
      *       200:
      *         description: Delete user successfully
@@ -721,20 +737,19 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/:
+     * /users/{id}/:
      *   put:
      *     tags:
-     *       - User
+     *       - Users
      *     description: Change user password verifying old password
      *     produces:
      *       - application/json
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/User'
+     *         type: string
      *       - name: newPassword
      *         description: User's new password
      *         in: body
@@ -747,6 +762,14 @@ var appRouter = function(router, mongo, app, config, database) {
      *         required: true
      *         schema:
      *           $ref: '#/definitions/User'
+     *       - name: Authorization
+     *         description: token to be passed as a header
+     *         in: header
+     *         required: true
+     *         type: array
+     *         items:
+     *           type: integer
+     *           format: int64
      *     responses:
      *       200:
      *         description: Change user's password successfully
@@ -791,20 +814,19 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/favs:
+     * /users/{id}/favs:
      *   get:
      *     tags:
-     *       - User
+     *       - Users
      *     description: Get user favs
      *     produces:
      *       - application/json
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/User'
+     *         type: string
      *     responses:
      *       200:
      *         description: Get user favs successfully
@@ -843,17 +865,17 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/favs:
+     * /users/{id}/favs:
      *   post:
      *     tags:
-     *       - User
+     *       - Users
      *     description: Add POI to user's favs
      *     produces:
      *       - application/json
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
      *         schema:
      *           $ref: '#/definitions/User'
@@ -863,6 +885,14 @@ var appRouter = function(router, mongo, app, config, database) {
      *         required: true
      *         schema:
      *           $ref: '#/definitions/User'
+     *       - name: Authorization
+     *         description: token to be passed as a header
+     *         in: header
+     *         required: true
+     *         type: array
+     *         items:
+     *           type: integer
+     *           format: int64
      *     responses:
      *       200:
      *         description: Add fav to user successfully
@@ -880,26 +910,33 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/favs:
+     * /users/{id}/favs:
      *   delete:
      *     tags:
-     *       - User
+     *       - Users
      *     description: Delete POI from user's favs
      *     produces:
      *       - application/json
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/User'
+     *         type: string
      *       - name: idPoi
      *         description: Id of POI for removing of fav list
      *         in: body
      *         required: true
      *         schema:
      *           $ref: '#/definitions/User'
+     *       - name: Authorization
+     *         description: token to be passed as a header
+     *         in: header
+     *         required: true
+     *         type: array
+     *         items:
+     *           type: integer
+     *           format: int64
      *     responses:
      *       200:
      *         description: Remove fav to user successfully
@@ -916,20 +953,28 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/follow:
+     * /users/{id}/follow:
      *   post:
      *     tags:
-     *       - User
+     *       - Users
      *     description: Follow user
      *     produces:
      *       - application/json
      *     parameters:
      *       - name: id
      *         description: Followed user's id
-     *         in: params
+     *         in: path
      *         required: true
      *         schema:
      *           $ref: '#/definitions/User'
+     *       - name: Authorization
+     *         description: token to be passed as a header
+     *         in: header
+     *         required: true
+     *         type: array
+     *         items:
+     *           type: integer
+     *           format: int64
      *     responses:
      *       200:
      *         description: Add user to follow list successfully
@@ -949,20 +994,27 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/unfollow:
+     * /users/{id}/unfollow:
      *   post:
      *     tags:
-     *       - User
+     *       - Users
      *     description: Unfollow user
      *     produces:
      *       - application/json
      *     parameters:
      *       - name: id
      *         description: Unfollowed user's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/User'
+     *         type: string
+     *       - name: Authorization
+     *         description: token to be passed as a header
+     *         in: header
+     *         required: true
+     *         type: array
+     *         items:
+     *           type: integer
+     *           format: int64
      *     responses:
      *       200:
      *         description: Remove user to follow list successfully
@@ -982,20 +1034,19 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/pois:
+     * /users/{id}/pois:
      *   get:
      *     tags:
-     *       - User
+     *       - Users
      *     description: Get pois of user
      *     produces:
      *       - application/json
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/User'
+     *         type: string
      *     responses:
      *       200:
      *         description: Get pois of user successfully
@@ -1057,6 +1108,76 @@ var appRouter = function(router, mongo, app, config, database) {
          *     description: Add new poi
          *     produces:
          *       - application/json
+         *     parameters:
+         *       - name: name
+         *         in: body
+         *         description: Name of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: description
+         *         in: body
+         *         description: Description of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: keywords
+         *         in: body
+         *         description: Keywords of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: lat
+         *         in: body
+         *         description: Latitude of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: lng
+         *         in: body
+         *         description: Longitude of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: image
+         *         in: body
+         *         description: Image of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *         type: file
+         *       - name: rating
+         *         in: body
+         *         description: Rating of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: creator
+         *         in: body
+         *         description: Creator of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/User'
+         *       - name: idDuplicate
+         *         in: body
+         *         description: Id of user who has duplicated of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: originCreator
+         *         in: body
+         *         description: Id of user who created the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: Authorization
+         *         description: token to be passed as a header
+         *         in: header
+         *         required: true
+         *         type: array
+         *         items:
+         *           type: integer
+         *           format: int64
          *     responses:
          *       201:
          *         description: Add poi successfully
@@ -1172,7 +1293,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /pois/:id:
+     * /pois/{id}:
      *   get:
      *     tags:
      *       - Pois
@@ -1182,10 +1303,10 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: Id of poi
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Pois'
+     *         type: string
+     *         format: int64
      *     responses:
      *       200:
      *         description: Get info of poi successfully
@@ -1209,7 +1330,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
         /**
          * @swagger
-         * /users/:id/pois:
+         * /users/{id}/pois:
          *   put:
          *     tags:
          *       - Pois
@@ -1219,10 +1340,62 @@ var appRouter = function(router, mongo, app, config, database) {
          *     parameters:
          *       - name: id
          *         description: Id of poi
-         *         in: params
+         *         in: path
          *         required: true
          *         schema:
          *           $ref: '#/definitions/Pois'
+         *       - name: name
+         *         in: body
+         *         description: Name of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: description
+         *         in: body
+         *         description: Description of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: keywords
+         *         in: body
+         *         description: Keywords of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: lat
+         *         in: body
+         *         description: Latitude of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: lng
+         *         in: body
+         *         description: Longitude of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: image
+         *         in: body
+         *         description: Image of the poi
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *         type: file
+         *       - name: shortURL
+         *         in: body
+         *         description: Url shorten
+         *         required: true
+         *         schema:
+         *           $ref: '#/definitions/Poi'
+         *       - name: Authorization
+         *         description: token to be passed as a header
+         *         in: header
+         *         required: true
+         *         type: array
+         *         items:
+         *           type: integer
+         *           format: int64
+         *         collectionFormat: csv
          *     responses:
          *       200:
          *         description: Update info of poi successfully
@@ -1247,11 +1420,8 @@ var appRouter = function(router, mongo, app, config, database) {
                         image: req.body.image
                     };
 
-
                     if (req.body.shortURL != "") {
-
                         var url = req.body.shortURL;
-
                         mongo.pois.update({_id: req.params.id}, updateInfo, function (err, data) {
                             if (err) {
                                 response = {"status": 500, "message": "Error updating data"};
@@ -1294,7 +1464,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
         /**
          * @swagger
-         * /users/:id/pois:
+         * /users/{id}/pois:
          *   delete:
          *     tags:
          *       - Pois
@@ -1304,10 +1474,13 @@ var appRouter = function(router, mongo, app, config, database) {
          *     parameters:
          *       - name: id
          *         description: Id of poi
-         *         in: params
+         *         in: path
          *         required: true
-         *         schema:
-         *           $ref: '#/definitions/Pois'
+         *       - name: Authorization
+         *         description: token to be passed as a header
+         *         in: header
+         *         required: true
+         *         type: apiKey
          *     responses:
          *       200:
          *         description: Delete poi successfully
@@ -1345,7 +1518,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /pois/:id/rating:
+     * /pois/{id}/rating:
      *   post:
      *     tags:
      *       - Pois
@@ -1355,10 +1528,17 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: Id of poi
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Pois'
+     *       - name: Authorization
+     *         description: token to be passed as a header
+     *         in: header
+     *         required: true
+     *         type: array
+     *         items:
+     *           type: integer
+     *           format: int64
+     *         collectionFormat: csv
      *     responses:
      *       200:
      *         description: Rate poi successfully
@@ -1378,7 +1558,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /pois/:id/isfav:
+     * /pois/{id}/isfav:
      *   get:
      *     tags:
      *       - Pois
@@ -1388,10 +1568,12 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: Id of poi
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Pois'
+     *       - name: Authorization
+     *         description: token to be passed as a header
+     *         in: header
+     *         type: oauth2
      *     responses:
      *       200:
      *         description: Get if poi is fav successfully
@@ -1417,7 +1599,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     *  /users/:id/routes:
+     *  /users/{id}/routes:
      *   get:
      *     tags:
      *       - Users
@@ -1427,10 +1609,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Users'
      *     responses:
      *       200:
      *         description: Get routes of user successfully
@@ -1454,7 +1634,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     *  /users/:id/following:
+     *  /users/{id}/following:
      *   get:
      *     tags:
      *       - Users
@@ -1464,10 +1644,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Users'
      *     responses:
      *       200:
      *         description: Get followings of user successfully
@@ -1513,7 +1691,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     *  /users/:id/isfollowed:
+     *  /users/{id}/isfollowed:
      *   get:
      *     tags:
      *       - Users
@@ -1523,10 +1701,17 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: Followed user's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Users'
+     *       - name: Authorization
+     *         description: token to be passed as a header
+     *         in: header
+     *         required: true
+     *         type: array
+     *         items:
+     *           type: integer
+     *           format: int64
+     *         collectionFormat: csv
      *     responses:
      *       200:
      *         description: Get if user is followed successfully
@@ -1608,6 +1793,15 @@ var appRouter = function(router, mongo, app, config, database) {
          *         required: true
          *         schema:
          *           $ref: '#/definitions/Routes'
+         *       - name: Authorization
+         *         description: token to be passed as a header
+         *         in: header
+         *         required: true
+         *         type: array
+         *         items:
+         *           type: integer
+         *           format: int64
+         *         collectionFormat: csv
          *     responses:
          *       200:
          *         description: Successfully added a route
@@ -1651,7 +1845,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /routes/:id:
+     * /routes/{id}:
      *   get:
      *     tags:
      *       - Routes
@@ -1661,10 +1855,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Routes'
      *     responses:
      *       200:
      *         description: Successfully got information of the route
@@ -1687,7 +1879,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /routes/:id:
+     * /routes/{id}:
      *   delete:
      *     tags:
      *       - Routes
@@ -1697,10 +1889,17 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Routes'
+     *       - name: Authorization
+     *         description: token to be passed as a header
+     *         in: header
+     *         required: true
+     *         type: array
+     *         items:
+     *           type: integer
+     *           format: int64
+     *         collectionFormat: csv
      *     responses:
      *       200:
      *         description: Successfully deleted the route
@@ -1723,7 +1922,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /short/:id:
+     * /short/{id}:
      *   get:
      *     tags:
      *       - Pois
@@ -1733,10 +1932,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Pois'
      *     responses:
      *       200:
      *         description: Successfully get url shorten
@@ -1757,7 +1954,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /search/pois/:words:
+     * /search/pois/{words}:
      *   get:
      *     tags:
      *       - Pois
@@ -1766,8 +1963,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *       - application/json
      *     parameters:
      *       - name: words
-     *         description: Words which user wants to search pois with
-     *         in: params
+     *         description: Words which user wants to search pois with (separated by commas)
+     *         in: path
      *         required: true
      *         schema:
      *           $ref: '#/definitions/Pois'
@@ -1816,7 +2013,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *         schema:
      *           $ref: '#/definitions/Users'
      *       - name: idOrigin
-     *         description: id of user
+     *         description: id of user who recommends it
      *         in: body
      *         required: true
      *         schema:
@@ -1909,7 +2106,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /search/users/:words:
+     * /search/users/{words}:
      *   get:
      *     tags:
      *       - Users
@@ -1919,10 +2116,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: words
      *         description: Words which user wants to search users with
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Users'
      *     responses:
      *       200:
      *         description: Successfully searched users with these words
@@ -1955,6 +2150,15 @@ var appRouter = function(router, mongo, app, config, database) {
      *     description: Get data of all users of the system
      *     produces:
      *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token to be passed as a header
+     *         in: header
+     *         required: true
+     *         type: array
+     *         items:
+     *           type: integer
+     *           format: int64
      *     responses:
      *       200:
      *         description: Successfully got information of all users
@@ -1980,7 +2184,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /sendMail/:email:
+     * /sendMail/{email}:
      *   post:
      *     tags:
      *       - Admin
@@ -1990,10 +2194,16 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: email
      *         description: User's email
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Admin'
+     *       - name: Authorization
+     *         description: token to be passed as a header
+     *         in: header
+     *         required: true
+     *         type: array
+     *         items:
+     *           type: integer
+     *           format: int64
      *     responses:
      *       200:
      *         description: Successfully sent email to user from admin
@@ -2029,7 +2239,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/statistics/1:
+     * /users/{id}/statistics/1:
      *   get:
      *     tags:
      *       - Statistics
@@ -2039,10 +2249,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Statistics'
      *     responses:
      *       200:
      *         description: Successfully got statistic 1 of user
@@ -2101,7 +2309,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/statistics/2:
+     * /users/{id}/statistics/2:
      *   get:
      *     tags:
      *       - Statistics
@@ -2111,10 +2319,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Statistics'
      *     responses:
      *       200:
      *         description: Successfully got statistic 2 of user
@@ -2182,7 +2388,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/statistics/3:
+     * /users/{id}/statistics/3:
      *   get:
      *     tags:
      *       - Statistics
@@ -2192,10 +2398,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Statistics'
      *     responses:
      *       200:
      *         description: Successfully got statistic 3 of user
@@ -2240,7 +2444,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/statistics/4:
+     * /users/{id}/statistics/4:
      *   get:
      *     tags:
      *       - Statistics
@@ -2250,10 +2454,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Statistics'
      *     responses:
      *       200:
      *         description: Successfully got statistic 4 of user
@@ -2298,7 +2500,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/statistics/5:
+     * /users/{id}/statistics/5:
      *   get:
      *     tags:
      *       - Statistics
@@ -2308,10 +2510,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Statistics'
      *     responses:
      *       200:
      *         description: Successfully got statistic 5 of user
@@ -2357,7 +2557,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/statistics/6:
+     * /users/{id}/statistics/6:
      *   get:
      *     tags:
      *       - Statistics
@@ -2367,10 +2567,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Statistics'
      *     responses:
      *       200:
      *         description: Successfully got statistic 6 of user
@@ -2396,7 +2594,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/statistics/7:
+     * /users/{id}/statistics/7:
      *   get:
      *     tags:
      *       - Statistics
@@ -2406,10 +2604,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Statistics'
      *     responses:
      *       200:
      *         description: Successfully got statistic 7 of user
@@ -2437,20 +2633,18 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/statistics/8:
+     * /users/{id}/statistics/8:
      *   get:
      *     tags:
      *       - Statistics
-     *     description:
+     *     description: Age of people user follows
      *     produces:
      *       - application/json
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Statistics'
      *     responses:
      *       200:
      *         description: Successfully got statistic 8 of user
@@ -2524,7 +2718,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/statistics/9:
+     * /users/{id}/statistics/9:
      *   get:
      *     tags:
      *       - Statistics
@@ -2536,8 +2730,6 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: User's id
      *         in: params
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Statistics'
      *     responses:
      *       200:
      *         description: Successfully got statistic 9 of user
@@ -2571,7 +2763,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /users/:id/statistics/10:
+     * /users/{id}/statistics/10:
      *   get:
      *     tags:
      *       - Statistics
@@ -2581,10 +2773,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     parameters:
      *       - name: id
      *         description: User's id
-     *         in: params
+     *         in: path
      *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Statistics'
      *     responses:
      *       200:
      *         description: Successfully got statistic 10 of user
@@ -2652,7 +2842,6 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/admin/statistics/1", function (req, res) {
         console.log("/admin/statistics/1");
         mongo.users.find({isAdmin: {$ne: 1}}, function (err, data) {
-
             var date = new Date();
             var names = [];
             names[0] = "Under 18";
@@ -2666,6 +2855,7 @@ var appRouter = function(router, mongo, app, config, database) {
             var percent = new Array(5).fill(0);
             //number of creation per month
             for (i = 0; i < data.length; i++) {
+
                 if ("undefined" === typeof data[i].birthDate) {
                     ages[4]++;
                 } else {
@@ -2681,10 +2871,9 @@ var appRouter = function(router, mongo, app, config, database) {
                     }
                 }
             }
-            for(k = 0; k < data.length; k++) {
+            for(k = 0; k < 5; k++) {
                 percent[k] = (ages[k] / data.length*100).toFixed(1);
             }
-
             response = {
                 "status": 200, "message": {
                     "names": names,

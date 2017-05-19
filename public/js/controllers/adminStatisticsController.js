@@ -246,7 +246,7 @@ angular.module('vignemale')
                     labels: data.names,
                     datasets: [
                         {
-                            data: data.count,
+                            data: data.percentages,
                             backgroundColor: colours,
                             hoverBackgroundColor: coloursBG
                         }]
@@ -271,7 +271,7 @@ angular.module('vignemale')
                     labels: data.names,
                     datasets: [
                         {
-                            data: data.count,
+                            data: data.percentages,
                             backgroundColor: colours,
                             hoverBackgroundColor: coloursBG
                         }]

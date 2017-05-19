@@ -401,9 +401,6 @@ var appRouter = function(router, mongo, app, config, database) {
                                     response = {"message": "Error fetching data"};
                                     res.status(500).json(response);
                                 } else {
-                                    response = {"message": "You will receive a verification mail"};
-                                    res.status(201).json(response);
-
                                     idUser = data[0]._id;
                                     //enviar mail usuario
                                     var url = 'http://localhost:8888/#/users/' + idUser + '/verifyAccount';
@@ -420,17 +417,17 @@ var appRouter = function(router, mongo, app, config, database) {
 
                                     transporter.sendMail(mailOptions, function (error, info) {
                                         if (error) {
-                                            console.log(error);
-                                            res.json({yo: 'error'});
+                                            response = {"message": "Message could not be sent"};
+                                            res.status(500).json(response);
                                         } else {
                                             console.log('Message sent: ' + info.response);
-                                            res.json({yo: info.response});
+                                            response = {"message": "You will receive a verification mail"};
+                                            res.status(201).json(response);
                                         }
                                     });
                                 }
                             });
                         }
-                        console.log(response);
                     });
                 }
             });
@@ -2939,24 +2936,27 @@ var appRouter = function(router, mongo, app, config, database) {
 
                     var counts = data.map(function(a){ return a.count});
 
-                    var total = data.length;
-
-                    for(i=0;i<count.length;i++){
+                    for(i=0;i<4;i++){
                         if(counts[i]<5){
                             count[0]++;
                         }else if(counts[i]>=5 && counts[i]<10){
-                            counts[1]++;
+                            count[1]++;
                         }else if(counts[i]>=10 && counts[i]<=15){
                             count[2]++;
                         }else{
-                            counts[3]++;
+                            count[3]++;
                         }
+                    }
+                    var total = 0;
+
+                    for(i=0;i<4;i++){
+                        total= total + count[i];
                     }
 
                     var percentages=new Array(4);
 
                     for(i=0;i<count.length;i++){
-                        percentages[i]=(total/count[i])*100;
+                        percentages[i]=(count[i]/total)*100;
                     }
 
                     response = {
@@ -3006,23 +3006,27 @@ var appRouter = function(router, mongo, app, config, database) {
 
                     var counts = data.map(function(a){ return a.count});
 
-                    var total = data.length;
-
-                    for(i=0;i<count.length;i++){
+                    for(i=0;i<4;i++){
                         if(counts[i]<5){
                             count[0]++;
                         }else if(counts[i]>=5 && counts[i]<10){
-                            counts[1]++;
+                            count[1]++;
                         }else if(counts[i]>=10 && counts[i]<=15){
                             count[2]++;
                         }else{
-                            counts[3]++;
+                            count[3]++;
                         }
                     }
+                    var total = 0;
+
+                    for(i=0;i<4;i++){
+                        total= total + count[i];
+                    }
+
                     var percentages=new Array(4);
 
                     for(i=0;i<count.length;i++){
-                        percentages[i]=(total/count[i])*100;
+                        percentages[i]=(count[i]/total)*100;
                     }
 
                     response = {

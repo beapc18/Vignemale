@@ -53,6 +53,25 @@ var appRouter = function(router, mongo, app, config, database) {
         return id === idToken;
     };
 
+    /**
+     * @swagger
+     * definition:
+     *   SignIn:
+     *     properties:
+     *       email:
+     *         type: string
+     *       password:
+     *         type: string
+     */
+
+    /**
+     * @swagger
+     * securityDefinitions:
+     *   Token:
+     *      type: apiKey
+     *      in: header
+     *      name: Authorization
+     */
 
     /**
      * @swagger
@@ -64,18 +83,12 @@ var appRouter = function(router, mongo, app, config, database) {
      *     produces:
      *       - application/json
      *     parameters:
-     *       - name: email
-     *         description: User's email
+     *       - name: userObject
+     *         description: User's email and password for sign in
      *         in: body
      *         required: true
      *         schema:
-     *           $ref: '#/definitions/User'
-     *       - name: password
-     *         description: User's password
-     *         in: body
-     *         required: true
-     *         schema:
-     *           $ref: '#/definitions/Auth'
+     *           $ref: '#/definitions/SignIn'
      *     responses:
      *       200:
      *         description: Sign in successfully
@@ -100,7 +113,7 @@ var appRouter = function(router, mongo, app, config, database) {
             console.log(response);
             res.status(400).json(response);
         } else {
-            //create the hash to compare with password in db   --> mriar para cifrar en cliente
+            //create the hash to compare with password in db
             var hashPassword = require('crypto')
                 .createHash('sha1')
                 .update(password)
@@ -604,7 +617,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: path
      *         required: true
      *         type: string
-     *       - name: password
+     *       - name: user
      *         description: User's password
      *         in: body
      *         required: true
@@ -700,14 +713,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: path
      *         required: true
      *         type: string
-     *       - name: Authorization
-     *         description: token to be passed as a header
-     *         in: header
-     *         required: true
-     *         type: array
-     *         items:
-     *           type: integer
-     *           format: int64
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Delete user successfully

@@ -36,8 +36,6 @@ var appRouter = function(router, mongo, app, config, database) {
     jwtOptions.secretOrKey = app.get('secret'); //config.js
 
     var strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
-        //console.log('checking token');
-
         //comprueba si el id de la cabecera corresponde con alguno de la bbdd
         database.isValidToken(mongo, jwt_payload.id, jwt_payload.tokenId, function (response) {
             if (response.status === 200) {
@@ -167,7 +165,6 @@ var appRouter = function(router, mongo, app, config, database) {
                             res.setHeader("Authorization", token);
                             res.status(200).json(response);
                         }
-                        //console.log("Respuesta enviada:" + response);
                     });
                 }
             });
@@ -257,7 +254,7 @@ var appRouter = function(router, mongo, app, config, database) {
                         db.name = name;
                         db.lastName = lastName;
                         db.email = email;
-                        db.creationDate = new Date(); //no esta en formato yyyy-mm-dd
+                        db.creationDate = new Date();
                         db.lastAccess = new Date();
                         db.isVerified = false;
                         db.firstLogin = true;
@@ -476,11 +473,6 @@ var appRouter = function(router, mongo, app, config, database) {
         }
     });
 
-
-
-
-
-
     /**
      * @swagger
      * /getIdFromToken:
@@ -654,16 +646,15 @@ var appRouter = function(router, mongo, app, config, database) {
      *         schema:
      *           type: object
      *           required:
-     *             - id
      *             - password
      *           properties:
-     *             id:
-     *               type: string
      *             password:
      *               type: string
      *     responses:
      *       200:
      *         description: Password changed successfully
+     *       400:
+     *         description: Empty or invalid parameters
      *       500:
      *          description: Error in server
      *
@@ -671,34 +662,42 @@ var appRouter = function(router, mongo, app, config, database) {
     router.put("/users/:id/password", function (req, res) {
         console.log("change user password");
 
-        //create the hash to save in db
-        var hashPassword = require('crypto')
-            .createHash('sha1')
-            .update(req.body.password)
-            .digest('base64');
+        //check if some value is empty
+        if (!req.body.password) {
+            res.status(400).json({"message": "Empty or invalid value"});
+        } else {
+            //create the hash to save in db
+            var hashPassword = require('crypto')
+                .createHash('sha1')
+                .update(req.body.password)
+                .digest('base64');
 
-        mongo.users.update({_id: req.body.id}, {password: hashPassword, firstLogin: false}, function (err) {
-            if (err) {
-                response = {"message": "Error updating data"};
-                res.status(500).json(response);
-            } else {
-                mongo.users.find({_id: req.body.id}, function (err, data) {
-                    if (err) {
-                        response = {"message": "Error fetching data"};
-                        //console.log(response);
-                        res.status(500).json(response);
-                    }
-                    else {
-                        response = {
-                            "message": "Password changed successfully",
-                            email: data[0].email,
-                            password: req.body.password
-                        };
-                        res.status(200).json(response);
-                    }
-                })
-            }
-        });
+            mongo.users.update({_id: req.params.id}, {
+                password: hashPassword,
+                firstLogin: false
+            }, function (err) {
+                if (err) {
+                    response = {"message": "Error updating data"};
+                    res.status(500).json(response);
+                } else {
+                    mongo.users.find({_id: req.params.id}, function (err, data) {
+                        if (err) {
+                            response = {"message": "Error fetching data"};
+                            //console.log(response);
+                            res.status(500).json(response);
+                        }
+                        else {
+                            response = {
+                                "message": "Password changed successfully",
+                                email: data[0].email,
+                                password: req.body.password
+                            };
+                            res.status(200).json(response);
+                        }
+                    })
+                }
+            });
+        }
     });
 
     /**
@@ -817,42 +816,49 @@ var appRouter = function(router, mongo, app, config, database) {
      *     responses:
      *       200:
      *         description: Change user's password successfully
+     *       400:
+     *         description: Empty or invalid parameters
      *       500:
      *          description: Error in server
      *
      */
     router.put("/users/:id", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("update user");
-        var response = {};
-        if (verifyIds(req.params.id, req.headers.authorization)) {
-            if (req.body.newPassword === req.body.newRePassword) {
-                //create the hash to compare with password in db
-                var hashOldPassword = require('crypto').createHash('sha1')
-                    .update(req.body.oldPassword).digest('base64');
-
-                //check if oldPassword is the same
-                database.findUserByPassword(mongo, req.params.id, hashOldPassword, function (response) {
-                    if (response.status === 200) {
-                        var hashNewPassword = require('crypto').createHash('sha1')
-                            .update(req.body.newPassword).digest('base64');
-
-                        //if the old password match, update the new password
-                        database.updatePassword(mongo, req.params.id, hashNewPassword, function (response) {
-                            res.status(response.status).json(response.res);
-                        });
-                    } else {
-                        res.status(response.status).json(response.res);
-                    }
-                    console.log(response);
-
-                });
-            } else {
-                response = {"message": "Password don't match"};
-                res.status(500).json(response);
-                console.log(response);
-            }
+        //check if some value is empty
+        if (!req.body.newPassword || !req.body.newRePassword || !req.body.oldPassword) {
+            res.status(400).json({"message": "Empty or invalid value"});
         } else {
-            res.status(403).json({"message": "Access blocked"});
+            var response = {};
+            if (verifyIds(req.params.id, req.headers.authorization)) {
+                if (req.body.newPassword === req.body.newRePassword) {
+                    //create the hash to compare with password in db
+                    var hashOldPassword = require('crypto').createHash('sha1')
+                        .update(req.body.oldPassword).digest('base64');
+
+                    //check if oldPassword is the same
+                    database.findUserByPassword(mongo, req.params.id, hashOldPassword, function (response) {
+                        if (response.status === 200) {
+                            var hashNewPassword = require('crypto').createHash('sha1')
+                                .update(req.body.newPassword).digest('base64');
+
+                            //if the old password match, update the new password
+                            database.updatePassword(mongo, req.params.id, hashNewPassword, function (response) {
+                                res.status(response.status).json(response.res);
+                            });
+                        } else {
+                            res.status(response.status).json(response.res);
+                        }
+                        console.log(response);
+
+                    });
+                } else {
+                    response = {"message": "Password don't match"};
+                    res.status(400).json(response);
+                    console.log(response);
+                }
+            } else {
+                res.status(403).json({"message": "Access blocked"});
+            }
         }
     });
 
@@ -871,8 +877,6 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: path
      *         required: true
      *         type: string
-     *     security:
-     *       - Token: []
      *     responses:
      *       200:
      *         description: Get user favs successfully
@@ -891,6 +895,7 @@ var appRouter = function(router, mongo, app, config, database) {
                         "message": "Error getting favs"
                     };
                 }else{
+                    console.log(data)
                     var arrayNames = [];
                     var favsIds = [];
                     for(i=0; i<data.length; i++){
@@ -941,16 +946,21 @@ var appRouter = function(router, mongo, app, config, database) {
      *     responses:
      *       200:
      *         description: Add fav to user successfully
+     *       400:
+     *         description: Empty or invalid parameters
      *       500:
      *          description: Error in server
      *
      */
     router.post("/users/:id/favs", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("POST " + req.body.idPoi + " poi to " + req.params.id + " user");
-        //if(verifyIds())
-        database.addFav(mongo, req.params.id, req.body.idPoi, function (response) {
-            res.status(response.status).json(response.res);
-        });
+        if (!req.body.idPoi) {
+            res.status(400).json({"message": "Empty or invalid value"});
+        } else {
+            database.addFav(mongo, req.params.id, req.body.idPoi, function (response) {
+                res.status(response.status).json(response.res);
+            });
+        }
     });
 
     /**

@@ -4,7 +4,7 @@
     <h2>Users in the system</h2>
     <br><br>
 
-    <table class="table table-responsive">
+    <table class="table table-responsive" ng-click="hideError();hideSuccess()">
         <thead class="thead-inverse">
         <tr>
             <th>Nombre</th>
@@ -63,7 +63,9 @@
                             </div>
 
                             <div ng-if="!send" class="form-group">
-                                <button  data-dismiss="modal" class="btn btn-default theme-accent" ng-click="deleteUser()" >Confirm</button>
+                                <button data-dismiss="modal" class="btn btn-danger theme-accent" ng-click="deleteUser()" >Confirm</button>
+                                <button data-dismiss="modal" class="close" aria-label="Close">NO</button>
+
                             </div>
                         </div>
                         <div class="col-lg-6"></div>

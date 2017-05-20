@@ -81,6 +81,10 @@ angular.module('vignemale')
             $scope.latitude = "";
             $scope.longitude = "";
 
+            $scope.notConfirm = function () {
+              $scope.confirm = false;
+            };
+
             $scope.logged = function (callback) {
                 $scope.itslogged = auth.isAuthenticated();
                 callback();

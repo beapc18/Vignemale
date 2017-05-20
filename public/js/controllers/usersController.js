@@ -51,9 +51,11 @@ angular.module('vignemale')
                 idPoiRoute: ""
             };
 
-            $scope.oldPassword = "";
-            $scope.newPassword = "";
-            $scope.newRePassword = "";
+            $scope.passwords = {
+                oldPassword: "",
+                newPassword: "",
+                newRePassword: ""
+            };
 
             //user data
             $scope.user = {};
@@ -370,17 +372,16 @@ angular.module('vignemale')
 
             //modify user password
             $scope.modifyUser = function () {
-                if($scope.newPassword === "" || $scope.oldPassword === ""
-                    || $scope.newPassword !== $scope.newRePassword) {
+                if($scope.passwords.newPassword === "" || $scope.passwords.oldPassword === "" || $scope.passwords.newPassword !== $scope.passwords.newRePassword) {
                     showError({"message": "Invalid password"});
-                } else if($scope.newPassword === $scope.oldPassword){
+                } else if($scope.passwords.newPassword === $scope.passwords.oldPassword){
                     showError({"message": "Old and new passwords cannot be the same"});
                 } else {
                     var userObject = {
                         id: $scope.idUser,
-                        oldPassword: $scope.oldPassword,
-                        newPassword: $scope.newPassword,
-                        newRePassword: $scope.newRePassword
+                        oldPassword: $scope.passwords.oldPassword,
+                        newPassword: $scope.passwords.newPassword,
+                        newRePassword: $scope.passwords.newRePassword
                     };
                     users.modifyUser(userObject, showSuccess, showError)
                 }

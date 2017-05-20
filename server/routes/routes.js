@@ -1420,67 +1420,95 @@ var appRouter = function(router, mongo, app, config, database) {
          *     responses:
          *       201:
          *         description: Edit poi successfully
+         *       400:
+         *         description: Unauthorized to edit this poi or it doesn't exist
          *       500:
          *          description: Error in server
          *
          */
         .put(passport.authenticate('jwt', {session: false}), function (req, res) {
             console.log("PUT pois/" + req.params.id);
+            var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
 
-            mongo.pois.find({_id: req.params.id}, function (err, data) {
+            mongo.pois.find({_id: req.params.id, creator: idUser}, function (err, data) {
                 if (err) {
                     response = {"status": 500, "message": "Error fetching data"};
                 } else {
-                    var db = new mongo.pois;
-                    var updateInfo = {
-                        name: req.body.name,
-                        description: req.body.description,
-                        keywords: req.body.keywords,
-                        lat: req.body.lat,
-                        lng: req.body.lng,
-                        image: req.body.image
-                    };
+                    if (data.length != 0) {
+                        var db = new mongo.pois;
+                        var updateInfo = {
+                            name: req.body.name,
+                            description: req.body.description,
+                            keywords: req.body.keywords,
+                            lat: req.body.lat,
+                            lng: req.body.lng,
+                            image: req.body.image
+                        };
 
-                    if (req.body.shortURL != "") {
-                        var url = req.body.shortURL;
-                        mongo.pois.update({_id: req.params.id}, updateInfo, function (err, data) {
-                            if (err) {
-                                response = {"status": 500, "message": "Error updating data"};
-                            } else {
-                                if (url != data.shortURL) {
-                                    var shorturls = new mongo.shorturls;
-
-                                    shorturls.url = url;
-                                    shorturls.save(function (err, data) {
-                                        if (err) {
-                                            response = {"status": 500, "message": "Error updating data"};
-                                            res.status(response.status).json(response);
-                                        } else {
-                                            //update last access when user access and jwt
-                                            mongo.pois.update({_id: req.params.id}, {shortURL: "http://localhost:8888/short/" + data._id}, function (err) {
-                                                if (err) {
-                                                    response = {"status": 500, "message": "Error updating data"};
-                                                } else {
-                                                    response = {"status": 201, "message": "POI updated successfully"};
-                                                }
-                                                res.status(response.status).json(response);
-                                            });
-                                        }
-                                    });
-
+                        if (req.body.shortURL != "") {
+                            var url = req.body.shortURL;
+                            mongo.pois.update({_id: req.params.id}, updateInfo, function (err, data) {
+                                if (err) {
+                                    response = {
+                                        "status": 500,
+                                        "message": "Error updating data"
+                                    };
                                 } else {
-                                    response = {"status": 200, "message": "POI updated successfully"};
-                                    res.status(response.status).json(response);
-                                }
+                                    if (url != data.shortURL) {
+                                        var shorturls = new mongo.shorturls;
 
-                            }
-                        })
-                    } else {
-                        response = {"status": 200, "message": "POI updated successfully"};
+                                        shorturls.url = url;
+                                        shorturls.save(function (err, data) {
+                                            if (err) {
+                                                response = {
+                                                    "status": 500,
+                                                    "message": "Error updating data"
+                                                };
+                                                res.status(response.status).json(response);
+                                            } else {
+                                                //update last access when user access and jwt
+                                                mongo.pois.update({_id: req.params.id}, {shortURL: "http://localhost:8888/short/" + data._id}, function (err) {
+                                                    if (err) {
+                                                        response = {
+                                                            "status": 500,
+                                                            "message": "Error updating data"
+                                                        };
+                                                    } else {
+                                                        response = {
+                                                            "status": 201,
+                                                            "message": "POI updated successfully"
+                                                        };
+                                                    }
+                                                    res.status(response.status).json(response);
+                                                });
+                                            }
+                                        });
+
+                                    } else {
+                                        response = {
+                                            "status": 200,
+                                            "message": "POI updated successfully"
+                                        };
+                                        res.status(response.status).json(response);
+                                    }
+                                }
+                            })
+                        } else {
+                            response = {
+                                "status": 200,
+                                "message": "POI updated successfully"
+                            };
+                            res.status(response.status).json(response);
+                        }
+                    } else{
+                        response = {
+                            "status": 400,
+                            "message": "You can't edit this poi or it doesn't exist"
+                        };
                         res.status(response.status).json(response);
                     }
                 }
-            });
+             });
         })
 
         /**
@@ -1504,36 +1532,33 @@ var appRouter = function(router, mongo, app, config, database) {
          *     responses:
          *       200:
          *         description: Delete poi successfully
+         *       400:
+         *         description: Unauthorized to delete this poi or it doesn't exist
          *       500:
-         *          description: Error in server
+         *         description: Error in server
          *
          */
         .delete(passport.authenticate('jwt', {session: false}), function (req, res) {
             console.log("DELETE pois/" + req.params.id);
+            var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
 
-            //delete pois in favs of another users asynchronous
-            database.removePoisFromFavs(mongo, req.params.id);
-
-            mongo.pois.find({_id: req.params.id}, function (err, data) {
-                if (err) {
-                    response = {"status": 500, "message": "Error fetching data"};
-                } else {
-                    //data exists, remove
-                    mongo.pois.remove({_id: req.params.id}, function (err, data) {
-
-
+                    mongo.pois.remove({_id: req.params.id, creator: idUser}, function (err, data) {
                         if (err) {
                             response = {"status": 500, "message": "Error deleting data"};
                         } else {
-                            response = {
-                                "status": 200,
-                                "message": "POI deleted successfully"
-                            };
+                            if(data.result.n==0){
+                                response = {"status": 400, "message": "You can't remove this poi it doesn't exist"};
+                            } else {
+                                //delete pois in favs of another users asynchronous
+                                database.removePoisFromFavs(mongo, req.params.id);
+                                response = {
+                                    "status": 200,
+                                    "message": "POI deleted successfully"
+                                };
+                            }
                         }
                         res.status(response.status).json(response);
                     });
-                }
-            });
         });
 
     /**

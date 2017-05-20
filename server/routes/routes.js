@@ -7,8 +7,6 @@ var xmlparser = require('express-xml-bodyparser');
 var w3cvalidator = require('w3cvalidator');
 
 
-var xml2js = require('xml2js');
-
 //https://jonathanmh.com/express-passport-json-web-token-jwt-authentication-beginners/
 var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;

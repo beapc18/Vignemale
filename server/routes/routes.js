@@ -994,15 +994,21 @@ var appRouter = function(router, mongo, app, config, database) {
      *     responses:
      *       200:
      *         description: Remove fav to user successfully
+     *       400:
+     *         description: Empty or invalid parameters
      *       500:
      *          description: Error in server
      *
      */
     router.delete("/users/:id/favs", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("DELETE " + req.body.idPoi + " poi to " + req.params.id + " user");
-        database.deleteFav(mongo, req.params.id, req.body.idPoi, function (response) {
-            res.status(response.status).json(response.res);
-        });
+        if (!req.body.idPoi) {
+            res.status(400).json({"message": "Empty or invalid value"});
+        } else {
+            database.deleteFav(mongo, req.params.id, req.body.idPoi, function (response) {
+                res.status(response.status).json(response.res);
+            });
+        }
     });
 
     /**
@@ -1089,8 +1095,6 @@ var appRouter = function(router, mongo, app, config, database) {
      *         in: path
      *         required: true
      *         type: string
-     *     security:
-     *       - Token: []
      *     responses:
      *       200:
      *         description: Get pois of user successfully
@@ -1596,13 +1600,13 @@ var appRouter = function(router, mongo, app, config, database) {
      *           properties:
      *             rating:
      *               type: string
-     *             idUser:
-     *               type: string
      *     security:
      *       - Token: []
      *     responses:
      *       200:
      *         description: Rate poi successfully
+     *       400:
+     *         description: Empty or invalid parameters
      *       500:
      *          description: Error in server
      *
@@ -1610,11 +1614,15 @@ var appRouter = function(router, mongo, app, config, database) {
     router.post("/pois/:id/rating", passport.authenticate('jwt', {session: false}), function (req, res) {
         var idPoi = req.params.id;
         console.log("post poi " + idPoi + " rating");
-        var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
-        database.ratePoi(mongo, idUser, idPoi, req.body.rating, function (response) {
-            console.log(response.res);
-            res.status(response.status).json(response.res);
-        });
+        if (!req.body.rating) {
+            res.status(400).json({"message": "Empty or invalid value"});
+        } else {
+            var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
+            database.ratePoi(mongo, idUser, idPoi, req.body.rating, function (response) {
+                console.log(response.res);
+                res.status(response.status).json(response.res);
+            });
+        }
     });
 
     /**
@@ -1631,10 +1639,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: Id of poi
      *         in: path
      *         required: true
-     *       - name: Authorization
-     *         description: token to be passed as a header
-     *         in: header
-     *         type: oauth2
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Get if poi is fav successfully
@@ -2308,6 +2314,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: User's id
      *         in: path
      *         required: true
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 1 of user
@@ -2315,7 +2323,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/users/:id/statistics/1", function (req, res) {
+    router.get("/users/:id/statistics/1", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/1");
 
         mongo.users.find({_id: req.params.id}, function (err, data) {
@@ -2378,6 +2386,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: User's id
      *         in: path
      *         required: true
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 2 of user
@@ -2385,7 +2395,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/users/:id/statistics/2", function (req, res) {
+    router.get("/users/:id/statistics/2", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/2");
 
         mongo.users.find({_id: req.params.id}, function (err, data) {
@@ -2457,6 +2467,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: User's id
      *         in: path
      *         required: true
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 3 of user
@@ -2464,7 +2476,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/users/:id/statistics/3", function (req, res) {
+    router.get("/users/:id/statistics/3", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/3");
 
         mongo.shares.aggregate([{$match: {idUser: req.params.id}}, {
@@ -2513,6 +2525,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: User's id
      *         in: path
      *         required: true
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 4 of user
@@ -2520,7 +2534,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/users/:id/statistics/4", function (req, res) {
+    router.get("/users/:id/statistics/4", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/4");
 
         mongo.pois.find({
@@ -2569,6 +2583,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: User's id
      *         in: path
      *         required: true
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 5 of user
@@ -2576,7 +2592,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/users/:id/statistics/5", function (req, res) {
+    router.get("/users/:id/statistics/5", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/5");
 
         mongo.pois.aggregate([{
@@ -2626,13 +2642,15 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: User's id
      *         in: path
      *         required: true
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 6 of user
      *       500:
      *          description: Error in server
      *
-     */    router.get("/users/:id/statistics/6", function (req, res) {
+     */    router.get("/users/:id/statistics/6", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/6");
         database.getUserPoisByCountry(mongo, req.params.id, function (data) {
             if (data.status != 500) {
@@ -2663,6 +2681,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: User's id
      *         in: path
      *         required: true
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 7 of user
@@ -2670,7 +2690,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/users/:id/statistics/7", function (req, res) {
+    router.get("/users/:id/statistics/7", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/7");
         database.getFollowingPoisByCountry(mongo, req.params.id, function (data) {
             if (data.status != 500) {
@@ -2702,6 +2722,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: User's id
      *         in: path
      *         required: true
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 8 of user
@@ -2709,7 +2731,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/users/:id/statistics/8", function (req, res) {
+    router.get("/users/:id/statistics/8", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/8");
 
         mongo.users.find({_id: req.params.id}, function (err, data) {
@@ -2787,6 +2809,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: User's id
      *         in: params
      *         required: true
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 9 of user
@@ -2794,7 +2818,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/users/:id/statistics/9", function (req, res) {
+    router.get("/users/:id/statistics/9", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/user/" + req.params.id + "/statistics/9");
         database.getUserInfo(mongo, req.params.id, function (data) {
             if (data.status != 500) {
@@ -2832,6 +2856,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *         description: User's id
      *         in: path
      *         required: true
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 10 of user
@@ -2839,7 +2865,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/users/:id/statistics/10", function (req, res) {
+    router.get("/users/:id/statistics/10", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/users/:id/statistics/10 " + req.params.id);
 
         mongo.pois.find({creator: {$ne: req.params.id}}, {rating:1}, function (err, data) {
@@ -2889,6 +2915,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     description: Users and their ages
      *     produces:
      *       - application/json
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 1 of admin
@@ -2896,7 +2924,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/admin/statistics/1", function (req, res) {
+    router.get("/admin/statistics/1", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/admin/statistics/1");
         mongo.users.find({isAdmin: {$ne: 1}}, function (err, data) {
             var date = new Date();
@@ -2950,6 +2978,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     description: Users and place where they live
      *     produces:
      *       - application/json
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 2 of admin
@@ -2957,7 +2987,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/admin/statistics/2", function (req, res) {
+    router.get("/admin/statistics/2", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/admin/statistics/2");
         database.getUsersByPlace(mongo, function (data) {
 
@@ -2996,6 +3026,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     description: Existing users and active users
      *     produces:
      *       - application/json
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 3 of admin
@@ -3003,7 +3035,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/admin/statistics/3", function (req, res) {
+    router.get("/admin/statistics/3", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/admin/statistics/3");
         mongo.users.count({isAdmin: {$ne: 1}}, function (err, data) {
             var totalUsers = data;
@@ -3046,6 +3078,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     description: Average rating of pois created by each user
      *     produces:
      *       - application/json
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 4 of admin
@@ -3054,7 +3088,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *
      */
     //pois by user and rating average
-    router.get("/admin/statistics/4", function (req, res) {
+    router.get("/admin/statistics/4", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/admin/statistics/4");
         database.getPoisRatingByUser(mongo, function (data) {
 
@@ -3089,6 +3123,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     description: Users that has been registered with Google and with normal account
      *     produces:
      *       - application/json
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 5 of admin
@@ -3097,7 +3133,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *
      */
     //users logged with googles/not
-    router.get("/admin/statistics/5", function (req, res) {
+    router.get("/admin/statistics/5", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/admin/statistics/5");
         database.getGoogleUsers(mongo, function (data) {
             if (data.status != 500) {
@@ -3123,6 +3159,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     description: Places that has and has not been found with Google Maps
      *     produces:
      *       - application/json
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 6 of admin
@@ -3130,7 +3168,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.get("/admin/statistics/6", function (req, res) {
+    router.get("/admin/statistics/6", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/admin/statistics/6");
 
         /*var found = 0;
@@ -3164,6 +3202,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     description: Users and number of pois that has been recommended
      *     produces:
      *       - application/json
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 7 of admin
@@ -3171,7 +3211,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-        router.get("/admin/statistics/7", function (req, res) {
+        router.get("/admin/statistics/7", passport.authenticate('jwt', {session: false}),function (req, res) {
             console.log("/admin/statistics/7");
             mongo.shares.aggregate([{$group : {_id: {id:"$idUser"}, count:{$sum:1}}}],function(err,data){
                 if (err) {
@@ -3233,6 +3273,8 @@ var appRouter = function(router, mongo, app, config, database) {
      *     description: Users and number of pois that has been duplicated
      *     produces:
      *       - application/json
+     *     security:
+     *       - Token: []
      *     responses:
      *       200:
      *         description: Successfully got statistic 8 of admin
@@ -3240,7 +3282,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-        router.get("/admin/statistics/8", function (req, res) {
+        router.get("/admin/statistics/8", passport.authenticate('jwt', {session: false}),function (req, res) {
             console.log("/admin/statistics/8");
 
             mongo.pois.aggregate([{ $match: { originCreator:{$exists:true} } },{$group : {_id: {id:"$originCreator"}, count:{$sum:1}}}],function(err,data){

@@ -148,6 +148,7 @@ var appRouter = function(router, mongo, app, config, database) {
                     //Generate id for token
                     var tokenId = Math.random().toString(36).slice(-10);
                     var payload = {id: data[0]._id, tokenId: tokenId};
+
                     var token = jwt.sign(payload, jwtOptions.secretOrKey);
                     console.log("Creado tokenId de usuario " + tokenId);
 

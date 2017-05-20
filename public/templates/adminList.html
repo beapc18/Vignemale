@@ -60,11 +60,12 @@
                                 <textarea class="form-control" rows="5" id="message" ng-model="$parent.message"></textarea>
                                 <br/>
                                 <button data-dismiss="modal" class="btn btn-default theme-accent" ng-click="sendMail()" >Send</button>
+                                <button data-dismiss="modal" class="close" aria-label="Close">X</button>
                             </div>
 
                             <div ng-if="!send" class="form-group">
                                 <button data-dismiss="modal" class="btn btn-danger theme-accent" ng-click="deleteUser()" >Confirm</button>
-                                <button data-dismiss="modal" class="close" aria-label="Close">NO</button>
+                                <button data-dismiss="modal" class="close" aria-label="Close">X</button>
 
                             </div>
                         </div>

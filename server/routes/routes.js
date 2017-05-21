@@ -3228,7 +3228,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
                     var counts = data.map(function(a){ return a.count});
 
-                    for(i=0;i<4;i++){
+                    for(i=0;i<counts.length;i++){
                         if(counts[i]<5){
                             count[0]++;
                         }else if(counts[i]>=5 && counts[i]<10){
@@ -3300,7 +3300,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
                     var counts = data.map(function(a){ return a.count});
 
-                    for(i=0;i<4;i++){
+                    for(i=0;i<counts.length;i++){
                         if(counts[i]<5){
                             count[0]++;
                         }else if(counts[i]>=5 && counts[i]<10){

@@ -2823,13 +2823,13 @@ var appRouter = function(router, mongo, app, config, database) {
         database.getUserInfo(mongo, req.params.id, function (data) {
             if (data.status != 500) {
                 var users = [];
-                var info = [];
+                var info = new Array(data.follows.length).fill(0);
 
                 for (i = 0; i < data.follows.length; i++) {
                     users.push(data.follows[i].name);
                     for (j = 0; j < data.pois.length; j++) {
                         if (String(data.follows[i]._id) == String(data.pois[j]._id.creator)) {
-                            info.push(data.pois[j].total);
+                            info[i]=data.pois[j].total;
                             data.pois.splice(j);
                             break;
                         }

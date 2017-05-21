@@ -31,8 +31,6 @@ angular.module('vignemale')
 
         // show the success mensage
         var showSuccess = function (message) {
-            //window.alert(message);
-            //$scope.successMsg = message.message;
             $scope.successMsg = message;
             $scope.success = true;
         };
@@ -98,6 +96,16 @@ angular.module('vignemale')
                             animateRotate: true,
                             animateScale: true
                         },
+                        scale: {
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        },
+                        scales: {
+                            yAxes: [{
+                                stacked: true
+                            }]
+                        },
                         tooltips: {
                             mode: 'label',
                             callbacks: {
@@ -131,6 +139,11 @@ angular.module('vignemale')
                         animation: {
                             animateRotate: true,
                             animateScale: true
+                        },
+                        scales: {
+                            xAxes: [{
+                                stacked: true
+                            }]
                         },
                         tooltips: {
                             mode: 'label',

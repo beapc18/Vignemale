@@ -16,6 +16,8 @@ angular.module('vignemale')
         $scope.errorMsg = "";
 
         var ctx = document.getElementById("myChart").getContext("2d");
+        var colours = ["#3fced2", "#e35ed0", "#eeb447", "#cc759a", "#4faaa1", "#e35ed0", "#961784", "#85263c"];
+        var coloursBG = ["#28bcd2", "#e335b4", "#eea72f", "#cc5c8b", "#3c95aa", "#e349c2", "#960679", "#850d2a"];
 
         // hide the error mensage
         $scope.hideError = function () {
@@ -30,8 +32,6 @@ angular.module('vignemale')
 
         // show the success mensage
         var showSuccess = function (message) {
-            //window.alert(message);
-            //$scope.successMsg = message.message; --Siempre pasar ya el mensaje,no objeto
             $scope.successMsg = message;
             $scope.success = true;
         };
@@ -51,7 +51,9 @@ angular.module('vignemale')
                     datasets: [
                         {
                             label: "Number of registrations per month (You and the ones you follow)",
-                            data: data.creations
+                            data: data.creations,
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }
                     ]
                 };
@@ -82,7 +84,9 @@ angular.module('vignemale')
                     datasets: [
                         {
                             label: "Last acceses in the last week (You and the ones you follow)",
-                            data: data.lastAccessArray
+                            data: data.lastAccessArray,
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }
                     ]
                 };
@@ -117,7 +121,9 @@ angular.module('vignemale')
                     datasets: [
                         {
                             label: "Number of recommendation for every poi you have recommended",
-                            data: data.count
+                            data: data.count,
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }
                     ]
                 };
@@ -148,7 +154,9 @@ angular.module('vignemale')
                     datasets: [
                         {
                             label: "Number of recommendation each poi you have duplicated",
-                            data: data.count
+                            data: data.count,
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }
                     ]
                 };
@@ -179,7 +187,9 @@ angular.module('vignemale')
                     datasets: [
                         {
                             label: "Number of duplications for every user you follow",
-                            data: data.count
+                            data: data.count,
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }
                     ]
                 };
@@ -214,20 +224,8 @@ angular.module('vignemale')
                     datasets: [
                         {
                             data: data.numPois,
-                            backgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404",
-                                "#000000"
-                            ],
-                            hoverBackgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404",
-                                "#000000"
-                            ]
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }
                     ]
                 };
@@ -254,20 +252,8 @@ angular.module('vignemale')
                     datasets: [
                         {
                             data: data.numPois,
-                            backgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404",
-                                "#000000"
-                            ],
-                            hoverBackgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404",
-                                "#000000"
-                            ]
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }
                     ]
                 };
@@ -292,21 +278,8 @@ angular.module('vignemale')
                     datasets: [
                         {
                             data: data.ages,
-                            backgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404",
-                                "#000000"
-
-                            ],
-                            hoverBackgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404",
-                                "#000000"
-                            ]
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }]
                 };
                 new Chart(ctx,{
@@ -335,20 +308,8 @@ angular.module('vignemale')
                         {
                             label: 'Number of POIS for each people you follow',
                             data: data.info,
-                            backgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404",
-                                "#000000"
-                            ],
-                            hoverBackgroundColor: [
-                                "#FF6384",
-                                "#36A2EB",
-                                "#FFCE56",
-                                "#31B404",
-                                "#000000"
-                            ]
+                            backgroundColor: colours,
+                            hoverBackgroundColor: coloursBG
                         }
                     ]
                 };

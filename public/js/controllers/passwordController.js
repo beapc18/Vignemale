@@ -44,11 +44,12 @@ angular.module('vignemale')
             if($scope.newPassword !== $scope.newRePassword) {
                 showError("Invalid passwords")
             } else{
+                $scope.idUser = $stateParams.id;
                 var user = {
+                    id: $scope.idUser,
                     password: $scope.newPassword
                 };
                 users.password(user, showSuccess, showError);
-
             }
         };
 

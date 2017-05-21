@@ -395,7 +395,10 @@ angular.module('vignemale')
             getStatistics: function(idUser,id, callbackSuccess){
                 $http({
                     method: 'GET',
-                    url: '/users/'+idUser+'/statistics/'+id
+                    url: '/users/'+idUser+'/statistics/'+id,
+                    headers: {
+                        'Authorization': auth.getToken()
+                    }
                 }).success(function (data) {
                     callbackSuccess(data);
                 })
@@ -404,7 +407,10 @@ angular.module('vignemale')
             getAdminStatistics: function(id, callbackSuccess){
                 $http({
                     method: 'GET',
-                    url: '/admin/statistics/'+id
+                    url: '/admin/statistics/'+id,
+                    headers: {
+                        'Authorization': auth.getToken()
+                    }
                 }).success(function (data) {
                     callbackSuccess(data);
                 })

@@ -1,16 +1,17 @@
 {
   "name": "vignemale",
   "version": "1.0.0",
-  "description": "",
+  "description": "Vignemale app of points of interest",
   "main": "vignemale",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/beapc18/Vignemale.git"
   },
-  "author": "",
+  "author": "Vignemale",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/beapc18/Vignemale/issues"
@@ -30,5 +31,11 @@
     "passport-local": "^1.0.0",
     "swagger-jsdoc": "^1.9.2",
     "w3cvalidator": "^0.1.26"
-  }
+  },
+  "devDependencies": {},
+  "keywords": [
+    "poi",
+    "app",
+    "vignemale"
+  ]
 }

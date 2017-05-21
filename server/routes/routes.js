@@ -2517,7 +2517,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *   get:
      *     tags:
      *       - Statistics
-     *     description: Pois of people user follows that he has duplicated
+     *     description: Number of recommendations of originals pois which has been duplicated
      *     produces:
      *       - application/json
      *     parameters:
@@ -3071,51 +3071,6 @@ var appRouter = function(router, mongo, app, config, database) {
 
     /**
      * @swagger
-     * /admin/statistics/4:
-     *   get:
-     *     tags:
-     *       - Statistics
-     *     description: Average rating of pois created by each user
-     *     produces:
-     *       - application/json
-     *     security:
-     *       - Token: []
-     *     responses:
-     *       200:
-     *         description: Successfully got statistic 4 of admin
-     *       500:
-     *          description: Error in server
-     *
-     */
-    //pois by user and rating average
-    router.get("/admin/statistics/4", passport.authenticate('jwt', {session: false}),function (req, res) {
-        console.log("/admin/statistics/4");
-        database.getPoisRatingByUser(mongo, function (data) {
-
-            var labels = [];
-            var ratings = [];
-            if (data.status != 500) {
-                var bubbles = [];
-                for (i = 0; i < data.pois.length; i++) {
-                    for (j = 0; j < data.names.length; j++) {
-                        if (String(data.pois[i]._id) == String(data.names[j]._id)) {
-                            labels[j] = data.names[j].name;
-                            ratings[j] = data.pois[i].y;
-                        }
-                    }
-                }
-                console.log(labels);
-                console.log(ratings);
-                response = {"status": 200, "message": {"ratings": ratings, "labels": labels}};
-            }
-            res.status(response.status).json(response.message);
-        })
-
-    });
-
-
-    /**
-     * @swagger
      * /admin/statistics/5:
      *   get:
      *     tags:
@@ -3290,7 +3245,7 @@ var appRouter = function(router, mongo, app, config, database) {
                     response = {"status": 500, "message": "Error fetching pois"};
                 } else {
                     var names = new Array(4);
-
+console.log(data)
                     names[0] = "Under 5";
                     names[1] = "5-9";
                     names[2] = "10-15";

@@ -157,32 +157,7 @@ angular.module('vignemale')
                 });
             })
         }
-        // pois by user and rating average
-        else if($scope.id == 4) {
-            $scope.nameStatistic = "Rating by user";
 
-            users.getAdminStatistics(4, function (data) {
-                var info = {
-                    labels: data.labels,
-                    datasets: [
-                        {
-                            data: data.ratings,
-                            backgroundColor: colours,
-                            hoverBackgroundColor: coloursBG
-                        }
-                    ]
-                };
-
-                new Chart(ctx, {
-                    type: 'bubble',
-                    data: info,
-                    /*options: {
-
-                    }*/
-                });
-
-            });
-        }
         //users logged with googles/not
         else if($scope.id == 5) {
             $scope.nameStatistic = "Register with Google vs Normal register";

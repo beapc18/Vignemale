@@ -15,7 +15,7 @@
                 <a ng-if="logged" class="navbar-brand" role="button" ng-click="goHome()">
                     <span class="glyphicon glyphicon-home"></span>   Home</a>
                 <li class="dropdown">
-                    <a ng-if="logged && !isAdmin" role="button" data-toggle="dropdown" class="dropdown-toggle"><span class="glyphicon glyphicon-search"></span>  Search <span class="caret"></span></a>
+                    <a ng-if="!isAdmin" role="button" data-toggle="dropdown" class="dropdown-toggle"><span class="glyphicon glyphicon-search"></span>  Search <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="#/search/users">Users</a></li>
                         <li><a href="#/search/pois">Pois</a></li>
@@ -46,7 +46,6 @@
                         <li><a role="button" ng-click="showAdminStatistics(1)">Users by ages</a></li>
                         <li><a role="button" ng-click="showAdminStatistics(2)">Users by places</a></li>
                         <li><a role="button" ng-click="showAdminStatistics(3)">Active vs inactive users</a></li>
-                        <li><a role="button" ng-click="showAdminStatistics(4)">Rating by user</a></li>
                         <li><a role="button" ng-click="showAdminStatistics(5)">Registered with Google vs Normal account</a></li>
                         <li><a role="button" ng-click="showAdminStatistics(6)">Places not found in Google Maps</a></li>
                         <li><a role="button" ng-click="showAdminStatistics(7)">Recommedations per user</a></li>

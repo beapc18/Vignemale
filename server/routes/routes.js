@@ -3245,7 +3245,6 @@ var appRouter = function(router, mongo, app, config, database) {
                     response = {"status": 500, "message": "Error fetching pois"};
                 } else {
                     var names = new Array(4);
-console.log(data)
                     names[0] = "Under 5";
                     names[1] = "5-9";
                     names[2] = "10-15";

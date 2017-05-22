@@ -101,10 +101,6 @@ angular.module('vignemale')
                         scales: {
                             yAxes: [{
                                 stacked: true,
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'probability'
-                                },
                                 ticks: {
                                     stepSize: 1
                                 }

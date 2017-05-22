@@ -258,6 +258,17 @@ angular.module('vignemale')
             $scope.duplicatePoi = function () {
                 var duplicate = $scope.newPoi;
 
+                var keywords = "";
+
+                for(i = 0;i<duplicate.keywords.length;i++){
+                    if(i != 0){
+                        keywords +="," +duplicate.keywords[i];
+                    }else{
+                        keywords += duplicate.keywords[i];
+                    }
+                }
+
+                duplicate.keywords = keywords;
                 duplicate.idDuplicate = $scope.idPoi;
                 duplicate.originCreator = $stateParams.id;
 

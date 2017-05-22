@@ -138,6 +138,19 @@ angular.module('vignemale')
             duplicate.idDuplicate = $scope.idPoi;
             duplicate.originCreator = $scope.newPoi.creator;
 
+
+            var keywords = "";
+
+            for(i = 0;i<duplicate.keywords.length;i++){
+                if(i != 0){
+                    keywords +="," +duplicate.keywords[i];
+                }else{
+                    keywords += duplicate.keywords[i];
+                }
+            }
+
+            duplicate.keywords = keywords;
+
             auth.getIdFromToken(auth.getToken(), function (idUser) {
                 $scope.newPoi.creator = idUser.message;
                 pois.createPoi($scope.newPoi, showSuccess, showError);

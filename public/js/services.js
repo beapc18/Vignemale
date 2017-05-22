@@ -631,6 +631,8 @@ angular.module('vignemale')
         var markers = [];
         var directionsService;
         var directionsDisplay;
+        var myLatlng;
+        var mapOptions;
 
         this.initMap = function(){
             myLatlng = new google.maps.LatLng(41.64514, -0.8689481);
@@ -648,20 +650,11 @@ angular.module('vignemale')
 
         this.centerPlace = function (lat, lng) {
 
-            map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
-
             map.setCenter(new google.maps.LatLng(lat, lng));
         };
 
         this.centerInit = function () {
-            map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
-
-            var bounds = new google.maps.LatLngBounds();
-
-            for (var i = 0; i < markers.length; i++) {
-                bounds.extend(markers[i].getPosition());
-            }
-            map.fitBounds(bounds);
+            map.setOptions(mapOptions)
         };
 
 

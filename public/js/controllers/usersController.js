@@ -120,8 +120,7 @@ angular.module('vignemale')
             $scope.showPois = function () {
                 users.getUserPois($scope.idUser,showPoisList);
                 $scope.show="pois";
-                maps.initMap();
-                //maps.centerInit();
+                maps.centerInit();
                 resetPoiInfo();
                 resetRouteInfo();
             };

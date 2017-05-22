@@ -72,7 +72,6 @@ angular.module('vignemale')
 
         $scope.searchPois = function () {
             pois.search($scope.poiSearch, function (data) {
-                //console.log(data);
                 $scope.found = true;
                 $scope.onePoiSelected = false;
                 maps.deleteMarkers();

@@ -53,13 +53,11 @@ angular.module('vignemale')
                         'Authorization': token
                     }
                 }).success(function (data) {
-                    //$state.go('users', {id: data.message}); --> poner en el callback del sign in q vaya a home
                     callbackSuccess(data);
                 });
             },
 
             resetPassword: function (email, callbackSuccess, callbackError) {
-                window.alert(email);
                 $http({
                     method: 'POST',
                     url: '/resetPassword',
@@ -119,7 +117,7 @@ angular.module('vignemale')
                 });
             },
 
-//send the register info to the server
+            //send the register info to the server
             signUp: function (userObject, callbackSuccess, callbackError) {
                 $http({
                     method: 'POST',
@@ -141,7 +139,6 @@ angular.module('vignemale')
         return {
 
             getUser: function (id, callbackSuccess,callbackError) {
-                //idRequest
                 $http({
                     method: 'GET',
                     url: '/users/'+id,
@@ -320,7 +317,6 @@ angular.module('vignemale')
                 $http({
                     method: 'POST',
                     url: '/users/' + idFollow + '/follow',
-                    //data: $httpParamSerializer(idsUsers),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'Authorization': auth.getToken()
@@ -337,7 +333,6 @@ angular.module('vignemale')
                 $http({
                     method: 'POST',
                     url: '/users/' + idUnfollow + '/unfollow',
-                    //data: $httpParamSerializer(idsUsers),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'Authorization': auth.getToken()

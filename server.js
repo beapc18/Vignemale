@@ -14,8 +14,6 @@ var passport  = require('passport');
 
 app.use(passport.initialize());
 
-// require('./config/passport');
-// require('./server/models/dbSchema.js');
 
 var swaggerDefinition = {
     info: {

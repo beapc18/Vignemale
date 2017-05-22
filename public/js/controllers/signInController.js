@@ -76,13 +76,10 @@ angular.module('vignemale')
                 var data = {
                     token: id_token
                 };
-
                 var data = {
                     token: id_token
                 };
                 auth.googleSignIn(data, showSuccess, showError)
-
-
             }
         }
 

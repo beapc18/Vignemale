@@ -78,7 +78,6 @@ var validPassword = function (mongo, password) {
 var isValidToken = function(mongo, id, tokenId, callback){
     var response = {};
 
-    //console.log("id " + id + ", tokenId " + tokenId);
     //search the user avoiding return params which are not necessary
     mongo.users.find({_id: id},{token: tokenId}, function (err, user) {
         if (err) {
@@ -104,12 +103,6 @@ var createAdmin = function (mongo, app) {
         .digest('base64');
     db.password = hashPassword;
     db.isAdmin = true;
-    // mongo.users.find({email: email}, function (err, user) {
-    //     if(err) {
-    //         console.log
-    //     }
-    //
-    // })
     getInfoUserByEmail(mongo, db.email, function (response) {
         if(response.message === "Not found user") {
             db.save(function (err) {
@@ -218,16 +211,6 @@ var getNamePOI = function (mongo, idPOI, callback) {
 };
 
 var getNamePOIcreator = function (mongo, idCreator, callback) {
-    /*mongo.pois.distinct("rating", function (err, data) {
-     if(err) {
-     console.log("Error database");
-     response = {"status": 500, "res": {"message": "Error getting creator from the POI"}};
-     }
-     else {
-     console.log(data);
-     response = {"status": 200, "res": {"message": data}};
-     }
-     });*/
     mongo.pois.find({creator: idCreator}, {rating: 1, _id: 0}, function (err, data) {
         var objId = new mongoose.mongo.ObjectId(idCreator);
         mongo.pois.aggregate([{$match: {creator: objId}}], function (err, data) {
@@ -375,7 +358,6 @@ var getFollowingPoisByCountry = function (mongo, idUser, callback) {
 
 var getUsersByPlace = function (mongo, callback) {
     var response;
-    //mongo.users.find({isAdmin: {$ne: 1}}, function (err, data) {
     mongo.users.aggregate([{$group: {_id: "$place", count: {$sum:1}}}], function (err, data) {
         if(err) {
             console.log("Error database");

@@ -26,9 +26,6 @@ var usersSchema = mongoose.Schema({
     token: String,
     following: Array,
     favs: Array,
-    nRates: Number      //number of votes (para saber si es activo o no??)
-    //pois
-    //rutas
 });
 
 var POIsSchema = mongoose.Schema({
@@ -40,7 +37,6 @@ var POIsSchema = mongoose.Schema({
     removed: Boolean,
     shortURL: String,
     image: String,
-    value: Number,
     city: String,
     country: String,
     creator: String,

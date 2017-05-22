@@ -245,7 +245,6 @@ angular.module('vignemale')
                         var data = e.target.result;
                         $scope.newPoi.image = 'data:image/png;base64,' + btoa(data);
 
-                        //  'data:image/png;base64,' + btoa(data);
                         //send your binary data via $http or $resource or do anything else with it
                         pois.createPoi($scope.newPoi, function (data) {
                             showSuccess(data);
@@ -307,7 +306,6 @@ angular.module('vignemale')
                         var data = e.target.result;
                         newPoi.image = 'data:image/png;base64,' + btoa(data);
 
-                        //  'data:image/png;base64,' + btoa(data);
                         //send your binary data via $http or $resource or do anything else with it
                         pois.editPoi(newPoi, function(data){
                             showSuccess(data);
@@ -352,7 +350,6 @@ angular.module('vignemale')
             $scope.showCreateRoute = function () {
                 $scope.show="createRoute";
                 resetRouteInfo();
-                //users.getUserPois($scope.idUser,showPoisList);
             };
 
             $scope.createNewRoute = function () {
@@ -584,5 +581,3 @@ angular.module('vignemale')
                 return waypts;
             }
         }]);
-
-//http://plnkr.co/edit/8YQGTn79AO4X7Tb7ann7?p=preview

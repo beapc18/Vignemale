@@ -29,8 +29,6 @@ angular.module('vignemale')
 
         // show the success mensage
         var showSuccess = function (message) {
-            //window.alert(message);
-            //$scope.successMsg = message.message; --Siempre pasar ya el mensaje,no objeto
             $scope.successMsg = message;
             $scope.success = true;
         };
@@ -42,20 +40,15 @@ angular.module('vignemale')
         };
 
 
-
-
         $scope.select = function (index,send) {
-            //ABRIR VENTANA PARA ESCRIBIR ALGO INSITU
             $scope.index=index;
             $scope.send =send;
             console.log($scope.send);
-
         };
 
 
         $scope.sendMail = function () {
             console.log($scope.message);
-            //ABRIR VENTANA PARA ESCRIBIR ALGO INSITU
             var userMail = $scope.listOfUsers[$scope.index];
             var userObject = {
                 email : userMail.email,
@@ -72,10 +65,6 @@ angular.module('vignemale')
                 $scope.listOfUsers.splice(index, 1);
             }, showError);
         };
-
-        /*$scope.isNotRemoved = function () {
-            return
-        };*/
 
         adminList.listUsers(function (data) {
             $scope.listOfUsers = data;

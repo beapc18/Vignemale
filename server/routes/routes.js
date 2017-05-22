@@ -6,8 +6,6 @@ var GoogleAuth = require('google-auth-library');
 var xmlparser = require('express-xml-bodyparser');
 var w3cvalidator = require('w3cvalidator');
 
-
-//https://jonathanmh.com/express-passport-json-web-token-jwt-authentication-beginners/
 var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;
 
@@ -36,7 +34,6 @@ var appRouter = function(router, mongo, app, config, database) {
     jwtOptions.secretOrKey = app.get('secret'); //config.js
 
     var strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
-        //comprueba si el id de la cabecera corresponde con alguno de la bbdd
         database.isValidToken(mongo, jwt_payload.id, jwt_payload.tokenId, function (response) {
             if (response.status === 200) {
                 next(null, response);
@@ -121,7 +118,6 @@ var appRouter = function(router, mongo, app, config, database) {
                 .digest('base64');
 
             mongo.users.find({email: email, password: hashPassword}, function (err, data) {
-                //id: jwt_payload.id
                 if (err) {
                     response = {"message": "Error fetching user"};
                     console.log(response);
@@ -252,7 +248,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
                         console.log("Creado tokenId de usuario " + tokenId);
 
-                        response = {"message": data[0]._id};   //send user id or link to profile??
+                        response = {"message": data[0]._id};
 
                         res.setHeader("Authorization", token);
                         res.status(200).json(response);
@@ -295,7 +291,6 @@ var appRouter = function(router, mongo, app, config, database) {
                                             to: email, // list of receivers
                                             subject: 'Confirmation', // Subject line
                                             text: text //, // plaintext body
-                                            // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
                                         };
 
                                         transporter.sendMail(mailOptions);
@@ -395,7 +390,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 db.email = email;
                 db.birthDate = birthDate;
                 db.place = place;
-                db.creationDate = new Date(); //no esta en formato yyyy-mm-dd
+                db.creationDate = new Date();
                 db.lastAccess = new Date();
                 db.isVerified = false;
                 db.firstLogin = true;
@@ -406,7 +401,6 @@ var appRouter = function(router, mongo, app, config, database) {
                 mongo.users.find({email: email}, function (err, data) {
                     if (err) {
                         response = {"message": "Error fetching data"};
-                        //console.log(response);
                         res.status(500).json(response);
                     } else if (data.length !== 0) {
                         response = {"message": "Email exists"};
@@ -735,7 +729,6 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/users/:id", function (req, res) {
         console.log("get user");
 
-        //if (verifyIds(req.params.id, req.headers.authorization)) {
         database.getInfoUser(mongo, req.params.id, function (response) {
             if (response.res.message[0].removed){
                 res.status(500).json({"message": "Removed"});
@@ -770,8 +763,6 @@ var appRouter = function(router, mongo, app, config, database) {
      *
      */
     router.delete("/users/:id", passport.authenticate('jwt', {session: false}), function (req, res) {
-        //Cuando quiere borrar el administrador, no es igual su id que el que quiere borrar!
-        //if (verifyIds(req.params.id, req.headers.authorization)) {
         console.log("delete user " + req.params.id);
         //search the user avoiding return params which are not necessary
         mongo.users.update({_id: req.params.id}, {removed: true}, function (err, user) {
@@ -1049,7 +1040,6 @@ var appRouter = function(router, mongo, app, config, database) {
     router.post("/users/:id/follow", passport.authenticate('jwt', {session: false}), function (req, res) {
         var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
         console.log("Follow user " + req.params.id + " from " + idUser);
-        //if/verifyIds
         database.addFollowing(mongo, idUser, req.params.id, function (response) {
             console.log(response);
             res.status(response.status).json(response.res);
@@ -1083,7 +1073,6 @@ var appRouter = function(router, mongo, app, config, database) {
     router.post("/users/:id/unfollow", passport.authenticate('jwt', {session: false}), function (req, res) {
         var idUser = jwt.decode(req.headers.authorization.split(" ")[1]).id;
         console.log("Unfollow user " + req.params.id + " from " + idUser);
-        //if/verifyIds
         database.removeFollowing(mongo, idUser, req.params.id, function (response) {
             console.log(response);
             res.status(response.status).json(response.res);
@@ -2145,15 +2134,12 @@ var appRouter = function(router, mongo, app, config, database) {
                     to: req.body.email, // list of receivers
                     subject: 'Recommendation', // Subject line
                     text: text //, // plaintext body
-                    // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
                 };
 
                 transporter.sendMail(mailOptions);
                 response = {"status": 200, "message": "Message sent"};
                 res.status(response.status).json(response.message);
-
-            }
-
+            };
 
             var contype = req.headers['content-type'];
             if (contype == 'application/xml'){
@@ -2165,7 +2151,6 @@ var appRouter = function(router, mongo, app, config, database) {
                     "<!ELEMENT userNameOrigin (#PCDATA)> ]>"+'\n';
 
                 var xml = dtd + req.rawBody;
-
 
                 w3cvalidator.validate({input: xml,callback:function(result){
                     if(typeof result.messages === "undefined" || result.messages.length == 0){
@@ -2451,7 +2436,6 @@ var appRouter = function(router, mongo, app, config, database) {
                         added = false;
                     }
                     //add user to the list
-                    //creations[12*(userCreationDate.getFullYear() - 2017) + (userCreationDate.getMonth() - 1)]++;
                     response = {
                         "status": 200, "message": {
                             "names": names
@@ -2515,7 +2499,7 @@ var appRouter = function(router, mongo, app, config, database) {
                         "names": names
                         , "count": count
                     }
-                }; //devolver solo la lista de seguidores
+                };
             }
             res.status(response.status).json(response.message);
         });
@@ -2710,7 +2694,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 var numPois = [];
                 for (i = 0; i < data.array.length; i++) {
                     countries.push("% "+data.array[i]._id.country);
-                    numPois.push(parseFloat(data.array[i].total / data.tot * 100).toFixed(2)); //porcentaje
+                    numPois.push(parseFloat(data.array[i].total / data.tot * 100).toFixed(2));
                 }
                 response = {"status": 200, "message": {"countries": countries, "numPois": numPois}};
             }
@@ -2790,15 +2774,12 @@ var appRouter = function(router, mongo, app, config, database) {
                         }
                     }
 
-                    //add user to the list
-                    //creations[12*(userCreationDate.getFullYear() - 2017) + (userCreationDate.getMonth() - 1)]++;
-
                     response = {
                         "status": 200, "message": {
                             "names": names
                             , "ages": ages
                         }
-                    }; //devolver solo la lista de seguidores
+                    };
                     res.status(response.status).json(response.message);
                 });
             }
@@ -2947,7 +2928,6 @@ var appRouter = function(router, mongo, app, config, database) {
             names[3] = "Over 50";
             names[4] = "Unknown";
 
-            //var ages = [];
             var ages = new Array(5).fill(0);
             var percent = new Array(5).fill(0);
             //number of creation per month
@@ -3138,9 +3118,6 @@ var appRouter = function(router, mongo, app, config, database) {
     router.get("/admin/statistics/6", passport.authenticate('jwt', {session: false}),function (req, res) {
         console.log("/admin/statistics/6");
 
-        /*var found = 0;
-         var notFound = 0;
-         var total = 0;*/
         var percent = [];
         var label = [];
         label[1] = "Not found";
@@ -3223,7 +3200,7 @@ var appRouter = function(router, mongo, app, config, database) {
                             "names": names
                             , "percentages": percentages
                         }
-                    }; //devolver solo la lista de seguidores
+                    };
                 }
                 res.status(response.status).json(response.message);
             });
@@ -3294,7 +3271,7 @@ var appRouter = function(router, mongo, app, config, database) {
                             "names": names
                             , "percentages": percentages
                         }
-                    }; //devolver solo la lista de seguidores
+                    };
                 }
                 res.status(response.status).json(response.message);
             });
@@ -3426,7 +3403,6 @@ var appRouter = function(router, mongo, app, config, database) {
     };
 
     };
-
 
 
     module.exports = appRouter;

@@ -55,6 +55,11 @@
   color: #00a9d7 !important
 }
 
+#titleStarter {
+    font-family: 'Lobster', cursive;
+    font-size: 40px;
+}
+
 body {
   background-position: center center;
   background-repeat: no-repeat;

@@ -12,11 +12,12 @@
         <div class="col-md-4 rightPanel" ng-click="hideError();hideSuccess()">
             <div class="row">
                 <!--Left part, with username-->
-                <div class="col-md-8">
+                <div class="col-md-7">
                     <h1>{{user.name}} {{user.lastName}}</h1>
                 </div>
                 <!--Right part, with button-->
-                <div class="col-md-4">
+                <div class="col-md-5">
+                    <br><br>
                     <button ng-if="show!='editUser' && itsme && itslogged" ng-click="showEdit();hideRoutes();hidePois();" class="btn btn-default theme-accent">
                         <span class="glyphicon glyphicon-edit"></span>  Edit</button>
 

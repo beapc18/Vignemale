@@ -84,7 +84,7 @@ angular.module('vignemale')
             $scope.longitude = "";
 
             $scope.notConfirm = function () {
-              $scope.confirm = false;
+                $scope.confirm = false;
             };
 
             $scope.logged = function (callback) {
@@ -120,6 +120,8 @@ angular.module('vignemale')
             $scope.showPois = function () {
                 users.getUserPois($scope.idUser,showPoisList);
                 $scope.show="pois";
+                maps.initMap();
+                //maps.centerInit();
                 resetPoiInfo();
                 resetRouteInfo();
             };
@@ -137,7 +139,7 @@ angular.module('vignemale')
                             $scope.isfav = fav;
                         }, showError);
                     }
-
+                    maps.centerPlace(data.lat,data.lng);
                     $scope.hidePois();
                     maps.addMarker({lat:data.lat, lng:data.lng}, data.name);
                 }, showError);
@@ -327,23 +329,20 @@ angular.module('vignemale')
             };
 
             $scope.removePoi = function () {
-                var deletePoi = window.confirm('Are you sure?');
-                if(deletePoi) {
-                    pois.deletePoi($scope.idPoi, function (msg) {
-                        showSuccess(msg);
-                        $scope.showPois();
-                    }, showError);
-                }
+
+                pois.deletePoi($scope.idPoi, function (msg) {
+                    showSuccess(msg);
+                    $scope.showPois();
+                }, showError);
+
             };
 
             $scope.removeRoute = function () {
-                var deleteRoute = window.confirm('Are you sure?');
-                if(deleteRoute) {
-                    routes.deleteRoutes($scope.idRoute, function (msg) {
-                        showSuccess(msg);
-                        $scope.showRoutes();
-                    }, showError);
-                }
+                routes.deleteRoutes($scope.idRoute, function (msg) {
+                    showSuccess(msg);
+                    $scope.showRoutes();
+                }, showError);
+
             };
 
             $scope.showRatePoi = function () {

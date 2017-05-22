@@ -646,10 +646,28 @@ angular.module('vignemale')
             directionsDisplay = new google.maps.DirectionsRenderer({map: map});
         }
 
+        this.centerPlace = function (lat, lng) {
+
+            map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+
+            map.setCenter(new google.maps.LatLng(lat, lng));
+        };
+
+        this.centerInit = function () {
+            map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+
+            var bounds = new google.maps.LatLngBounds();
+
+            for (var i = 0; i < markers.length; i++) {
+                bounds.extend(markers[i].getPosition());
+            }
+            map.fitBounds(bounds);
+        };
+
 
         this.getMap = function() {
             return map;
-        }
+        };
 
 
         // Adds a marker to the map and push to the array.

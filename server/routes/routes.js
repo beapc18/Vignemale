@@ -469,7 +469,8 @@ var appRouter = function(router, mongo, app, config, database) {
 
             w3cvalidator.validate({input: xml,callback:function(result){
                 console.log(result);
-                if(result.messages.length == 0){
+
+                if(typeof result.messages === "undefined" || result.messages.length == 0){
                     req.body=req.body.user;
                     signIn();
                 }else{
@@ -1214,6 +1215,7 @@ var appRouter = function(router, mongo, app, config, database) {
          */
         .post(passport.authenticate('jwt', {session: false}),xmlparser({trim: false, explicitArray: false, normalizeTags: false}), function (req, res) {
             console.log("POST pois");
+            console.log(req.body);
 
 
             var createPoi = function() {
@@ -1243,6 +1245,7 @@ var appRouter = function(router, mongo, app, config, database) {
                 googleMapsClient.reverseGeocode({
                     latlng: [req.body.lat, req.body.lng]
                 }, function (err, response) {
+
                     if (!err) {
                         for (i = 0; i < response.json.results[0].address_components.length; i++) {
                             if (response.json.results[0].address_components[i].types.includes("locality")) {
@@ -1335,7 +1338,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
                 w3cvalidator.validate({input: xml,callback:function(result){
                     console.log(result);
-                    if(result.messages.length == 0){
+                    if(typeof result.messages === "undefined" || result.messages.length == 0){
                         req.body=req.body.poi;
                         createPoi();
                     }else{
@@ -2165,7 +2168,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
 
                 w3cvalidator.validate({input: xml,callback:function(result){
-                    if(result.messages.length == 0){
+                    if(typeof result.messages === "undefined" || result.messages.length == 0){
                         req.body=req.body.share;
                         share();
                     }else{

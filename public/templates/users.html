@@ -188,12 +188,13 @@
                 <form role="form" ng-if="show=='createRoute'" ng-submit="createNewRoute()">
                     <input type="text" ng-model="$parent.newRoute.name" class="form-control form-group" placeholder="Name" required/>
 
+                    <p><span class="glyphicon glyphicon-info-sign"></span><i><b> Drag Your POIs into New Route list</b></i></p>
                     <div id="drop" role="button" class="list-group pre-scrollable" ng-drop>
                         New Route:
                     </div>
 
                     <div id="drag" role="button" class="list-group pre-scrollable" ng-drag>
-                        Your Pois:
+                        Your POIs:
                         <div ng-repeat="row in poisList" class="list-group-item" id="{{row._id}}">{{row.name}}</div>
                     </div>
 

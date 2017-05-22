@@ -86,8 +86,7 @@ angular.module('vignemale')
                     }
                 }).success(function (data, status, headers, params) {
                     that.authenticate(headers().authorization);
-                    callbackSuccess(data);
-                }).error(function (data) {
+                    console.log("logged")
                     if(data.message === "You must change your password") {
                         var userObject = {
                             id: data.id,
@@ -95,7 +94,10 @@ angular.module('vignemale')
                         };
                         console.log("Services-signin. id " + userObject.id + " email " + userObject.email);
                         $state.go('password', {id: userObject.id}, {email: userObject.email});
+                    }else{
+                        callbackSuccess(data);
                     }
+                }).error(function (data) {
                     callbackError(data);
                 });
             },
@@ -209,7 +211,7 @@ angular.module('vignemale')
                     data: $httpParamSerializer(user),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        //'Authorization': auth.getToken()
+                        'Authorization': auth.getToken()
                     }
                 }).success(function (data) {
                     console.log("Services email " + data.email);

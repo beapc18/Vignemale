@@ -139,9 +139,18 @@ var appRouter = function(router, mongo, app, config, database) {
                 }
                 //check if is the first time that user sign in
                 else if (data[0].firstLogin === true) {
+                    //Generate id for token
+                    var tokenId = Math.random().toString(36).slice(-10);
+                    var payload = {id: data[0]._id, tokenId: tokenId};
+
+                    var token = jwt.sign(payload, jwtOptions.secretOrKey);
+                    console.log("Creado tokenId de usuario " + tokenId);
+
                     response = {"message": "You must change your password", id: data[0]._id, email: data[0].email};
+
                     console.log(response);
-                    res.status(403).json(response);
+                    res.setHeader("Authorization", token);
+                    res.status(200).json(response);
                 } else {
                     //Generate id for token
                     var tokenId = Math.random().toString(36).slice(-10);
@@ -659,7 +668,7 @@ var appRouter = function(router, mongo, app, config, database) {
      *          description: Error in server
      *
      */
-    router.put("/users/:id/password", function (req, res) {
+    router.put("/users/:id/password", passport.authenticate('jwt', {session: false}), function (req, res) {
         console.log("change user password");
 
         //check if some value is empty

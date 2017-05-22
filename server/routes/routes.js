@@ -737,7 +737,7 @@ var appRouter = function(router, mongo, app, config, database) {
 
         //if (verifyIds(req.params.id, req.headers.authorization)) {
         database.getInfoUser(mongo, req.params.id, function (response) {
-            if (response.res.message[0].removed){
+            if ("undefined" != typeof response.res.message[0] && response.res.message[0].removed){
                 res.status(500).json({"message": "Removed"});
             } else {
                 res.status(response.status).json(response.res);

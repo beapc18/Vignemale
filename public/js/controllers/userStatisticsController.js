@@ -16,7 +16,7 @@ angular.module('vignemale')
         $scope.errorMsg = "";
 
         var ctx = document.getElementById("myChart").getContext("2d");
-        var colours = ["#3fced2", "#e35ed0", "#eeb447", "#cc759a", "#4faaa1", "#e35ed0", "#961784", "#85263c"];
+        var colours = ["#3fced2", "#e35ed0", "#eeb447", "#961784", "#4faaa1", "#e35ed0", "#cc759a", "#85263c"];
         var coloursBG = ["#28bcd2", "#e335b4", "#eea72f", "#cc5c8b", "#3c95aa", "#e349c2", "#960679", "#850d2a"];
 
         // hide the error mensage
@@ -69,6 +69,9 @@ angular.module('vignemale')
                                     stepSize: 1
                                 }
                             }]
+                        },
+                        legend: {
+                            display: false
                         }
                     }
                 });
@@ -139,6 +142,9 @@ angular.module('vignemale')
                                     stepSize: 1
                                 }
                             }]
+                        },
+                        legend: {
+                            display: false
                         }
                     }
                 });
@@ -172,6 +178,9 @@ angular.module('vignemale')
                                     stepSize: 1
                                 }
                             }]
+                        },
+                        legend: {
+                            display: false
                         }
                     }
                 });
@@ -205,6 +214,9 @@ angular.module('vignemale')
                                     stepSize: 1
                                 }
                             }]
+                        },
+                        legend: {
+                            display: false
                         }
                     }
                 });
@@ -299,7 +311,7 @@ angular.module('vignemale')
 
         //following users' activity depending on pois and age
         else if ($scope.id == 9){
-            $scope.nameStatistic = "Activity";
+            $scope.nameStatistic = "Activity of people you follow";
 
             users.getStatistics($scope.idUser, 9, function (data) {
                 var info = {
@@ -324,6 +336,9 @@ angular.module('vignemale')
                                     stepSize: 1
                                 }
                             }]
+                        },
+                        legend: {
+                            display: false
                         }
                     }
                 });
@@ -360,6 +375,9 @@ angular.module('vignemale')
                                     beginAtZero: true,
                                     //max: 20
                                 }
+                            },
+                            legend: {
+                                display: false
                             },
                             tooltips: {
                                 mode: 'label',

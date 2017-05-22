@@ -106,6 +106,9 @@ angular.module('vignemale')
                                 stacked: true
                             }]
                         },
+                        legend: {
+                            display: false
+                        },
                         tooltips: {
                             mode: 'label',
                             callbacks: {
@@ -139,6 +142,9 @@ angular.module('vignemale')
                         animation: {
                             animateRotate: true,
                             animateScale: true
+                        },
+                        legend: {
+                            display: false
                         },
                         scales: {
                             xAxes: [{
@@ -180,6 +186,7 @@ angular.module('vignemale')
                         animation:{
                             animateScale:true
                         },
+
                         tooltips: {
                             mode: 'label',
                             callbacks: {
@@ -213,6 +220,7 @@ angular.module('vignemale')
                         animation:{
                             animateScale:true
                         },
+
                         tooltips: {
                             mode: 'label',
                             callbacks: {
@@ -245,7 +253,7 @@ angular.module('vignemale')
                     options: {
                         animation:{
                             animateScale:true
-                        }
+                        },
                     }
                 });
             })
@@ -270,7 +278,7 @@ angular.module('vignemale')
                     options: {
                         animation:{
                             animateScale:true
-                        }
+                        },
                     }
                 });
             })

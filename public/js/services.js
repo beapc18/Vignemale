@@ -402,18 +402,6 @@ angular.module('vignemale')
                 }).success(function (data) {
                     callbackSuccess(data);
                 })
-            },
-
-            getAdminStatistics: function(id, callbackSuccess){
-                $http({
-                    method: 'GET',
-                    url: '/admin/statistics/'+id,
-                    headers: {
-                        'Authorization': auth.getToken()
-                    }
-                }).success(function (data) {
-                    callbackSuccess(data);
-                })
             }
         };
     })
@@ -604,6 +592,18 @@ angular.module('vignemale')
                     if (data ==="Unauthorized") $state.go('unauthorized');
                     else callbackError(data);
                 });
+            },
+
+            getAdminStatistics: function(id, callbackSuccess){
+                $http({
+                    method: 'GET',
+                    url: '/admin/statistics/'+id,
+                    headers: {
+                        'Authorization': auth.getToken()
+                    }
+                }).success(function (data) {
+                    callbackSuccess(data);
+                })
             }
         }
         })

@@ -1,7 +1,7 @@
 angular.module('vignemale')
 
-    .controller('adminStatisticsCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'users','auth',
-        function ($scope, $state, $stateParams,$httpParamSerializer, users, auth) {
+    .controller('adminStatisticsCtrl', ['$scope', '$state', '$stateParams','$httpParamSerializer', 'adminList','auth',
+        function ($scope, $state, $stateParams,$httpParamSerializer, adminList, auth) {
 
         $scope.id = $stateParams.id;
         $scope.nameStatistic = "";
@@ -43,7 +43,7 @@ angular.module('vignemale')
 
 
         if($scope.id == 1){
-            users.getAdminStatistics(1, function (data) {
+            adminList.getAdminStatistics(1, function (data) {
                 $scope.nameStatistic = "Users by age";
                 console.log(data);
                 var info = {
@@ -77,7 +77,7 @@ angular.module('vignemale')
 
         }else if($scope.id == 2){
             $scope.nameStatistic = "Users by place";
-            users.getAdminStatistics(2, function (data) {
+            adminList.getAdminStatistics(2, function (data) {
                 var info = {
                     labels: data.places,
                     datasets: [ {
@@ -120,7 +120,7 @@ angular.module('vignemale')
 
         }else if($scope.id == 3) {
             $scope.nameStatistic = "Active users VS inactive users";
-            users.getAdminStatistics(3, function (data) {
+            adminList.getAdminStatistics(3, function (data) {
                 var info = {
                     labels: data.labels,
                     datasets: [{
@@ -162,7 +162,7 @@ angular.module('vignemale')
         else if($scope.id == 5) {
             $scope.nameStatistic = "Register with Google vs Normal register";
 
-            users.getAdminStatistics(5, function (data) {
+            adminList.getAdminStatistics(5, function (data) {
                 var info = {
                     labels: data.label,
                     datasets: [
@@ -196,7 +196,7 @@ angular.module('vignemale')
         else if($scope.id == 6) {
             $scope.nameStatistic = "Places not found in Google Maps";
 
-            users.getAdminStatistics(6, function (data) {
+            adminList.getAdminStatistics(6, function (data) {
                 var info = {
                     labels: data.label,
                     datasets: [
@@ -229,7 +229,7 @@ angular.module('vignemale')
         else if($scope.id == 7) {
             $scope.nameStatistic = "Recommedations per user";
 
-            users.getAdminStatistics(7, function (data) {
+            adminList.getAdminStatistics(7, function (data) {
                 var info = {
                     labels: data.names,
                     datasets: [
@@ -254,7 +254,7 @@ angular.module('vignemale')
         else if($scope.id == 8) {
             $scope.nameStatistic = "Duplications per user";
 
-            users.getAdminStatistics(8, function (data) {
+            adminList.getAdminStatistics(8, function (data) {
                 var info = {
                     labels: data.names,
                     datasets: [
